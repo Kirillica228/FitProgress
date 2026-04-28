@@ -2,10 +2,9 @@
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useUiStore } from "@/store/ui-store";
 
 export function Topbar() {
-  const openQuickAction = useUiStore((state) => state.openQuickAction);
+  // const openQuickAction = useUiStore((state) => state.openQuickAction);
 
   return (
     <header className="sticky top-0 z-20 mb-6 flex items-center justify-between gap-4 border-b border-white/10 bg-slatebg/80 px-1 py-4 backdrop-blur">
@@ -15,10 +14,10 @@ export function Topbar() {
       </div>
       <div className="flex items-center gap-3">
         <Input placeholder="Search workouts, meals, insights..." className="hidden w-80 md:block" />
-        <Button variant="secondary" onClick={() => openQuickAction("meal")}>
+        <Button variant="secondary" >
           Add meal
         </Button>
-        <Button onClick={() => openQuickAction("workout")}>Add workout</Button>
+        <Button >Add workout</Button>
       </div>
     </header>
   );

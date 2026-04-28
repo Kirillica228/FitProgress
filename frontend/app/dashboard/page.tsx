@@ -2,13 +2,13 @@
 
 import { BarChart } from "@/components/charts/bar-chart";
 import { LineChart } from "@/components/charts/line-chart";
-import { ChartShell } from "@/components/ui/chart-shell";
-import { Skeleton } from "@/components/ui/skeleton";
-import { useDashboardData } from "@/hooks/use-dashboard-data";
 import { KpiCards } from "@/features/dashboard/kpi-cards";
 import { QuickActionsPanel } from "@/features/dashboard/quick-actions";
 import { RecentList } from "@/features/dashboard/recent-list";
+import { useDashboardData } from "@/hooks/use-dashboard-data";
 import { Card } from "@/components/ui/card";
+import { ChartShell } from "@/components/ui/chart-shell";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function DashboardPage() {
   const { data, isLoading } = useDashboardData();
@@ -58,7 +58,7 @@ export default function DashboardPage() {
             items={data.recentWorkouts.map((item) => ({
               id: item.id,
               title: item.title,
-              subtitle: `${item.date} · ${item.exercises} exercises`,
+              subtitle: `${item.date} | ${item.exercises} exercises`,
               value: item.volume,
             }))}
           />

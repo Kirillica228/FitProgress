@@ -1,12 +1,9 @@
 from django.db import models
+from django.contrib.auth.models import AbstractUser
 
-from django.db import models
 
-
-class User(models.Model):
-    email = models.EmailField(unique=True)
-    password = models.CharField(max_length=250)
-
+class User(AbstractUser):
+    pass
 
 class Profile(models.Model):
     GOAL_CHOICES = [
