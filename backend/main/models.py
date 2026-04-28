@@ -89,3 +89,61 @@ class Set(models.Model):
 
     # для кардио можно будет использовать
     duration = models.IntegerField(null=True, blank=True)  # секунды
+
+
+class BodyMeasurement(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+
+    weight = models.FloatField()
+
+    chest = models.FloatField(null=True, blank=True)
+    waist = models.FloatField(null=True, blank=True)
+    hips = models.FloatField(null=True, blank=True)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+class Food(models.Model):
+    name = models.CharField(max_length=150)
+
+    calories = models.IntegerField()
+
+    protein = models.FloatField()
+    fats = models.FloatField()
+    carbs = models.FloatField()
+
+
+class FoodEntry(models.Model):
+    MEAL_TYPES = [
+        ('breakfast', 'Breakfast'),
+        ('lunch', 'Lunch'),
+        ('dinner', 'Dinner'),
+        ('snack', 'Snack'),
+    ]
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+
+    food = models.ForeignKey(Food, on_delete=models.CASCADE)
+
+    grams = models.FloatField()
+
+    meal_type = models.CharField(max_length=20, choices=MEAL_TYPES)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+
+class Goal(models.Model):
+    GOAL_TYPES = [
+        ('weight', 'Weight'),
+        ('calories', 'Calories'),
+        ('workouts_per_week', 'Workouts Per Week'),
+    ]
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+
+    type = models.CharField(max_length=50, choices=GOAL_TYPES)
+
+    target_value = models.FloatField()
+
+    current_value = models.FloatField(default=0)
+
+    deadline = models.DateField(null=True, blank=True)

@@ -2,7 +2,7 @@ from django.shortcuts import render
 from rest_framework.views import APIView, Response
 from rest_framework import status
 from rest_framework_simplejwt.tokens import RefreshToken
-from .serializers import LoginSerializer, RegisterSerializer
+from ..serializers.auth_serializers import LoginSerializer, RegisterSerializer
 
 class UserLogin(APIView):
 
