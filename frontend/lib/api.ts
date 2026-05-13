@@ -7,11 +7,13 @@
  */
 
 import type {
+  Article,
   AuthUser,
   BodyMeasurement,
   DashboardPayload,
   FoodEntry,
   Goal,
+  NutritionHeatmapDay,
   HeatmapDay,
   Profile,
   WorkoutSession,
@@ -80,11 +82,14 @@ async function buildDashboard(): Promise<DashboardPayload> {
     request<Goal[]>("/api/goals/"),
   ]);
 
+  // Бэкенд возвращает замеры отсортированными по убыванию (-created_at),
+  // поэтому measurements[0] — самый новый, measurements[1] — предыдущий.
+  // Дополнительно сортируем по id desc как тай-брейкер (два замера в один день).
   const sorted = [...measurements].sort(
-    (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
+    (a, b) => b.id - a.id,
   );
-  const latestWeight = sorted.at(-1)?.weight ?? 0;
-  const prevWeight = sorted.at(-2)?.weight ?? latestWeight;
+  const latestWeight = sorted[0]?.weight ?? 0;
+  const prevWeight = sorted[1]?.weight ?? latestWeight;
 
   const today = new Date().toISOString().slice(0, 10);
   const todayMeals = meals.filter((m) => m.logged_at.startsWith(today));
@@ -93,7 +98,8 @@ async function buildDashboard(): Promise<DashboardPayload> {
   const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
   const weekSessions = sessions.filter((s) => new Date(s.started_at) >= weekAgo);
 
-  const weightChart = sorted.slice(-7).map((m) => ({
+  // Для графика берём последние 7 замеров в хронологическом порядке (старые → новые)
+  const weightChart = sorted.slice(0, 7).reverse().map((m) => ({
     label: m.date.slice(5),
     value: m.weight,
   }));
@@ -106,16 +112,20 @@ async function buildDashboard(): Promise<DashboardPayload> {
     return { label, value };
   });
 
-  const goalProgress =
-    goals.length > 0
-      ? Math.round(goals.reduce((s, g) => s + g.progress, 0) / goals.length)
-      : 0;
+  const latest = sorted[0];
+  const latestMeasurement = latest
+    ? {
+        chest: latest.chest ?? null,
+        waist: latest.waist ?? null,
+        hips: latest.hips ?? null,
+      }
+    : null;
 
   return {
     calories: { current: totalCalories, goal: 2200 },
     workoutStatus: { completed: weekSessions.length, total: 6 },
     weight: { current: latestWeight, delta: latestWeight - prevWeight },
-    goalProgress,
+    latestMeasurement,
     weightChart,
     workoutActivity,
     recentWorkouts: sessions.slice(0, 5),
@@ -142,13 +152,17 @@ export const api = {
 
   // Питание
   getNutrition: () => request<FoodEntry[]>("/api/food-entries/"),
-  createFoodEntry: (data: Omit<FoodEntry, "id" | "logged_at">) =>
+  createFoodEntry: (data: Pick<FoodEntry, "food_name" | "calories" | "meal_type">) =>
     request<FoodEntry>("/api/food-entries/", {
       method: "POST",
       body: JSON.stringify(data),
     }),
   deleteFoodEntry: (id: number) =>
     request<void>(`/api/food-entries/${id}/`, { method: "DELETE" }),
+  getNutritionHeatmap: (year?: number) =>
+    request<NutritionHeatmapDay[]>(
+      `/api/nutrition-heatmap/${year ? `?year=${year}` : ""}`,
+    ),
 
   // Замеры
   getProgress: () => request<BodyMeasurement[]>("/api/measurements/"),
@@ -186,11 +200,8 @@ export const api = {
       body: JSON.stringify(data),
     }),
 
-  // Статьи (статика)
-  getArticles: () =>
-    import("@/lib/mock-data").then((m) => Promise.resolve(m.articles)),
+  // Статьи (бэкенд)
+  getArticles: () => request<Article[]>("/api/articles/"),
   getArticleBySlug: (slug: string) =>
-    import("@/lib/mock-data").then((m) =>
-      Promise.resolve(m.articles.find((a) => a.slug === slug) ?? null),
-    ),
+    request<Article>(`/api/articles/${slug}/`).catch(() => null),
 };

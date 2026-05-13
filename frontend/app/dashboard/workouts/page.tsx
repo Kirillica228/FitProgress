@@ -1,129 +1,182 @@
 "use client";
 
-import { BarChart } from "@/components/charts/bar-chart";
-import { EmptyState } from "@/components/ui/empty-state";
-import { ChartShell } from "@/components/ui/chart-shell";
+import { useState } from "react";
+import { useHeatmapData } from "@/hooks/use-heatmap-data";
+import { WorkoutHeatmap } from "@/components/charts/workout-heatmap";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useWorkoutsData } from "@/hooks/use-workouts-data";
+import { EmptyState } from "@/components/ui/empty-state";
+import type { HeatmapDay, HeatmapSession } from "@/lib/types";
 
-const DIFFICULTY_LABELS: Record<string, string> = {
-  beginner: "Начинающий",
-  intermediate: "Средний",
-  advanced: "Продвинутый",
-};
+// ─── Helpers ─────────────────────────────────────────────────────────────────
 
-const TYPE_LABELS: Record<string, string> = {
+const CURRENT_YEAR = new Date().getFullYear();
+
+const TYPE_LABEL: Record<string, string> = {
   strength: "Силовая",
   cardio: "Кардио",
-  home: "Дома",
+  home: "Домашняя",
 };
 
+function formatDate(iso: string): string {
+  return new Date(iso).toLocaleDateString("ru-RU", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
+}
+
+// ─── Sub-components ───────────────────────────────────────────────────────────
+
+function StatCard({ label, value }: { label: string; value: string | number }) {
+  return (
+    <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4 text-center">
+      <p className="text-2xl font-semibold text-white">{value}</p>
+      <p className="mt-1 text-xs text-slate-400">{label}</p>
+    </div>
+  );
+}
+
+function SessionRow({ session }: { session: HeatmapSession }) {
+  const isCardio = session.workout_type === "cardio";
+  return (
+    <div className="flex items-start justify-between gap-3 rounded-xl border border-white/5 bg-white/[0.02] px-4 py-3">
+      <div className="min-w-0">
+        <p className="truncate text-sm font-medium text-white">
+          {session.workout_name}
+        </p>
+        <p className="mt-0.5 text-xs text-slate-400">
+          {TYPE_LABEL[session.workout_type] ?? session.workout_type}
+          {isCardio && session.duration != null && (
+            <> · {session.duration} мин</>
+          )}
+        </p>
+      </div>
+    </div>
+  );
+}
+
+function DayPanel({ day }: { day: HeatmapDay }) {
+  return (
+    <Card className="flex flex-col gap-3">
+      <div>
+        <p className="text-sm font-semibold text-white">{formatDate(day.date)}</p>
+        <p className="text-xs text-slate-400">
+          {day.count} {day.count === 1 ? "тренировка" : day.count < 5 ? "тренировки" : "тренировок"}
+        </p>
+      </div>
+      <div className="space-y-2">
+        {day.sessions.map((s) => (
+          <SessionRow key={s.id} session={s} />
+        ))}
+      </div>
+    </Card>
+  );
+}
+
+// ─── Page ─────────────────────────────────────────────────────────────────────
+
 export default function WorkoutsPage() {
-  const { data, isLoading } = useWorkoutsData();
+  const [year, setYear] = useState(CURRENT_YEAR);
+  const [selectedDay, setSelectedDay] = useState<HeatmapDay | null>(null);
+  const { data, isLoading } = useHeatmapData(year);
+
+  function handleDayClick(day: HeatmapDay | null) {
+    if (!day || day.count === 0) {
+      setSelectedDay(null);
+      return;
+    }
+    setSelectedDay((prev) => (prev?.date === day.date ? null : day));
+  }
+
+  // Заголовок + переключатель года — всегда видны
+  const yearSwitcher = (
+    <div className="flex items-center justify-between">
+      <h1 className="text-xl font-semibold text-white">Тренировки</h1>
+      <div className="flex items-center gap-2">
+        <button
+          onClick={() => setYear((y) => y - 1)}
+          className="rounded-lg border border-white/10 bg-white/[0.03] px-3 py-1.5 text-sm text-slate-300 hover:bg-white/[0.07] transition-colors"
+        >
+          ←
+        </button>
+        <span className="min-w-[3rem] text-center text-sm font-medium text-white">
+          {year}
+        </span>
+        <button
+          onClick={() => setYear((y) => y + 1)}
+          disabled={year >= CURRENT_YEAR}
+          className="rounded-lg border border-white/10 bg-white/[0.03] px-3 py-1.5 text-sm text-slate-300 hover:bg-white/[0.07] transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+        >
+          →
+        </button>
+      </div>
+    </div>
+  );
 
   if (isLoading) {
-    return <Skeleton className="h-80" />;
+    return (
+      <div className="space-y-4">
+        {yearSwitcher}
+        <Skeleton className="h-8 w-48" />
+        <Skeleton className="h-40 w-full" />
+      </div>
+    );
   }
 
   if (!data || data.length === 0) {
     return (
-      <EmptyState
-        title="Тренировок пока нет"
-        description="Начните первую сессию через бота — история появится здесь."
-        actionLabel="Открыть бота"
-      />
+      <div className="space-y-6">
+        {yearSwitcher}
+        <EmptyState
+          title="Нет данных о тренировках"
+          description="Начни тренироваться, чтобы увидеть свою активность здесь."
+        />
+      </div>
     );
   }
 
+  // Статистика
+  const totalSessions = data.reduce((s, d) => s + d.count, 0);
+  const activeDays = data.filter((d) => d.count > 0).length;
+  const maxInDay = Math.max(...data.map((d) => d.count));
+
   return (
     <div className="space-y-6">
-      <div className="grid gap-4 lg:grid-cols-2">
-        {data.map((session) => (
-          <Card key={session.id}>
-            <div className="flex items-start justify-between gap-4">
-              <div>
-                <h3 className="text-lg font-semibold">{session.workout.title}</h3>
-                <p className="mt-1 text-sm text-slate-400">
-                  {new Date(session.started_at).toLocaleDateString("ru", {
-                    day: "numeric",
-                    month: "long",
-                    year: "numeric",
-                  })}
-                </p>
-              </div>
-              <div className="flex flex-col items-end gap-1">
-                <span className="rounded-full bg-white/5 px-3 py-1 text-xs text-slate-300">
-                  {TYPE_LABELS[session.workout.type] ?? session.workout.type}
-                </span>
-                <span className="rounded-full bg-white/5 px-3 py-1 text-xs text-slate-400">
-                  {DIFFICULTY_LABELS[session.workout.difficulty] ?? session.workout.difficulty}
-                </span>
-              </div>
-            </div>
-            <div className="mt-5 grid grid-cols-2 gap-4 text-sm">
-              <div className="rounded-2xl bg-white/[0.03] p-4">
-                <div className="text-slate-400">Упражнений</div>
-                <div className="mt-2 text-xl font-semibold">
-                  {session.workout.exercises.length}
-                </div>
-              </div>
-              <div className="rounded-2xl bg-white/[0.03] p-4">
-                <div className="text-slate-400">Длительность</div>
-                <div className="mt-2 text-xl font-semibold">
-                  {session.finished_at
-                    ? `${Math.round(
-                        (new Date(session.finished_at).getTime() -
-                          new Date(session.started_at).getTime()) /
-                          60000,
-                      )} мин`
-                    : "—"}
-                </div>
-              </div>
-            </div>
-            {session.workout.exercises.length > 0 && (
-              <div className="mt-4 space-y-1">
-                {session.workout.exercises.slice(0, 3).map((we) => (
-                  <p key={we.id} className="text-sm text-slate-400">
-                    {we.exercise.name} — {we.sets}×{we.reps}
-                  </p>
-                ))}
-                {session.workout.exercises.length > 3 && (
-                  <p className="text-sm text-slate-500">
-                    +{session.workout.exercises.length - 3} ещё
-                  </p>
-                )}
-              </div>
-            )}
-          </Card>
-        ))}
+      {yearSwitcher}
+
+      {/* KPI */}
+      <div className="grid grid-cols-3 gap-3">
+        <StatCard label="Всего сессий" value={totalSessions} />
+        <StatCard label="Активных дней" value={activeDays} />
+        <StatCard label="Макс. в день" value={maxInDay} />
       </div>
 
-      <div className="grid gap-6 xl:grid-cols-2">
-        <ChartShell title="Частота тренировок" subtitle="Сессий по неделям">
-          <BarChart
-            data={Array.from({ length: 4 }, (_, i) => ({
-              label: `Нед ${i + 1}`,
-              value: data.filter((s) => {
-                const d = new Date(s.started_at);
-                const weekStart = new Date(Date.now() - (3 - i) * 7 * 24 * 60 * 60 * 1000);
-                const weekEnd = new Date(weekStart.getTime() + 7 * 24 * 60 * 60 * 1000);
-                return d >= weekStart && d < weekEnd;
-              }).length,
-            }))}
+      {/* Heatmap + drill-down */}
+      <div className="grid gap-6 xl:grid-cols-3">
+        <Card className="xl:col-span-2">
+          <p className="mb-4 text-sm font-medium text-slate-300">
+            Активность по дням
+          </p>
+          <WorkoutHeatmap
+            data={data}
+            year={year}
+            selectedDate={selectedDay?.date ?? null}
+            onDayClick={handleDayClick}
           />
-        </ChartShell>
-        <ChartShell title="Типы тренировок" subtitle="Распределение по типу">
-          <BarChart
-            data={Object.entries(
-              data.reduce<Record<string, number>>((acc, s) => {
-                const t = TYPE_LABELS[s.workout.type] ?? s.workout.type;
-                acc[t] = (acc[t] ?? 0) + 1;
-                return acc;
-              }, {}),
-            ).map(([label, value]) => ({ label, value }))}
-          />
-        </ChartShell>
+        </Card>
+
+        <div>
+          {selectedDay ? (
+            <DayPanel day={selectedDay} />
+          ) : (
+            <Card className="flex h-full items-center justify-center">
+              <p className="text-center text-sm text-slate-500">
+                Нажми на день,<br />чтобы увидеть тренировки
+              </p>
+            </Card>
+          )}
+        </div>
       </div>
     </div>
   );

@@ -19,7 +19,7 @@ export function useLogin() {
   });
 }
 
-/** Хук регистрации — после успеха редиректит на онбординг */
+/** Хук регистрации — после успеха редиректит на дашборд */
 export function useRegister() {
   const queryClient = useQueryClient();
   const router = useRouter();
@@ -36,7 +36,7 @@ export function useRegister() {
     }) => authApi.register(username, email, password),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["me"] });
-      router.push("/onboarding");
+      router.push("/dashboard");
     },
   });
 }

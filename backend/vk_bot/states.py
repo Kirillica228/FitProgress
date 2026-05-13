@@ -16,8 +16,10 @@ class State:
     WORKOUT_DIFFICULTY = "workout_difficulty"
     WORKOUT_ACTIVE = "workout_active"       # тренировка показана, ждём «Завершить»
 
-    # Питание
-    FOOD_INPUT = "food_input"               # ждём текст «продукт Xг»
+    # Питание (многошаговый диалог)
+    FOOD_NAME = "food_name"                 # ждём название блюда
+    FOOD_CALORIES = "food_calories"         # ждём калории
+    FOOD_MEAL_TYPE = "food_meal_type"       # ждём тип приёма пищи
 
     # Замеры тела (многошаговый диалог)
     MEASUREMENT_WEIGHT = "measurement_weight"   # ждём вес (обязательно)

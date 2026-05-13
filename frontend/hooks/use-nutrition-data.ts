@@ -16,7 +16,7 @@ export function useCreateFoodEntry() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: Omit<FoodEntry, "id" | "logged_at">) =>
+    mutationFn: (data: Pick<FoodEntry, "food_name" | "calories" | "meal_type">) =>
       api.createFoodEntry(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["nutrition"] });

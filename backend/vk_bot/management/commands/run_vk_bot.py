@@ -24,6 +24,20 @@ from vk_bot.states import (
     get_data, set_data, clear_data,
 )
 
+MEAL_TYPE_MAP = {
+    "🌅 завтрак": "breakfast",
+    "☀️ обед": "lunch",
+    "🌙 ужин": "dinner",
+    "🍎 перекус": "snack",
+}
+
+MEAL_TYPE_LABEL = {
+    "breakfast": "Завтрак",
+    "lunch": "Обед",
+    "dinner": "Ужин",
+    "snack": "Перекус",
+}
+
 log = logging.getLogger(__name__)
 
 # ── Маппинги кнопок → внутренние значения ────────────────────────────────────
@@ -151,10 +165,9 @@ def handle_message(vk, event) -> None:
 
         if text_lower == "🥗 питание":
             send(vk, vk_id,
-                 "Напиши что съел и сколько граммов.\n"
-                 "Например: гречка 200г  или  куриная грудка 150",
+                 "Что ты съел? Напиши название блюда или продукта:",
                  kb.empty())
-            set_state(vk_id, State.FOOD_INPUT)
+            set_state(vk_id, State.FOOD_NAME)
             return
 
         if text_lower == "📏 замеры":
@@ -263,54 +276,74 @@ def handle_message(vk, event) -> None:
         return
 
     # ── Ветка питания ────────────────────────────────────────────────────────
-    if state == State.FOOD_INPUT:
-        # Парсим «продукт Xг» или «продукт X»
-        match = re.match(
-            r"^(.+?)\s+(\d+(?:[.,]\d+)?)\s*г?$",
-            text.strip(),
-            re.IGNORECASE,
-        )
-        if not match:
-            send(vk, vk_id,
-                 "Не понял формат. Напиши так:\n"
-                 "гречка 200г  или  куриная грудка 150")
+    if state == State.FOOD_NAME:
+        if text_lower in ("◀️ главное меню", "главное меню", "меню"):
+            send(vk, vk_id, "Главное меню:", kb.main_menu())
+            set_state(vk_id, State.IDLE)
             return
 
-        food_name = match.group(1).strip()
-        grams = float(match.group(2).replace(",", "."))
+        food_name = text.strip()
+        if not food_name:
+            send(vk, vk_id, "Введи название блюда или продукта:")
+            return
 
-        send(vk, vk_id, f"⏳ Ищу «{food_name}» в базе продуктов...")
+        set_data(vk_id, "f_name", food_name)
+        send(vk, vk_id,
+             f"Сколько калорий в «{food_name}»?\n"
+             "Введи число (например: 350):",
+             kb.empty())
+        set_state(vk_id, State.FOOD_CALORIES)
+        return
 
-        # Сохранение через ORM (без HTTP)
-        result = api.save_food_entry(vk_id, food_name, grams)
+    if state == State.FOOD_CALORIES:
+        if text_lower in ("◀️ главное меню", "главное меню", "меню"):
+            send(vk, vk_id, "Главное меню:", kb.main_menu())
+            set_state(vk_id, State.IDLE)
+            return
+
+        match = re.match(r"^(\d+(?:[.,]\d+)?)$", text.strip())
+        if not match:
+            send(vk, vk_id, "Введи число калорий, например: 350")
+            return
+
+        calories = float(match.group(1).replace(",", "."))
+        set_data(vk_id, "f_calories", calories)
+
+        send(vk, vk_id,
+             "Выбери тип приёма пищи:",
+             kb.meal_type())
+        set_state(vk_id, State.FOOD_MEAL_TYPE)
+        return
+
+    if state == State.FOOD_MEAL_TYPE:
+        if text_lower in ("◀️ главное меню", "главное меню", "меню"):
+            send(vk, vk_id, "Главное меню:", kb.main_menu())
+            set_state(vk_id, State.IDLE)
+            return
+
+        meal = MEAL_TYPE_MAP.get(text_lower)
+        if not meal:
+            send(vk, vk_id,
+                 "Выбери тип из кнопок ниже:",
+                 kb.meal_type())
+            return
+
+        d = get_data(vk_id)
+        food_name = d.get("f_name", "")
+        calories = d.get("f_calories", 0.0)
+
+        result = api.save_food_entry(vk_id, food_name, calories, meal)
         if result is None:
             send(vk, vk_id,
                  "⚠️ Не удалось сохранить запись. Попробуй позже.",
                  kb.main_menu())
-            set_state(vk_id, State.IDLE)
-            return
-
-        found = result.get("found_in_off", False)
-        name = result.get("food_name", food_name)
-        cal = result.get("calories", 0)
-        prot = result.get("protein", 0)
-        fat = result.get("fats", 0)
-        carb = result.get("carbs", 0)
-
-        if found:
-            msg = (
-                f"✅ Записано: {name} — {grams:.0f}г\n"
-                f"🔥 Калории: {cal:.0f} ккал\n"
-                f"🥩 Белки: {prot:.1f}г  |  🧈 Жиры: {fat:.1f}г  |  🍞 Углеводы: {carb:.1f}г"
-            )
         else:
-            msg = (
-                f"⚠️ Продукт «{food_name}» не найден в базе Open Food Facts.\n"
-                "Запись сохранена с нулевыми значениями КБЖУ.\n"
-                "Попробуй написать название по-английски."
-            )
+            send(vk, vk_id,
+                 f"✅ Записано!\n"
+                 f"🍽 {food_name}\n"
+                 f"🔥 {calories:.0f} ккал  |  {MEAL_TYPE_LABEL.get(meal, meal)}",
+                 kb.main_menu())
 
-        send(vk, vk_id, msg, kb.main_menu())
         set_state(vk_id, State.IDLE)
         return
 

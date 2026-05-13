@@ -6,9 +6,10 @@ from ..views.workout_views import (
     WorkoutSessionListView,
     WorkoutHeatmapView,
 )
-from ..views.nutrition_views import FoodEntryListView, FoodEntryDetailView
+from ..views.nutrition_views import FoodEntryListView, FoodEntryDetailView, NutritionHeatmapView
 from ..views.measurement_views import MeasurementListView
 from ..views.goal_views import GoalListView, GoalDetailView
+from ..views.article_views import ArticleListView, ArticleDetailView
 
 urlpatterns = [
     # Профиль
@@ -28,6 +29,7 @@ urlpatterns = [
     # Питание
     path('food-entries/', FoodEntryListView.as_view(), name='food-entry-list'),
     path('food-entries/<int:pk>/', FoodEntryDetailView.as_view(), name='food-entry-detail'),
+    path('nutrition-heatmap/', NutritionHeatmapView.as_view(), name='nutrition-heatmap'),
 
     # Замеры тела
     path('measurements/', MeasurementListView.as_view(), name='measurement-list'),
@@ -35,4 +37,8 @@ urlpatterns = [
     # Цели
     path('goals/', GoalListView.as_view(), name='goal-list'),
     path('goals/<int:pk>/', GoalDetailView.as_view(), name='goal-detail'),
+
+    # Статьи
+    path('articles/', ArticleListView.as_view(), name='article-list'),
+    path('articles/<slug:slug>/', ArticleDetailView.as_view(), name='article-detail'),
 ]

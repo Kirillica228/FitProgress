@@ -8,7 +8,7 @@ export function useProgressData() {
   return useQuery({
     queryKey: ["progress"],
     queryFn: api.getProgress,
-    staleTime: 30_000,
+    staleTime: 0,
   });
 }
 

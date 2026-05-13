@@ -154,12 +154,11 @@ def save_workout_session(vk_id: int, workout_id: int) -> bool:
 def save_food_entry(
     vk_id: int,
     food_name: str,
-    grams: float,
+    calories: float,
     meal_type: str = "snack",
 ) -> "dict | None":
     """
-    Записывает приём пищи. Ищет продукт в Open Food Facts.
-    Логика идентична BotFoodEntryView.post.
+    Записывает приём пищи напрямую (без поиска в Open Food Facts).
     Возвращает словарь с данными записи или None при ошибке.
     """
     user = _get_user_by_vk_id(vk_id)
@@ -167,42 +166,18 @@ def save_food_entry(
         log.error("save_food_entry: пользователь с vk_id=%s не найден", vk_id)
         return None
 
-    off_data = _search_off(food_name)
-
-    if off_data:
-        ratio = grams / 100.0
-        calories = round(off_data["calories_100g"] * ratio, 1)
-        protein = round(off_data["protein_100g"] * ratio, 1)
-        fats = round(off_data["fats_100g"] * ratio, 1)
-        carbs = round(off_data["carbs_100g"] * ratio, 1)
-        resolved_name = off_data["product_name"] or food_name
-        off_product_id = off_data["off_product_id"]
-    else:
-        calories = protein = fats = carbs = 0.0
-        resolved_name = food_name
-        off_product_id = ""
-
     entry = FoodEntry.objects.create(
         user=user,
-        food_name=resolved_name,
-        off_product_id=off_product_id,
-        grams=grams,
+        food_name=food_name,
         calories=calories,
-        protein=protein,
-        fats=fats,
-        carbs=carbs,
         meal_type=meal_type,
     )
 
     return {
         "entry_id": entry.pk,
-        "food_name": resolved_name,
-        "grams": grams,
+        "food_name": food_name,
         "calories": calories,
-        "protein": protein,
-        "fats": fats,
-        "carbs": carbs,
-        "found_in_off": off_data is not None,
+        "meal_type": meal_type,
     }
 
 

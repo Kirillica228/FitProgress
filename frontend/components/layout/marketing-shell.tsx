@@ -3,9 +3,10 @@
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 
-import { buttonVariants } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { authApi } from "@/lib/api";
 import { cn } from "@/lib/utils";
+import { useLogout } from "@/hooks/use-auth";
 
 const navItems = [
   { href: "/", label: "О сервисе" },
@@ -28,13 +29,14 @@ export function MarketingShell({
   actions?: React.ReactNode;
   maxWidthClassName?: string;
 }) {
+
   const { data: user } = useQuery({
     queryKey: ["me"],
     queryFn: authApi.me,
     retry: false,
     staleTime: 60_000,
   });
-
+  const logout = useLogout();
   const isLoggedIn = !!user;
 
   return (
@@ -65,9 +67,20 @@ export function MarketingShell({
               </Link>
 
               {isLoggedIn ? (
-                <Link href="/dashboard" className={buttonVariants()}>
+                <>
+                  <Link href="/dashboard" className={buttonVariants()}>
                   Личный кабинет
-                </Link>
+                  </Link>
+                  <Button
+                  variant="secondary"
+                  className="text-black hover:text-red-300"
+                  onClick={() => logout.mutate()}
+                  disabled={logout.isPending}
+                >
+                  {logout.isPending ? "Выход..." : "Выйти"}
+                </Button>
+                </>
+                
               ) : (
                 <>
                   <Link

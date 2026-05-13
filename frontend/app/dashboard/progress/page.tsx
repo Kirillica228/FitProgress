@@ -100,9 +100,11 @@ export default function ProgressPage() {
     );
   }
 
-  const sorted = [...data].sort(
-    (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
-  );
+  // Сортируем по дате, при одинаковой дате — по id (чтобы порядок был стабильным)
+  const sorted = [...data].sort((a, b) => {
+    const dateDiff = new Date(a.date).getTime() - new Date(b.date).getTime();
+    return dateDiff !== 0 ? dateDiff : a.id - b.id;
+  });
 
   const filtered = filterByPeriod(sorted, period);
   const displayData = filtered.length > 0 ? filtered : sorted;
@@ -111,12 +113,19 @@ export default function ProgressPage() {
   const last = sorted[sorted.length - 1].weight;
   const change = last - first;
   const changeLabel = change > 0 ? `+${change.toFixed(1)} кг` : `${change.toFixed(1)} кг`;
+  // Набор веса — "down" (красный), похудение — "up" (зелёный)
   const changeDir: "up" | "down" | "neutral" =
-    change > 0 ? "up" : change < 0 ? "down" : "neutral";
+    change > 0 ? "down" : change < 0 ? "up" : "neutral";
 
   const weights = sorted.map((m) => m.weight);
   const minWeight = Math.min(...weights);
   const maxWeight = Math.max(...weights);
+
+  // Последний замер с данными по каждой метрике
+  const latestChest = [...sorted].reverse().find((m) => m.chest != null)?.chest ?? null;
+  const latestWaist = [...sorted].reverse().find((m) => m.waist != null)?.waist ?? null;
+  const latestHips = [...sorted].reverse().find((m) => m.hips != null)?.hips ?? null;
+  const hasBodyMetrics = latestChest !== null || latestWaist !== null || latestHips !== null;
 
   function toChartData(
     items: BodyMeasurement[],
@@ -178,14 +187,41 @@ export default function ProgressPage() {
         <LineChart data={weightChartData} />
       </ChartShell>
 
-      {/* Мини-графики замеров тела */}
+      {/* Замеры тела — текущие значения */}
+      {hasBodyMetrics && (
+        <div>
+          <p className="mb-3 text-sm text-slate-400">Замеры тела (последние значения)</p>
+          <div className="grid grid-cols-3 gap-3">
+            <div className="rounded-2xl bg-white/[0.03] p-4 text-center">
+              <div className="text-xs text-slate-400">Грудь</div>
+              <div className="mt-1 text-2xl font-bold text-white">
+                {latestChest !== null ? `${latestChest} см` : "—"}
+              </div>
+            </div>
+            <div className="rounded-2xl bg-white/[0.03] p-4 text-center">
+              <div className="text-xs text-slate-400">Талия</div>
+              <div className="mt-1 text-2xl font-bold text-white">
+                {latestWaist !== null ? `${latestWaist} см` : "—"}
+              </div>
+            </div>
+            <div className="rounded-2xl bg-white/[0.03] p-4 text-center">
+              <div className="text-xs text-slate-400">Бёдра</div>
+              <div className="mt-1 text-2xl font-bold text-white">
+                {latestHips !== null ? `${latestHips} см` : "—"}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Мини-графики замеров тела (только если >= 2 точек) */}
       {(chestChartData.length >= 2 ||
         waistChartData.length >= 2 ||
         hipsChartData.length >= 2) && (
         <div className="grid gap-4 sm:grid-cols-3">
-          <MiniChart title="Грудь" data={chestChartData} unit="см" />
-          <MiniChart title="Талия" data={waistChartData} unit="см" />
-          <MiniChart title="Бёдра" data={hipsChartData} unit="см" />
+          <MiniChart title="Динамика груди" data={chestChartData} unit="см" />
+          <MiniChart title="Динамика талии" data={waistChartData} unit="см" />
+          <MiniChart title="Динамика бёдер" data={hipsChartData} unit="см" />
         </div>
       )}
     </div>

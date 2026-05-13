@@ -140,22 +140,31 @@ class FoodEntry(models.Model):
     ]
 
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-
-    # данные из Open Food Facts, сохранённые на момент записи
     food_name = models.CharField(max_length=150)
-    off_product_id = models.CharField(max_length=100, blank=True)  # barcode/id из OFF
-
-    grams = models.FloatField()
-
-    # КБЖУ уже пересчитанные под grams
     calories = models.FloatField()
-    protein = models.FloatField()
-    fats = models.FloatField()
-    carbs = models.FloatField()
-
     meal_type = models.CharField(max_length=20, choices=MEAL_TYPES)
-
     created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+
+class Article(models.Model):
+    slug = models.SlugField(max_length=200, unique=True)
+    title = models.CharField(max_length=300)
+    excerpt = models.TextField(blank=True)
+    content = models.TextField()
+    category = models.CharField(max_length=100, blank=True)
+    published_at = models.DateField(null=True, blank=True)
+    read_time = models.CharField(max_length=50, blank=True)
+    is_published = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-published_at', '-created_at']
+
+    def __str__(self):
+        return self.title
 
 
 class Goal(models.Model):

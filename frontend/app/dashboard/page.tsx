@@ -16,8 +16,8 @@ export default function DashboardPage() {
   if (isLoading || !data) {
     return (
       <div className="space-y-6">
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-          {Array.from({ length: 4 }).map((_, index) => (
+        <div className="grid gap-4 md:grid-cols-3">
+          {Array.from({ length: 3 }).map((_, index) => (
             <Skeleton key={index} className="h-40" />
           ))}
         </div>
@@ -35,20 +35,20 @@ export default function DashboardPage() {
         calories={data.calories}
         workoutStatus={data.workoutStatus}
         weight={data.weight}
-        goalProgress={data.goalProgress}
+        latestMeasurement={data.latestMeasurement}
       />
 
       <div className="grid gap-6 xl:grid-cols-[1.5fr,0.9fr]">
-        <div className="space-y-6">
+        {/* <div className="space-y-6">
           <ChartShell title="Динамика веса" subtitle="Изменение веса за последние 7 замеров">
             <LineChart data={data.weightChart} />
           </ChartShell>
           <ChartShell title="Активность тренировок" subtitle="Сессии за последние 7 дней">
             <BarChart data={data.workoutActivity} />
           </ChartShell>
-        </div>
+        </div> */}
 
-        <div className="space-y-6">
+        {/* <div className="space-y-6"> */}
           <Card>
             <p className="text-sm uppercase tracking-[0.24em] text-slate-500">Инсайт</p>
             <p className="mt-3 text-lg font-medium text-white">{data.insight}</p>
@@ -67,12 +67,15 @@ export default function DashboardPage() {
             items={data.recentMeals.map((item) => ({
               id: String(item.id),
               title: item.food_name,
-              subtitle: `${item.protein}Б / ${item.fats}Ж / ${item.carbs}У`,
-              value: `${item.calories} ккал`,
+              subtitle: item.meal_type === "breakfast" ? "Завтрак"
+                : item.meal_type === "lunch" ? "Обед"
+                : item.meal_type === "dinner" ? "Ужин"
+                : "Перекус",
+              value: `${Math.round(item.calories)} ккал`,
             }))}
           />
-          <QuickActionsPanel />
-        </div>
+          
+        {/* </div> */}
       </div>
     </div>
   );

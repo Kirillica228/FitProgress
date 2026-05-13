@@ -58,6 +58,19 @@ def workout_active() -> str:
     return kb.get_keyboard()
 
 
+def meal_type() -> str:
+    """Выбор типа приёма пищи."""
+    kb = VkKeyboard(one_time=True)
+    kb.add_button("🌅 Завтрак", color=VkKeyboardColor.PRIMARY)
+    kb.add_button("☀️ Обед", color=VkKeyboardColor.PRIMARY)
+    kb.add_line()
+    kb.add_button("🌙 Ужин", color=VkKeyboardColor.SECONDARY)
+    kb.add_button("🍎 Перекус", color=VkKeyboardColor.SECONDARY)
+    kb.add_line()
+    kb.add_button("◀️ Главное меню", color=VkKeyboardColor.NEGATIVE)
+    return kb.get_keyboard()
+
+
 def empty() -> str:
     """
     Пустая клавиатура (скрыть кнопки).

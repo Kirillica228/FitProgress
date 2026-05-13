@@ -78,13 +78,8 @@ export type WorkoutSession = {
 export type FoodEntry = {
   id: number;
   food_name: string;
-  off_product_id: string;
-  grams: number;
   calories: number;
-  protein: number;
-  fats: number;
-  carbs: number;
-  meal_type: string;
+  meal_type: "breakfast" | "lunch" | "dinner" | "snack";
   /** Алиас created_at → logged_at (задаётся в сериализаторе) */
   logged_at: string;
 };
@@ -118,6 +113,17 @@ export type Goal = {
   deadline: string | null;
 };
 
+// ─── Nutrition Heatmap ───────────────────────────────────────────────────────
+
+export type NutritionHeatmapDay = {
+  /** ISO date string: "2025-03-15" */
+  date: string;
+  /** Количество записей питания за день */
+  count: number;
+  /** Суммарные калории за день */
+  calories: number;
+};
+
 // ─── Heatmap ─────────────────────────────────────────────────────────────────
 
 export type HeatmapSession = {
@@ -138,13 +144,28 @@ export type HeatmapDay = {
   sessions: HeatmapSession[];
 };
 
+// ─── Articles ────────────────────────────────────────────────────────────────
+
+export type Article = {
+  id: number;
+  slug: string;
+  title: string;
+  excerpt: string;
+  content: string;
+  category: string;
+  /** ISO date string: "2026-04-12" */
+  publishedAt: string;
+  readTime: string;
+};
+
 // ─── Dashboard ───────────────────────────────────────────────────────────────
 
 export type DashboardPayload = {
   calories: { current: number; goal: number };
   workoutStatus: { completed: number; total: number };
   weight: { current: number; delta: number };
-  goalProgress: number;
+  /** Последний замер тела (для отображения метрик на дашборде) */
+  latestMeasurement: { chest: number | null; waist: number | null; hips: number | null } | null;
   weightChart: Array<{ label: string; value: number }>;
   workoutActivity: Array<{ label: string; value: number }>;
   recentWorkouts: WorkoutSession[];

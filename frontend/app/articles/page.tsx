@@ -38,13 +38,13 @@ export default function ArticlesPage() {
   if (!data || data.length === 0) {
     return (
       <MarketingShell
-        accentLabel="Knowledge Base"
-        title="Articles and practical guidance"
-        description="A clean editorial space for training, recovery, nutrition, and health progress."
+        accentLabel="База знаний"
+        title="Статьи и практические рекомендации"
+        description="Чистое редакционное пространство для тренировок, восстановления сил, правильного питания и улучшения здоровья"
       >
         <EmptyState
-          title="No articles yet"
-          description="This section is ready for backend-powered editorial content."
+          title="Статей пока нет"
+          description="Пока что статей нет, но мы уже работаем над их созданием. Скоро здесь появится много полезного контента!"
         />
       </MarketingShell>
     );
@@ -52,15 +52,15 @@ export default function ArticlesPage() {
 
   return (
     <MarketingShell
-      accentLabel="Knowledge Base"
-      title="Articles and practical guidance"
-      description="Browse short, readable pieces on training, nutrition, recovery, and sustainable progress."
+      accentLabel="База знаний"
+      title="Статьи и практические рекомендации"
+      description="Просматривайте короткие, легко читаемые статьи о тренировках, питании, восстановлении и устойчивом прогрессе"
       actions={
         <div className="w-full sm:w-80">
           <Input
             value={query}
             onChange={(event) => setQuery(event.target.value)}
-            placeholder="Search by title, topic, or keyword"
+            placeholder="Поиск статей..."
           />
         </div>
       }
@@ -82,7 +82,7 @@ export default function ArticlesPage() {
                 href={`/articles/${article.slug}`}
                 className="inline-flex rounded-2xl bg-white/5 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-white/10"
               >
-                Read
+                Прочитать статью
               </Link>
             </div>
           </Card>
@@ -91,8 +91,8 @@ export default function ArticlesPage() {
       {filteredArticles.length === 0 ? (
         <div className="pt-5">
           <EmptyState
-            title="Nothing matched your search"
-            description="Try a broader keyword or browse the full list of topics."
+            title="По вашему запросу ничего не найдено"
+            description="Попробуйте использовать более широкое ключевое слово или просмотрите полный список тем."
           />
         </div>
       ) : null}

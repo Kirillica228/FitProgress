@@ -21,7 +21,7 @@ export default async function ArticleDetailsPage({
     <MarketingShell maxWidthClassName="max-w-5xl">
       <div className="px-1 pt-8">
         <Link href="/articles" className="text-sm text-sky-300">
-          Back to articles
+          Вернуться к списку статей
         </Link>
         <Card className="mt-6">
           <p className="text-sm text-slate-400">

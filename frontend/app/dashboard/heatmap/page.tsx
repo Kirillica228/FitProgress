@@ -6,7 +6,9 @@ import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState } from "@/components/ui/empty-state";
 import { useHeatmapData } from "@/hooks/use-heatmap-data";
-import type { HeatmapDay } from "@/lib/types";
+import { useNutritionHeatmapData } from "@/hooks/use-nutrition-heatmap-data";
+import { useNutritionData } from "@/hooks/use-nutrition-data";
+import type { HeatmapDay, FoodEntry } from "@/lib/types";
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -14,6 +16,13 @@ const TYPE_LABELS: Record<string, string> = {
   strength: "Силовая",
   cardio: "Кардио",
   home: "Домашняя",
+};
+
+const MEAL_LABELS: Record<string, string> = {
+  breakfast: "Завтрак",
+  lunch: "Обед",
+  dinner: "Ужин",
+  snack: "Перекус",
 };
 
 function formatDate(iso: string): string {
@@ -38,7 +47,6 @@ function computeStreak(data: HeatmapDay[]): { current: number; best: number } {
     cur.setDate(cur.getDate() - 1);
   }
 
-  // Лучшая серия за весь период
   const sorted = [...data].sort((a, b) => a.date.localeCompare(b.date));
   let best = 0;
   let streak = 0;
@@ -59,7 +67,6 @@ function computeStreak(data: HeatmapDay[]): { current: number; best: number } {
   return { current, best };
 }
 
-/** Самый активный месяц */
 function busyMonth(data: HeatmapDay[]): string {
   if (data.length === 0) return "—";
   const counts: Record<string, number> = {};
@@ -86,35 +93,79 @@ function StatCard({ label, value }: { label: string; value: string | number }) {
   );
 }
 
-function DayPanel({ day }: { day: HeatmapDay }) {
+/** Панель деталей выбранного дня: тренировки + питание */
+function DayPanel({
+  day,
+  foodEntries,
+}: {
+  day: HeatmapDay;
+  foodEntries: FoodEntry[];
+}) {
+  const totalCal = foodEntries.reduce((s, e) => s + (e.calories ?? 0), 0);
+
   return (
-    <div className="space-y-3">
+    <div className="space-y-4">
       <h3 className="text-base font-semibold text-white">{formatDate(day.date)}</h3>
-      <p className="text-sm text-slate-400">
-        {day.count} {day.count === 1 ? "тренировка" : day.count < 5 ? "тренировки" : "тренировок"}
-        {day.volume > 0 && (
-          <> · объём {Math.round(day.volume).toLocaleString("ru-RU")}</>
-        )}
-      </p>
-      <div className="space-y-2">
-        {day.sessions.map((s) => (
-          <div
-            key={s.id}
-            className="rounded-xl bg-white/[0.04] p-3 text-sm"
-          >
-            <div className="font-medium text-white">{s.workout_name}</div>
-            <div className="mt-1 flex flex-wrap gap-x-3 gap-y-1 text-xs text-slate-400">
-              {s.workout_type && (
-                <span>{TYPE_LABELS[s.workout_type] ?? s.workout_type}</span>
-              )}
-              {s.duration != null && <span>{s.duration} мин</span>}
-              {s.exercises_count > 0 && (
-                <span>{s.exercises_count} упражнений</span>
-              )}
-            </div>
+
+      {/* Тренировки */}
+      {day.sessions.length > 0 ? (
+        <div>
+          <p className="mb-2 text-xs font-medium uppercase tracking-wider text-slate-500">
+            🏋️ Тренировки
+          </p>
+          <div className="space-y-2">
+            {day.sessions.map((s) => (
+              <div key={s.id} className="rounded-xl bg-white/[0.04] p-3 text-sm">
+                <div className="font-medium text-white">{s.workout_name}</div>
+                <div className="mt-1 flex flex-wrap gap-x-3 gap-y-1 text-xs text-slate-400">
+                  {s.workout_type && (
+                    <span>{TYPE_LABELS[s.workout_type] ?? s.workout_type}</span>
+                  )}
+                  {s.workout_type === "cardio" && s.duration != null && (
+                    <span>{s.duration} мин</span>
+                  )}
+                  {s.exercises_count > 0 && (
+                    <span>{s.exercises_count} упражнений</span>
+                  )}
+                </div>
+              </div>
+            ))}
           </div>
-        ))}
-      </div>
+        </div>
+      ) : (
+        <p className="text-sm text-slate-500">Тренировок нет</p>
+      )}
+
+      {/* Питание */}
+      {foodEntries.length > 0 ? (
+        <div>
+          <p className="mb-2 text-xs font-medium uppercase tracking-wider text-slate-500">
+            🥗 Питание · {Math.round(totalCal).toLocaleString("ru-RU")} ккал
+          </p>
+          <div className="space-y-1.5">
+            {foodEntries.map((e) => (
+              <div
+                key={e.id}
+                className="flex items-center justify-between rounded-xl bg-white/[0.04] px-3 py-2 text-sm"
+              >
+                <div>
+                  <span className="text-white">{e.food_name}</span>
+                  {e.meal_type && (
+                    <span className="ml-2 text-xs text-slate-500">
+                      {MEAL_LABELS[e.meal_type] ?? e.meal_type}
+                    </span>
+                  )}
+                </div>
+                <span className="text-xs text-slate-400">
+                  {Math.round(e.calories)} ккал
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      ) : (
+        <p className="text-sm text-slate-500">Записей питания нет</p>
+      )}
     </div>
   );
 }
@@ -126,15 +177,42 @@ export default function HeatmapPage() {
   const [year, setYear] = useState(currentYear);
   const [selectedDay, setSelectedDay] = useState<HeatmapDay | null>(null);
 
-  const { data, isLoading } = useHeatmapData(year);
+  const { data: workoutData, isLoading: workoutLoading } = useHeatmapData(year);
+  const { data: nutritionData, isLoading: nutritionLoading } = useNutritionHeatmapData(year);
+  const { data: allFoodEntries, isLoading: foodLoading } = useNutritionData();
 
-  const streak = useMemo(() => computeStreak(data ?? []), [data]);
+  const isLoading = workoutLoading || nutritionLoading || foodLoading;
+
+  const streak = useMemo(() => computeStreak(workoutData ?? []), [workoutData]);
   const totalSessions = useMemo(
-    () => (data ?? []).reduce((s, d) => s + d.count, 0),
-    [data],
+    () => (workoutData ?? []).reduce((s, d) => s + d.count, 0),
+    [workoutData],
   );
-  const activeDays = useMemo(() => (data ?? []).length, [data]);
-  const topMonth = useMemo(() => busyMonth(data ?? []), [data]);
+  const activeDays = useMemo(() => (workoutData ?? []).length, [workoutData]);
+  const topMonth = useMemo(() => busyMonth(workoutData ?? []), [workoutData]);
+
+  // Статистика питания
+  const totalNutritionDays = useMemo(
+    () => (nutritionData ?? []).filter((d) => d.count > 0).length,
+    [nutritionData],
+  );
+  const avgCalPerDay = useMemo(() => {
+    const active = (nutritionData ?? []).filter((d) => d.count > 0);
+    if (active.length === 0) return 0;
+    return Math.round(active.reduce((s, d) => s + d.calories, 0) / active.length);
+  }, [nutritionData]);
+
+  // Записи питания для выбранного дня
+  const selectedFoodEntries = useMemo<FoodEntry[]>(() => {
+    if (!selectedDay || !allFoodEntries) return [];
+    return allFoodEntries.filter((e) => {
+      if (!e.logged_at) return false;
+      // Конвертируем в локальную дату (избегаем UTC-сдвига)
+      const d = new Date(e.logged_at);
+      const entryDate = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+      return entryDate === selectedDay.date;
+    });
+  }, [selectedDay, allFoodEntries]);
 
   function handleDayClick(day: HeatmapDay | null) {
     setSelectedDay((prev) =>
@@ -147,9 +225,13 @@ export default function HeatmapPage() {
       <div className="space-y-4">
         <Skeleton className="h-8 w-48" />
         <Skeleton className="h-40" />
+        <Skeleton className="h-40" />
       </div>
     );
   }
+
+  const hasWorkouts = workoutData && workoutData.length > 0;
+  const hasNutrition = nutritionData && nutritionData.length > 0;
 
   return (
     <div className="space-y-6">
@@ -158,7 +240,7 @@ export default function HeatmapPage() {
         <div>
           <h1 className="text-xl font-semibold text-white">Активность</h1>
           <p className="mt-0.5 text-sm text-slate-400">
-            Тренировки за {year} год
+            Тренировки и питание за {year} год
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -183,43 +265,76 @@ export default function HeatmapPage() {
         </div>
       </div>
 
-      {/* KPI */}
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <StatCard label="Тренировок за год" value={totalSessions} />
-        <StatCard label="Активных дней" value={activeDays} />
-        <StatCard label="Текущая серия" value={`${streak.current} дн.`} />
-        <StatCard label="Лучшая серия" value={`${streak.best} дн.`} />
+      {/* KPI — тренировки */}
+      <div>
+        <p className="mb-2 text-xs font-medium uppercase tracking-wider text-slate-500">
+          Тренировки
+        </p>
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+          <StatCard label="Сессий за год" value={totalSessions} />
+          <StatCard label="Активных дней" value={activeDays} />
+          <StatCard label="Текущая серия" value={`${streak.current} дн.`} />
+          <StatCard label="Лучшая серия" value={`${streak.best} дн.`} />
+        </div>
       </div>
 
-      {/* Heatmap + drill-down */}
-      {!data || data.length === 0 ? (
+      {/* KPI — питание */}
+      <div>
+        <p className="mb-2 text-xs font-medium uppercase tracking-wider text-slate-500">
+          Питание
+        </p>
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+          <StatCard label="Дней с записями" value={totalNutritionDays} />
+          <StatCard label="Ккал/день (ср.)" value={avgCalPerDay > 0 ? avgCalPerDay : "—"} />
+        </div>
+      </div>
+
+      {/* Единый календарь + drill-down панель */}
+      {!hasWorkouts && !hasNutrition ? (
         <EmptyState
-          title="Нет тренировок за этот год"
-          description="Начни тренироваться через бота — активность появится здесь."
+          title="Нет данных за этот год"
+          description="Начни тренироваться и записывать питание через бота — активность появится здесь."
           actionLabel="Открыть бота"
         />
       ) : (
         <div className="grid gap-6 xl:grid-cols-3">
-          {/* Календарь */}
           <Card className="xl:col-span-2">
-            <WorkoutHeatmap
-              data={data}
-              year={year}
-              selectedDate={selectedDay?.date ?? null}
-              onDayClick={handleDayClick}
-            />
-            <p className="mt-3 text-xs text-slate-500">
-              Самый активный месяц: <span className="text-slate-300">{topMonth}</span>
+            <p className="mb-3 text-sm font-medium text-slate-300">
+              🗓️ Календарь активности
             </p>
+            {hasWorkouts ? (
+              <>
+                <WorkoutHeatmap
+                  data={workoutData}
+                  year={year}
+                  selectedDate={selectedDay?.date ?? null}
+                  onDayClick={handleDayClick}
+                />
+                <p className="mt-3 text-xs text-slate-500">
+                  Самый активный месяц: <span className="text-slate-300">{topMonth}</span>
+                  {" · "}
+                  <span className="text-slate-400">Нажми на день для деталей</span>
+                </p>
+              </>
+            ) : (
+              <p className="py-6 text-center text-sm text-slate-500">
+                Нет тренировок за {year} год
+              </p>
+            )}
           </Card>
 
-          {/* Панель деталей */}
+          {/* Панель деталей дня */}
           <Card>
             {selectedDay ? (
-              <DayPanel day={selectedDay} />
+              <DayPanel day={selectedDay} foodEntries={selectedFoodEntries} />
             ) : (
-              <div className="flex h-full min-h-[120px] items-center justify-center text-sm text-slate-500">
-                Нажми на день, чтобы увидеть тренировки
+              <div className="flex h-full min-h-[120px] flex-col items-center justify-center gap-2 text-center">
+                <p className="text-sm text-slate-500">
+                  Нажми на день в календаре
+                </p>
+                <p className="text-xs text-slate-600">
+                  Увидишь тренировки и питание за этот день
+                </p>
               </div>
             )}
           </Card>
