@@ -2,7 +2,6 @@
 
 import { Card } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
-import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { NutritionSummary } from "@/features/nutrition/nutrition-summary";
 import { useNutritionData } from "@/hooks/use-nutrition-data";
@@ -17,51 +16,61 @@ export default function NutritionPage() {
   if (!data || data.length === 0) {
     return (
       <EmptyState
-        title="Your nutrition diary is empty"
-        description="Add your first meal to start tracking calories and macronutrients."
-        actionLabel="Add meal"
+        title="Дневник питания пуст"
+        description="Добавьте первый приём пищи через бота — данные появятся здесь."
+        actionLabel="Открыть бота"
       />
     );
   }
 
-  const totals = data.flatMap((group) => group.items).reduce(
+  const totals = data.reduce(
     (acc, item) => ({
       calories: acc.calories + item.calories,
       protein: acc.protein + item.protein,
-      fat: acc.fat + item.fat,
+      fat: acc.fat + item.fats,
       carbs: acc.carbs + item.carbs,
     }),
     { calories: 0, protein: 0, fat: 0, carbs: 0 },
   );
 
+  // Group entries by date
+  const grouped = data.reduce<Record<string, typeof data>>((acc, item) => {
+    const date = item.logged_at.slice(0, 10);
+    if (!acc[date]) acc[date] = [];
+    acc[date].push(item);
+    return acc;
+  }, {});
+
+  const sortedDates = Object.keys(grouped).sort((a, b) => b.localeCompare(a));
+
   return (
     <div className="space-y-6">
       <NutritionSummary {...totals} />
 
-      <Card>
-        <div className="grid gap-4 md:grid-cols-[1.5fr,1fr,1fr]">
-          <Input placeholder="Search foods..." />
-          <Input placeholder="Quick add item" />
-          <Input placeholder="Manual calories entry" />
-        </div>
-      </Card>
-
       <div className="grid gap-6 xl:grid-cols-3">
-        {data.map((group) => (
-          <Card key={group.title}>
+        {sortedDates.map((date) => (
+          <Card key={date}>
             <div className="mb-4 flex items-center justify-between">
-              <h3 className="text-lg font-semibold">{group.title}</h3>
-              <span className="text-sm text-slate-400">{group.items.length} items</span>
+              <h3 className="text-lg font-semibold">
+                {new Date(date).toLocaleDateString("ru", {
+                  day: "numeric",
+                  month: "long",
+                })}
+              </h3>
+              <span className="text-sm text-slate-400">{grouped[date].length} записей</span>
             </div>
             <div className="space-y-3">
-              {group.items.map((item) => (
-                <div key={item.id} className="rounded-2xl border border-white/5 bg-white/[0.03] p-4">
+              {grouped[date].map((item) => (
+                <div
+                  key={item.id}
+                  className="rounded-2xl border border-white/5 bg-white/[0.03] p-4"
+                >
                   <div className="flex items-center justify-between gap-3">
-                    <span className="font-medium">{item.name}</span>
-                    <span className="text-sm text-slate-300">{item.calories} kcal</span>
+                    <span className="font-medium">{item.food_name}</span>
+                    <span className="text-sm text-slate-300">{item.calories} ккал</span>
                   </div>
                   <p className="mt-2 text-sm text-slate-400">
-                    {item.protein}P / {item.fat}F / {item.carbs}C
+                    {item.grams} г · {item.protein}Б / {item.fats}Ж / {item.carbs}У
                   </p>
                 </div>
               ))}

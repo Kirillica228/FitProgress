@@ -3,56 +3,84 @@ from django.contrib.auth.models import AbstractUser
 
 
 class User(AbstractUser):
-    pass
+    vk_id = models.BigIntegerField(null=True, blank=True, unique=True)
+
 
 class Profile(models.Model):
     GOAL_CHOICES = [
-        ('bulk', 'Mass Gain'),
-        ('cut', 'Cut'),
-        ('maintain', 'Maintain'),
+        ('gain', 'Набор массы'),
+        ('cut', 'Сушка'),
+        ('maintain', 'Поддержание формы'),
     ]
 
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    name = models.CharField(max_length=100)
-    height = models.IntegerField()
-    weight = models.IntegerField()
-    age = models.IntegerField()
-    goal = models.CharField(max_length=20, choices=GOAL_CHOICES)
+    first_name = models.CharField(max_length=100, blank=True, default='')
+    last_name = models.CharField(max_length=100, blank=True, default='')
+    height = models.FloatField(null=True, blank=True)
+    weight = models.FloatField(null=True, blank=True)
+    age = models.IntegerField(null=True, blank=True)
+    goal = models.CharField(max_length=20, choices=GOAL_CHOICES, blank=True, default='')
 
 
 class Workout(models.Model):
     TYPE_CHOICES = [
-        ('strength', 'Strength'),
-        ('cardio', 'Cardio'),
-        ('home', 'Home'),
+        ('strength', 'Силовая'),
+        ('cardio', 'Кардио'),
+        ('home', 'Дома'),
     ]
 
     GOAL_CHOICES = [
-        ('bulk', 'Mass Gain'),
-        ('cut', 'Cut'),
-        ('maintain', 'Maintain'),
+        ('bulk', 'Набор массы'),
+        ('cut', 'Сушка'),
+        ('maintain', 'Поддержание формы'),
+    ]
+
+    DIFFICULTY_CHOICES = [
+        ('beginner', 'Начинающий'),
+        ('intermediate', 'Средний'),
+        ('advanced', 'Продвинутый'),
     ]
 
     name = models.CharField(max_length=150)
     type = models.CharField(max_length=50, choices=TYPE_CHOICES)
     goal_type = models.CharField(max_length=20, choices=GOAL_CHOICES)
+    difficulty = models.CharField(max_length=20, choices=DIFFICULTY_CHOICES, default='beginner')
+
+
+class MuscleGroup(models.Model):
+    """Группа мышц (грудь, бицепс, квадрицепс и т.д.)."""
+    name = models.CharField(max_length=100, unique=True)
+    slug = models.SlugField(max_length=100, unique=True)
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        ordering = ['name']
 
 
 class Exercise(models.Model):
     name = models.CharField(max_length=100)
     part_body = models.CharField(max_length=100)
     equipment = models.CharField(max_length=100)
+    # Оставляем для обратной совместимости
     main_muscles = models.CharField(max_length=200)
     accessory_muscles = models.CharField(max_length=200)
+    # Нормализованные группы мышц (M2M)
+    muscle_groups = models.ManyToManyField(
+        MuscleGroup,
+        blank=True,
+        related_name='exercises',
+    )
 
 
 class WorkoutExercise(models.Model):
     workout = models.ForeignKey(Workout, on_delete=models.CASCADE, related_name="exercises")
     exercise = models.ForeignKey(Exercise, on_delete=models.CASCADE)
-    
-    order = models.IntegerField()  # порядок выполнения
-    sets = models.IntegerField()   # план подходов
-    reps = models.IntegerField()   # план повторений
+
+    order = models.IntegerField()   # порядок выполнения
+    sets = models.IntegerField()    # план подходов
+    reps = models.IntegerField()    # план повторений
 
     class Meta:
         ordering = ['order']
@@ -61,7 +89,7 @@ class WorkoutExercise(models.Model):
 class WorkoutSession(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     workout = models.ForeignKey(Workout, on_delete=models.SET_NULL, null=True, blank=True)
-    
+
     created_at = models.DateTimeField(auto_now_add=True)
     duration = models.IntegerField(null=True, blank=True)  # в минутах
     comment = models.TextField(blank=True)
@@ -70,7 +98,7 @@ class WorkoutSession(models.Model):
 class WorkoutSessionExercise(models.Model):
     session = models.ForeignKey(WorkoutSession, on_delete=models.CASCADE, related_name="exercises")
     exercise = models.ForeignKey(Exercise, on_delete=models.CASCADE)
-    
+
     order = models.IntegerField()
 
     class Meta:
@@ -87,7 +115,7 @@ class Set(models.Model):
     reps = models.IntegerField()
     weight = models.FloatField(null=True, blank=True)
 
-    # для кардио можно будет использовать
+    # для кардио
     duration = models.IntegerField(null=True, blank=True)  # секунды
 
 
@@ -102,29 +130,28 @@ class BodyMeasurement(models.Model):
 
     created_at = models.DateTimeField(auto_now_add=True)
 
-class Food(models.Model):
-    name = models.CharField(max_length=150)
-
-    calories = models.IntegerField()
-
-    protein = models.FloatField()
-    fats = models.FloatField()
-    carbs = models.FloatField()
-
 
 class FoodEntry(models.Model):
     MEAL_TYPES = [
-        ('breakfast', 'Breakfast'),
-        ('lunch', 'Lunch'),
-        ('dinner', 'Dinner'),
-        ('snack', 'Snack'),
+        ('breakfast', 'Завтрак'),
+        ('lunch', 'Обед'),
+        ('dinner', 'Ужин'),
+        ('snack', 'Перекус'),
     ]
 
     user = models.ForeignKey(User, on_delete=models.CASCADE)
 
-    food = models.ForeignKey(Food, on_delete=models.CASCADE)
+    # данные из Open Food Facts, сохранённые на момент записи
+    food_name = models.CharField(max_length=150)
+    off_product_id = models.CharField(max_length=100, blank=True)  # barcode/id из OFF
 
     grams = models.FloatField()
+
+    # КБЖУ уже пересчитанные под grams
+    calories = models.FloatField()
+    protein = models.FloatField()
+    fats = models.FloatField()
+    carbs = models.FloatField()
 
     meal_type = models.CharField(max_length=20, choices=MEAL_TYPES)
 
@@ -133,9 +160,9 @@ class FoodEntry(models.Model):
 
 class Goal(models.Model):
     GOAL_TYPES = [
-        ('weight', 'Weight'),
-        ('calories', 'Calories'),
-        ('workouts_per_week', 'Workouts Per Week'),
+        ('weight', 'Вес'),
+        ('calories', 'Калории'),
+        ('workouts_per_week', 'Тренировок в неделю'),
     ]
 
     user = models.ForeignKey(User, on_delete=models.CASCADE)

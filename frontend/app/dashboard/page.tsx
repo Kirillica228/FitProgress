@@ -40,35 +40,35 @@ export default function DashboardPage() {
 
       <div className="grid gap-6 xl:grid-cols-[1.5fr,0.9fr]">
         <div className="space-y-6">
-          <ChartShell title="Weight trend" subtitle="Daily body-weight movement over the last 7 days">
+          <ChartShell title="Динамика веса" subtitle="Изменение веса за последние 7 замеров">
             <LineChart data={data.weightChart} />
           </ChartShell>
-          <ChartShell title="Workout activity" subtitle="Sessions completed this week">
+          <ChartShell title="Активность тренировок" subtitle="Сессии за последние 7 дней">
             <BarChart data={data.workoutActivity} />
           </ChartShell>
         </div>
 
         <div className="space-y-6">
           <Card>
-            <p className="text-sm uppercase tracking-[0.24em] text-slate-500">Insight</p>
+            <p className="text-sm uppercase tracking-[0.24em] text-slate-500">Инсайт</p>
             <p className="mt-3 text-lg font-medium text-white">{data.insight}</p>
           </Card>
           <RecentList
-            title="Recent workouts"
+            title="Последние тренировки"
             items={data.recentWorkouts.map((item) => ({
-              id: item.id,
-              title: item.title,
-              subtitle: `${item.date} | ${item.exercises} exercises`,
-              value: item.volume,
+              id: String(item.id),
+              title: item.workout.title,
+              subtitle: `${new Date(item.started_at).toLocaleDateString("ru")} · ${item.workout.exercises.length} упр.`,
+              value: item.workout.type,
             }))}
           />
           <RecentList
-            title="Recent meals"
+            title="Последние приёмы пищи"
             items={data.recentMeals.map((item) => ({
-              id: item.id,
-              title: item.name,
-              subtitle: `${item.protein}P / ${item.fat}F / ${item.carbs}C`,
-              value: `${item.calories} kcal`,
+              id: String(item.id),
+              title: item.food_name,
+              subtitle: `${item.protein}Б / ${item.fats}Ж / ${item.carbs}У`,
+              value: `${item.calories} ккал`,
             }))}
           />
           <QuickActionsPanel />

@@ -1,0 +1,153 @@
+// ─── Auth ────────────────────────────────────────────────────────────────────
+
+export type AuthUser = {
+  id: number;
+  username: string;
+  email: string;
+  vk_id: number | null;
+};
+
+// ─── Profile ─────────────────────────────────────────────────────────────────
+
+export type Profile = {
+  id: number;
+  username: string;
+  email: string;
+  vk_id: number | null;
+  first_name: string;
+  last_name: string;
+  height: number | null;
+  weight: number | null;
+  age: number | null;
+  goal: string;
+  extra_goal: string;
+};
+
+// ─── Muscle Groups ───────────────────────────────────────────────────────────
+
+export type MuscleGroup = {
+  id: number;
+  name: string;
+  slug: string;
+};
+
+// ─── Workouts ────────────────────────────────────────────────────────────────
+
+export type Exercise = {
+  id: number;
+  name: string;
+  part_body: string;
+  equipment: string;
+  main_muscles: string;
+  accessory_muscles: string;
+  muscle_groups: MuscleGroup[];
+};
+
+export type WorkoutExercise = {
+  id: number;
+  exercise: Exercise;
+  sets: number;
+  reps: number;
+  order: number;
+};
+
+export type Workout = {
+  id: number;
+  /** Бэкенд отдаёт оба поля: name и title (алиас) */
+  name: string;
+  title: string;
+  type: string;
+  goal_type: string;
+  difficulty: "beginner" | "intermediate" | "advanced";
+  exercises: WorkoutExercise[];
+};
+
+export type WorkoutSession = {
+  id: number;
+  workout: Workout;
+  /** Алиас created_at → started_at (задаётся в сериализаторе) */
+  started_at: string;
+  /** Вычисляется из created_at + duration, null если duration не задан */
+  finished_at: string | null;
+  duration: number | null;
+  comment: string;
+};
+
+// ─── Nutrition ───────────────────────────────────────────────────────────────
+
+export type FoodEntry = {
+  id: number;
+  food_name: string;
+  off_product_id: string;
+  grams: number;
+  calories: number;
+  protein: number;
+  fats: number;
+  carbs: number;
+  meal_type: string;
+  /** Алиас created_at → logged_at (задаётся в сериализаторе) */
+  logged_at: string;
+};
+
+// ─── Measurements ────────────────────────────────────────────────────────────
+
+export type BodyMeasurement = {
+  id: number;
+  /** Алиас created_at.date() → date (задаётся в сериализаторе) */
+  date: string;
+  weight: number;
+  waist: number | null;
+  chest: number | null;
+  hips: number | null;
+};
+
+// ─── Goals ───────────────────────────────────────────────────────────────────
+
+export type Goal = {
+  id: number;
+  type: string;
+  /** Человекочитаемое название типа цели (алиас, задаётся в сериализаторе) */
+  title: string;
+  target_value: number;
+  current_value: number;
+  /** Алиасы для совместимости с фронтендом */
+  target: string;
+  current: string;
+  /** Прогресс в процентах 0–100 (вычисляется в сериализаторе) */
+  progress: number;
+  deadline: string | null;
+};
+
+// ─── Heatmap ─────────────────────────────────────────────────────────────────
+
+export type HeatmapSession = {
+  id: number;
+  workout_name: string;
+  workout_type: string;
+  duration: number | null;
+  exercises_count: number;
+};
+
+export type HeatmapDay = {
+  /** ISO date string: "2025-03-15" */
+  date: string;
+  /** Количество сессий в этот день */
+  count: number;
+  /** Объём нагрузки (reps×weight для силовых, duration×10 для кардио) */
+  volume: number;
+  sessions: HeatmapSession[];
+};
+
+// ─── Dashboard ───────────────────────────────────────────────────────────────
+
+export type DashboardPayload = {
+  calories: { current: number; goal: number };
+  workoutStatus: { completed: number; total: number };
+  weight: { current: number; delta: number };
+  goalProgress: number;
+  weightChart: Array<{ label: string; value: number }>;
+  workoutActivity: Array<{ label: string; value: number }>;
+  recentWorkouts: WorkoutSession[];
+  recentMeals: FoodEntry[];
+  insight: string;
+};

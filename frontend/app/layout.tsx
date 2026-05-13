@@ -1,10 +1,15 @@
 import "./globals.css";
 
 import { QueryProvider } from "@/components/providers/query-provider";
+import { Toaster } from "@/components/ui/sonner";
+import { Geist } from "next/font/google";
+import { cn } from "@/lib/utils";
+
+const geist = Geist({ subsets: ["latin"], variable: "--font-sans" });
 
 export const metadata = {
-  title: "Fitprogress",
-  description: "Analytics-first fitness dashboard",
+  title: "FitProgress",
+  description: "Дашборд для отслеживания тренировок и прогресса",
 };
 
 export default function RootLayout({
@@ -13,9 +18,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="ru" className={cn("font-sans", geist.variable)}>
       <body>
         <QueryProvider>{children}</QueryProvider>
+        <Toaster richColors position="top-right" />
       </body>
     </html>
   );

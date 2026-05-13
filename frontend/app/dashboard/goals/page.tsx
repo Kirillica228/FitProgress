@@ -15,9 +15,9 @@ export default function GoalsPage() {
   if (!data || data.length === 0) {
     return (
       <EmptyState
-        title="No active goals"
-        description="Create a goal to start tracking progress against something meaningful."
-        actionLabel="Create goal"
+        title="Нет активных целей"
+        description="Создайте цель через бота, чтобы отслеживать прогресс."
+        actionLabel="Открыть бота"
       />
     );
   }

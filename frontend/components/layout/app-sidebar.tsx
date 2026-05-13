@@ -7,40 +7,26 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 const navItems = [
-  { href: "/dashboard", label: "Dashboard", icon: "DB" },
-  { href: "/dashboard/workouts", label: "Workouts", icon: "WO" },
-  { href: "/dashboard/nutrition", label: "Nutrition", icon: "NU" },
-  { href: "/dashboard/progress", label: "Progress", icon: "PR" },
-  { href: "/dashboard/goals", label: "Goals", icon: "GL" },
-  { href: "/articles", label: "Articles", icon: "AR" },
+  { href: "/dashboard", label: "Дашборд", icon: "ДБ" },
+  { href: "/dashboard/workouts", label: "Тренировки", icon: "ТР" },
+  { href: "/dashboard/heatmap", label: "Активность", icon: "АК" },
+  { href: "/dashboard/nutrition", label: "Питание", icon: "ПТ" },
+  { href: "/dashboard/progress", label: "Прогресс", icon: "ПГ" },
+  { href: "/dashboard/goals", label: "Цели", icon: "ЦЛ" },
+  { href: "/articles", label: "Статьи", icon: "СТ" },
 ];
 
 export function AppSidebar() {
   const pathname = usePathname();
   const router = useRouter();
-  // const { email, profile, logout, onboardingComplete } = useSessionStore((state) => ({
-  //   email: state.email,
-  //   profile: state.profile,
-  //   logout: state.logout,
-  //   onboardingComplete: state.onboardingComplete,
-  // }));
-  // const displayName = [profile.firstName, profile.lastName].filter(Boolean).join(" ");
-  // const primaryGoal =
-  //   profile.primaryGoal === "gain"
-  //     ? "Lean bulk"
-  //     : profile.primaryGoal === "cut"
-  //       ? "Cut"
-  //       : profile.primaryGoal === "maintain"
-  //         ? "Maintain"
-  //         : "Set your goal";
 
   return (
     <aside className="sticky top-0 hidden h-screen w-72 shrink-0 border-r border-white/10 bg-slate-950/60 px-5 py-6 backdrop-blur xl:block">
       <div className="mb-10">
         <Link href="/" className="text-2xl font-semibold tracking-tight text-white">
-          Fitprogress
+          FitProgress
         </Link>
-        <p className="mt-2 text-sm text-slate-400">Training, nutrition, body progress, and goals in one place.</p>
+        <p className="mt-2 text-sm text-slate-400">Тренировки, питание, прогресс и цели в одном месте.</p>
       </div>
 
       <nav className="space-y-2">
@@ -62,27 +48,16 @@ export function AppSidebar() {
             </Link>
           );
         })}
-      </nav>
-
-      <div className="mt-auto flex h-[calc(100vh-29rem)] flex-col justify-end">
-        <div className="rounded-3xl border border-white/10 bg-white/5 p-4">
-          <div className="text-sm font-medium">"New athlete"</div>
-          <div className="mt-1 text-xs text-slate-400">"Create an account to save your profile"</div>
-          <div className="mt-4 rounded-2xl bg-white/5 px-3 py-2 text-xs text-slate-300">
-            goal
-          </div>
-          <Button
+        <Button
             variant="secondary"
             className="mt-4 w-full"
             onClick={() => {
-              
               router.push("/");
             }}
           >
-            Logout
+            Выйти
           </Button>
-        </div>
-      </div>
+      </nav>
     </aside>
   );
 }

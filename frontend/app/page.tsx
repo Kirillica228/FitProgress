@@ -7,38 +7,38 @@ import { Card } from "@/components/ui/card";
 export default function LandingPage() {
   const featureCards = [
     {
-      title: "Unified progress view",
-      description: "Training, nutrition, body metrics, and goals live in one calm dashboard with clear signals.",
+      title: "Единый обзор прогресса",
+      description: "Тренировки, питание, замеры тела и цели — всё в одном спокойном дашборде с чёткими сигналами.",
     },
     {
-      title: "Actionable trends",
-      description: "See what is improving week to week instead of guessing from isolated workouts or weigh-ins.",
+      title: "Понятные тренды",
+      description: "Видите, что улучшается неделя за неделей, а не гадаете по отдельным тренировкам или взвешиваниям.",
     },
     {
-      title: "Structured habits",
-      description: "Build a repeatable routine with guided onboarding, saved goals, and simple daily tracking.",
+      title: "Структурированные привычки",
+      description: "Выстраивайте повторяемый режим с помощью онбординга, сохранённых целей и простого ежедневного трекинга.",
     },
   ];
 
   const userResults = [
-    "More stable weight and body-composition tracking",
-    "Better visibility into workout consistency and recovery",
-    "Clearer nutrition habits without cluttered spreadsheets",
+    "Более стабильный контроль веса и состава тела",
+    "Лучшая видимость регулярности тренировок и восстановления",
+    "Чёткие привычки питания без громоздких таблиц",
   ];
 
   return (
     <MarketingShell
-      accentLabel="About Fitprogress"
-      title="A clean personal fitness workspace built for consistency, not noise."
-      description="Fitprogress helps people train with more clarity, understand their progress, and turn health goals into a steady system."
+      accentLabel="О FitProgress"
+      title="Чистое персональное фитнес-пространство, созданное для постоянства, а не шума."
+      description="FitProgress помогает тренироваться осознаннее, понимать свой прогресс и превращать цели в здоровье в устойчивую систему."
       actions={
         <>
           <Link href="/auth/register">
-            <Button className="px-6 py-3">Register</Button>
+            <Button className="px-6 py-3">Зарегистрироваться</Button>
           </Link>
           <Link href="/auth/login">
             <Button variant="secondary" className="px-6 py-3">
-              Start now
+              Начать сейчас
             </Button>
           </Link>
         </>
@@ -48,39 +48,39 @@ export default function LandingPage() {
       <section className="grid gap-6 pt-2 lg:grid-cols-[1.15fr,0.85fr]">
         <Card className="overflow-hidden p-0">
           <div className="border-b border-white/10 bg-white/5 px-6 py-6">
-            <p className="text-sm uppercase tracking-[0.24em] text-slate-400">Mission</p>
-            <h2 className="mt-3 text-3xl font-semibold text-white">We make progress visible and manageable.</h2>
+            <p className="text-sm uppercase tracking-[0.24em] text-slate-400">Миссия</p>
+            <h2 className="mt-3 text-3xl font-semibold text-white">Мы делаем прогресс видимым и управляемым.</h2>
             <p className="mt-4 max-w-2xl text-sm leading-7 text-slate-400">
-              The product brings workouts, nutrition, body metrics, and long-term goals into one minimal interface so users can make calmer, better decisions.
+              Продукт объединяет тренировки, питание, замеры тела и долгосрочные цели в одном минималистичном интерфейсе, чтобы пользователи принимали более взвешенные решения.
             </p>
           </div>
           <div className="grid gap-4 p-6 sm:grid-cols-3">
             <div className="rounded-3xl bg-accent-blue/10 p-5">
-              <div className="text-sm text-slate-300">Weekly check-ins</div>
-              <div className="mt-3 text-3xl font-semibold">Fast</div>
+              <div className="text-sm text-slate-300">Еженедельные чек-ины</div>
+              <div className="mt-3 text-3xl font-semibold">Быстро</div>
             </div>
             <div className="rounded-3xl bg-accent-green/10 p-5">
-              <div className="text-sm text-slate-300">Data clarity</div>
-              <div className="mt-3 text-3xl font-semibold">High</div>
+              <div className="text-sm text-slate-300">Ясность данных</div>
+              <div className="mt-3 text-3xl font-semibold">Высокая</div>
             </div>
             <div className="rounded-3xl bg-white/5 p-5">
-              <div className="text-sm text-slate-300">Habit friction</div>
-              <div className="mt-3 text-3xl font-semibold">Low</div>
+              <div className="text-sm text-slate-300">Трение привычек</div>
+              <div className="mt-3 text-3xl font-semibold">Низкое</div>
             </div>
           </div>
         </Card>
 
         <div className="grid gap-6">
           <Card>
-            <p className="text-sm uppercase tracking-[0.24em] text-slate-500">Who we are</p>
+            <p className="text-sm uppercase tracking-[0.24em] text-slate-500">Кто мы</p>
             <p className="mt-4 text-lg leading-8 text-slate-300">
-              We are building a calm digital companion for people who want to improve fitness and health with structure, not overwhelm.
+              Мы создаём спокойного цифрового помощника для людей, которые хотят улучшить физическую форму и здоровье со структурой, а не хаосом.
             </p>
           </Card>
           <Card>
-            <p className="text-sm uppercase tracking-[0.24em] text-slate-500">What we do</p>
+            <p className="text-sm uppercase tracking-[0.24em] text-slate-500">Что мы делаем</p>
             <p className="mt-4 text-lg leading-8 text-slate-300">
-              We help users collect the right data, understand trends, and stay aligned with their current goal through a guided, modern flow.
+              Помогаем пользователям собирать нужные данные, понимать тренды и оставаться в соответствии со своей текущей целью через современный и понятный интерфейс.
             </p>
           </Card>
         </div>
@@ -88,14 +88,14 @@ export default function LandingPage() {
 
       <section className="pt-8">
         <div className="mb-5 px-1">
-          <p className="text-sm uppercase tracking-[0.24em] text-slate-500">Advantages</p>
-          <h2 className="mt-3 text-3xl font-semibold text-white">Designed as one unified system</h2>
+          <p className="text-sm uppercase tracking-[0.24em] text-slate-500">Преимущества</p>
+          <h2 className="mt-3 text-3xl font-semibold text-white">Спроектировано как единая система</h2>
         </div>
         <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
           {featureCards.map((feature) => (
             <Card key={feature.title}>
               <div className="inline-flex rounded-2xl bg-white/5 px-3 py-2 text-xs uppercase tracking-[0.22em] text-sky-300">
-                Feature
+                Функция
               </div>
               <h3 className="mt-4 text-xl font-semibold">{feature.title}</h3>
               <p className="mt-3 text-sm leading-7 text-slate-400">{feature.description}</p>
@@ -106,8 +106,8 @@ export default function LandingPage() {
 
       <section className="grid gap-6 pt-8 lg:grid-cols-[0.9fr,1.1fr]">
         <Card>
-          <p className="text-sm uppercase tracking-[0.24em] text-slate-500">Results</p>
-          <h2 className="mt-3 text-3xl font-semibold text-white">What users can actually improve</h2>
+          <p className="text-sm uppercase tracking-[0.24em] text-slate-500">Результаты</p>
+          <h2 className="mt-3 text-3xl font-semibold text-white">Что пользователи могут реально улучшить</h2>
           <div className="mt-5 space-y-3">
             {userResults.map((item) => (
               <div key={item} className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-slate-300">
@@ -118,20 +118,20 @@ export default function LandingPage() {
         </Card>
         <Card className="overflow-hidden p-0">
           <div className="border-b border-white/10 px-6 py-6">
-            <p className="text-sm uppercase tracking-[0.24em] text-slate-500">Get started</p>
-            <h2 className="mt-3 text-3xl font-semibold text-white">Start with a simple account, then personalize your profile.</h2>
+            <p className="text-sm uppercase tracking-[0.24em] text-slate-500">Начать</p>
+            <h2 className="mt-3 text-3xl font-semibold text-white">Начните с простого аккаунта, затем персонализируйте профиль.</h2>
           </div>
           <div className="space-y-4 p-6">
             <p className="text-sm leading-7 text-slate-400">
-              Registration takes a moment. Onboarding is split into short steps and can be skipped or finished later in the dashboard.
+              Регистрация занимает минуту. Онбординг разбит на короткие шаги и может быть пропущен или завершён позже в дашборде.
             </p>
             <div className="flex flex-wrap gap-3">
               <Link href="/auth/register">
-                <Button className="px-6 py-3">Create account</Button>
+                <Button className="px-6 py-3">Создать аккаунт</Button>
               </Link>
               <Link href="/articles">
                 <Button variant="secondary" className="px-6 py-3">
-                  Explore articles
+                  Читать статьи
                 </Button>
               </Link>
             </div>

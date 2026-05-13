@@ -11,7 +11,7 @@ export function RecentList({
     <Card>
       <div className="mb-4 flex items-center justify-between">
         <h3 className="text-lg font-semibold">{title}</h3>
-        <button className="text-sm text-sky-300">View all</button>
+        <button className="text-sm text-sky-300">Смотреть все</button>
       </div>
       <div className="space-y-3">
         {items.map((item) => (

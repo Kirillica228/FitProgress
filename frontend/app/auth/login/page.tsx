@@ -1,67 +1,92 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { toast } from "sonner";
+
 import { MarketingShell } from "@/components/layout/marketing-shell";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { FormField } from "@/components/ui/form-field";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { useLogin } from "@/hooks/use-auth";
+
+const schema = z.object({
+  username: z.string().min(1, "Введите имя пользователя"),
+  password: z.string().min(1, "Введите пароль"),
+});
+
+type FormValues = z.infer<typeof schema>;
 
 export default function LoginPage() {
-  const router = useRouter();
-  
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
+  const login = useLogin();
 
-  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<FormValues>({ resolver: zodResolver(schema) });
 
-    if (!email.trim() || !email.includes("@")) {
-      setError("Enter a valid email");
-      return;
-    }
-
-    if (!password.trim()) {
-      setError("Enter your password");
-      return;
-    }
-
-    router.push("/onboarding");
+  function onSubmit(values: FormValues) {
+    login.mutate(
+      { username: values.username, password: values.password },
+      {
+        onError: (err) =>
+          toast.error(err instanceof Error ? err.message : "Ошибка входа"),
+      },
+    );
   }
 
   return (
-    
-      <MarketingShell maxWidthClassName="max-w-4xl">
-        <div className="flex min-h-[calc(100vh-12rem)] items-center justify-center">
-          <Card className="w-full max-w-md">
-            <h1 className="text-2xl font-semibold">Welcome back</h1>
-            <p className="mt-2 text-sm text-slate-400">Sign in to continue working with your training and progress data.</p>
-            <form onSubmit={handleSubmit} className="mt-6 space-y-4">
-              <FormField label="Email" error={error.includes("email") ? error : undefined}>
-                <Input value={email} onChange={(event) => setEmail(event.target.value)} placeholder="you@example.com" type="email" />
-              </FormField>
-              <FormField label="Password" error={error.includes("password") ? error : undefined}>
-                <Input value={password} onChange={(event) => setPassword(event.target.value)} placeholder="Enter password" type="password" />
-              </FormField>
-              {error && !error.includes("email") && !error.includes("password") ? (
-                <p className="text-sm text-rose-300">{error}</p>
-              ) : null}
-              <Button className="w-full" type="submit">
-                Login
-              </Button>
-            </form>
-            <p className="mt-5 text-sm text-slate-400">
-              Need an account?{" "}
-              <Link href="/auth/register" className="text-sky-300">
-                Register
-              </Link>
-            </p>
-          </Card>
-        </div>
-      </MarketingShell>
-   
+    <MarketingShell maxWidthClassName="max-w-4xl">
+      <div className="flex min-h-[calc(100vh-12rem)] items-center justify-center">
+        <Card className="w-full max-w-md">
+          <h1 className="text-2xl font-semibold">Добро пожаловать</h1>
+          <p className="mt-2 text-sm text-slate-400">
+            Войдите, чтобы продолжить работу с тренировками и прогрессом.
+          </p>
+          <form onSubmit={handleSubmit(onSubmit)} className="mt-6 space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="username">Имя пользователя</Label>
+              <Input
+                id="username"
+                placeholder="ваш_логин"
+                autoComplete="username"
+                {...register("username")}
+              />
+              {errors.username && (
+                <p className="text-sm text-rose-400">{errors.username.message}</p>
+              )}
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="password">Пароль</Label>
+              <Input
+                id="password"
+                type="password"
+                placeholder="Введите пароль"
+                autoComplete="current-password"
+                {...register("password")}
+              />
+              {errors.password && (
+                <p className="text-sm text-rose-400">{errors.password.message}</p>
+              )}
+            </div>
+
+            <Button className="w-full" type="submit" disabled={login.isPending}>
+              {login.isPending ? "Вход…" : "Войти"}
+            </Button>
+          </form>
+          <p className="mt-5 text-sm text-slate-400">
+            Нет аккаунта?{" "}
+            <Link href="/auth/register" className="text-sky-300">
+              Зарегистрироваться
+            </Link>
+          </p>
+        </Card>
+      </div>
+    </MarketingShell>
   );
 }

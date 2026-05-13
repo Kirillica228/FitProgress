@@ -1,12 +1,16 @@
-import Link from "next/link";
+"use client";
 
-import { buttonClassName } from "@/components/ui/button";
+import Link from "next/link";
+import { useQuery } from "@tanstack/react-query";
+
+import { buttonVariants } from "@/components/ui/button";
+import { authApi } from "@/lib/api";
 import { cn } from "@/lib/utils";
 
 const navItems = [
-  { href: "/", label: "About" },
-  { href: "/articles", label: "Articles" },
-  { href: "/auth/login", label: "Login" },
+  { href: "/", label: "О сервисе" },
+  { href: "/articles", label: "Статьи" },
+  { href: "/auth/login", label: "Войти" },
 ];
 
 export function MarketingShell({
@@ -24,6 +28,15 @@ export function MarketingShell({
   actions?: React.ReactNode;
   maxWidthClassName?: string;
 }) {
+  const { data: user } = useQuery({
+    queryKey: ["me"],
+    queryFn: authApi.me,
+    retry: false,
+    staleTime: 60_000,
+  });
+
+  const isLoggedIn = !!user;
+
   return (
     <main className="min-h-screen px-4 py-6 sm:px-6 sm:py-8">
       <div className={cn("mx-auto", maxWidthClassName)}>
@@ -31,25 +44,43 @@ export function MarketingShell({
           <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
             <div>
               <Link href="/" className="text-2xl font-semibold tracking-tight text-white">
-                Fitprogress
+                FitProgress
               </Link>
               <p className="mt-1 text-sm text-slate-400">
-                Clean analytics and guided progress for training, nutrition, and recovery.
+                Аналитика тренировок, питания и прогресса в одном месте.
               </p>
             </div>
             <nav className="flex flex-wrap items-center gap-2 text-sm text-slate-300">
-              {navItems.map((item) => (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className="rounded-2xl px-4 py-2 transition hover:bg-white/5 hover:text-white"
-                >
-                  {item.label}
-                </Link>
-              ))}
-              <Link href="/auth/register" className={buttonClassName()}>
-                Start now
+              <Link
+                href="/"
+                className="rounded-2xl px-4 py-2 transition hover:bg-white/5 hover:text-white"
+              >
+                О сервисе
               </Link>
+              <Link
+                href="/articles"
+                className="rounded-2xl px-4 py-2 transition hover:bg-white/5 hover:text-white"
+              >
+                Статьи
+              </Link>
+
+              {isLoggedIn ? (
+                <Link href="/dashboard" className={buttonVariants()}>
+                  Личный кабинет
+                </Link>
+              ) : (
+                <>
+                  <Link
+                    href="/auth/login"
+                    className="rounded-2xl px-4 py-2 transition hover:bg-white/5 hover:text-white"
+                  >
+                    Войти
+                  </Link>
+                  <Link href="/auth/register" className={buttonVariants()}>
+                    Начать
+                  </Link>
+                </>
+              )}
             </nav>
           </div>
         </header>
