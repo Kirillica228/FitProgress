@@ -28,14 +28,6 @@ export type Measurement = {
   chest: number;
 };
 
-export type Goal = {
-  id: string;
-  title: string;
-  target: string;
-  current: string;
-  progress: number;
-};
-
 export type Article = {
   slug: string;
   title: string;
@@ -50,19 +42,16 @@ export type DashboardPayload = {
   calories: { current: number; goal: number };
   workoutStatus: { completed: number; total: number };
   weight: { current: number; delta: number };
-  goalProgress: number;
   weightChart: Array<{ label: string; value: number }>;
   workoutActivity: Array<{ label: string; value: number }>;
   recentWorkouts: WorkoutCard[];
   recentMeals: Meal[];
-  insight: string;
 };
 
 export const dashboardPayload: DashboardPayload = {
   calories: { current: 1840, goal: 2200 },
   workoutStatus: { completed: 4, total: 6 },
   weight: { current: 78.4, delta: -1.2 },
-  goalProgress: 68,
   weightChart: [
     { label: "Mon", value: 80.1 },
     { label: "Tue", value: 79.6 },
@@ -91,7 +80,6 @@ export const dashboardPayload: DashboardPayload = {
     { id: "m2", name: "Greek Yogurt", calories: 230, protein: 18, fat: 5, carbs: 21 },
     { id: "m3", name: "Salmon & Rice", calories: 710, protein: 48, fat: 22, carbs: 61 },
   ],
-  insight: "You trained 20% more this week and your average workout volume is trending up.",
 };
 
 export const workouts: WorkoutCard[] = [
@@ -130,12 +118,6 @@ export const measurements: Measurement[] = [
   { date: "2026-04-11", weight: 79.3, waist: 86, chest: 100 },
   { date: "2026-04-18", weight: 78.7, waist: 85, chest: 100 },
   { date: "2026-04-21", weight: 78.4, waist: 84, chest: 99 },
-];
-
-export const goals: Goal[] = [
-  { id: "g1", title: "Lose weight", target: "75 kg", current: "78.4 kg", progress: 72 },
-  { id: "g2", title: "Weekly workouts", target: "5 sessions", current: "4 sessions", progress: 80 },
-  { id: "g3", title: "Protein intake", target: "160 g", current: "143 g", progress: 89 },
 ];
 
 export const articles: Article[] = [

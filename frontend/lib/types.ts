@@ -57,7 +57,6 @@ export type Workout = {
   name: string;
   title: string;
   type: string;
-  goal_type: string;
   difficulty: "beginner" | "intermediate" | "advanced";
   exercises: WorkoutExercise[];
 };
@@ -94,23 +93,6 @@ export type BodyMeasurement = {
   waist: number | null;
   chest: number | null;
   hips: number | null;
-};
-
-// ─── Goals ───────────────────────────────────────────────────────────────────
-
-export type Goal = {
-  id: number;
-  type: string;
-  /** Человекочитаемое название типа цели (алиас, задаётся в сериализаторе) */
-  title: string;
-  target_value: number;
-  current_value: number;
-  /** Алиасы для совместимости с фронтендом */
-  target: string;
-  current: string;
-  /** Прогресс в процентах 0–100 (вычисляется в сериализаторе) */
-  progress: number;
-  deadline: string | null;
 };
 
 // ─── Nutrition Heatmap ───────────────────────────────────────────────────────
@@ -170,5 +152,4 @@ export type DashboardPayload = {
   workoutActivity: Array<{ label: string; value: number }>;
   recentWorkouts: WorkoutSession[];
   recentMeals: FoodEntry[];
-  insight: string;
 };

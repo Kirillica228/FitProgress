@@ -12,7 +12,6 @@ import type {
   BodyMeasurement,
   DashboardPayload,
   FoodEntry,
-  Goal,
   NutritionHeatmapDay,
   HeatmapDay,
   Profile,
@@ -75,11 +74,10 @@ export const authApi = {
 // ─── Dashboard ───────────────────────────────────────────────────────────────
 
 async function buildDashboard(): Promise<DashboardPayload> {
-  const [sessions, meals, measurements, goals] = await Promise.all([
+  const [sessions, meals, measurements] = await Promise.all([
     request<WorkoutSession[]>("/api/workout-sessions/"),
     request<FoodEntry[]>("/api/food-entries/"),
     request<BodyMeasurement[]>("/api/measurements/"),
-    request<Goal[]>("/api/goals/"),
   ]);
 
   // Бэкенд возвращает замеры отсортированными по убыванию (-created_at),
@@ -130,10 +128,6 @@ async function buildDashboard(): Promise<DashboardPayload> {
     workoutActivity,
     recentWorkouts: sessions.slice(0, 5),
     recentMeals: meals.slice(0, 5),
-    insight:
-      weekSessions.length >= 4
-        ? "Отличная неделя — вы выполнили план по тренировкам!"
-        : `${weekSessions.length} тренировок на этой неделе. Продолжайте!`,
   };
 }
 
@@ -171,21 +165,6 @@ export const api = {
       method: "POST",
       body: JSON.stringify(data),
     }),
-
-  // Цели
-  getGoals: () => request<Goal[]>("/api/goals/"),
-  createGoal: (data: Omit<Goal, "id">) =>
-    request<Goal>("/api/goals/", {
-      method: "POST",
-      body: JSON.stringify(data),
-    }),
-  updateGoal: (id: number, data: Partial<Goal>) =>
-    request<Goal>(`/api/goals/${id}/`, {
-      method: "PATCH",
-      body: JSON.stringify(data),
-    }),
-  deleteGoal: (id: number) =>
-    request<void>(`/api/goals/${id}/`, { method: "DELETE" }),
 
   // Профиль
   getProfile: () => request<Profile>("/api/profile/"),

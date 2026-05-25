@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.urls import path, include
-from main.views.auth_views import (
+from users.views import (
     UserRegister,
     UserLogin,
     UserLogout,
@@ -19,5 +19,9 @@ urlpatterns = [
     path('auth/refresh/', CookieTokenRefreshView.as_view(), name='token-refresh'),
 
     # API для фронтенда (cookie JWT)
-    path('api/', include('main.urls.api')),
+    path('api/', include('users.urls')),
+    path('api/', include('workouts.urls')),
+    path('api/', include('nutrition.urls')),
+    path('api/', include('progress.urls')),
+    path('api/', include('articles.urls')),
 ]

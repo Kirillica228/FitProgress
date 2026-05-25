@@ -31,10 +31,15 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'corsheaders',
-    'main',
-    'vk_bot',
     'rest_framework',
     'rest_framework_simplejwt',
+    # Доменные приложения
+    'users',
+    'workouts',
+    'nutrition',
+    'progress',
+    'articles',
+    'vk_bot',
 ]
 
 MIDDLEWARE = [
@@ -71,7 +76,7 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.environ.get('DB_NAME', 'fit1'),
+        'NAME': os.environ.get('DB_NAME', 'fit'),
         'USER': os.environ.get('DB_USER', 'postgres'),
         'PASSWORD': os.environ.get('DB_PASSWORD', '123456'),
         'HOST': os.environ.get('DB_HOST', 'localhost'),
@@ -82,7 +87,7 @@ DATABASES = {
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
-        'main.authentication.CookieJWTAuthentication',
+        'users.authentication.CookieJWTAuthentication',
     ),
     'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.IsAuthenticated',
@@ -117,7 +122,7 @@ VK_TOKEN = os.environ.get('VK_TOKEN', '')
 
 
 # Password validation
-AUTH_USER_MODEL = "main.User"
+AUTH_USER_MODEL = "users.User"
 
 AUTH_PASSWORD_VALIDATORS = [
     {

@@ -1,0 +1,323 @@
+<mxfile host="app.diagrams.net" agent="draw.io" version="24.0.0">
+  <diagram name="Структурная схема бэкенда FitProgress" id="backend-structure">
+    <mxGraphModel dx="2200" dy="1400" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="2400" pageHeight="1600" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- ══════════════════════════════════════════════════════════════════ -->
+        <!-- ГЛАВНЫЙ БЛОК СИСТЕМЫ -->
+        <!-- ══════════════════════════════════════════════════════════════════ -->
+        <mxCell id="main" value="Бэкенд веб-приложения&#xa;FitProgress" style="rounded=0;whiteSpace=wrap;html=1;fontSize=14;fontStyle=1;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="900" y="40" width="280" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- ══════════════════════════════════════════════════════════════════ -->
+        <!-- ПОДСИСТЕМЫ (уровень 2) -->
+        <!-- ══════════════════════════════════════════════════════════════════ -->
+
+        <!-- Подсистема управления пользователями -->
+        <mxCell id="sub_users" value="Подсистема&#xa;управления&#xa;пользователями" style="rounded=0;whiteSpace=wrap;html=1;fontSize=12;fontStyle=1;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="40" y="220" width="180" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="edge_main_users" style="edgeStyle=orthogonalEdgeStyle;strokeWidth=1.5;" edge="1" source="main" target="sub_users" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Подсистема управления тренировками -->
+        <mxCell id="sub_workouts" value="Подсистема&#xa;управления&#xa;тренировками" style="rounded=0;whiteSpace=wrap;html=1;fontSize=12;fontStyle=1;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="320" y="220" width="180" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="edge_main_workouts" style="edgeStyle=orthogonalEdgeStyle;strokeWidth=1.5;" edge="1" source="main" target="sub_workouts" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Подсистема управления питанием -->
+        <mxCell id="sub_nutrition" value="Подсистема&#xa;управления&#xa;питанием" style="rounded=0;whiteSpace=wrap;html=1;fontSize=12;fontStyle=1;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="600" y="220" width="180" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="edge_main_nutrition" style="edgeStyle=orthogonalEdgeStyle;strokeWidth=1.5;" edge="1" source="main" target="sub_nutrition" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Подсистема отслеживания прогресса -->
+        <mxCell id="sub_progress" value="Подсистема&#xa;отслеживания&#xa;прогресса" style="rounded=0;whiteSpace=wrap;html=1;fontSize=12;fontStyle=1;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="880" y="220" width="180" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="edge_main_progress" style="edgeStyle=orthogonalEdgeStyle;strokeWidth=1.5;" edge="1" source="main" target="sub_progress" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Подсистема управления статьями -->
+        <mxCell id="sub_articles" value="Подсистема&#xa;управления&#xa;статьями" style="rounded=0;whiteSpace=wrap;html=1;fontSize=12;fontStyle=1;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="1160" y="220" width="180" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="edge_main_articles" style="edgeStyle=orthogonalEdgeStyle;strokeWidth=1.5;" edge="1" source="main" target="sub_articles" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Подсистема VK-бота -->
+        <mxCell id="sub_vkbot" value="Подсистема&#xa;VK-бота" style="rounded=0;whiteSpace=wrap;html=1;fontSize=12;fontStyle=1;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="1440" y="220" width="180" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="edge_main_vkbot" style="edgeStyle=orthogonalEdgeStyle;strokeWidth=1.5;" edge="1" source="main" target="sub_vkbot" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Подсистема хранения данных -->
+        <mxCell id="sub_db" value="Подсистема&#xa;хранения данных" style="rounded=0;whiteSpace=wrap;html=1;fontSize=12;fontStyle=1;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="1720" y="220" width="180" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="edge_main_db" style="edgeStyle=orthogonalEdgeStyle;strokeWidth=1.5;" edge="1" source="main" target="sub_db" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- ══════════════════════════════════════════════════════════════════ -->
+        <!-- ФУНКЦИИ ПОДСИСТЕМЫ УПРАВЛЕНИЯ ПОЛЬЗОВАТЕЛЯМИ -->
+        <!-- ══════════════════════════════════════════════════════════════════ -->
+        <mxCell id="u1" value="Регистрация&#xa;пользователей" style="rounded=0;whiteSpace=wrap;html=1;fontSize=11;strokeWidth=1.5;" vertex="1" parent="1">
+          <mxGeometry x="40" y="370" width="180" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="eu1" style="edgeStyle=orthogonalEdgeStyle;strokeWidth=1.5;" edge="1" source="sub_users" target="u1" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="u2" value="Авторизация по JWT&#xa;(httpOnly cookies)" style="rounded=0;whiteSpace=wrap;html=1;fontSize=11;strokeWidth=1.5;" vertex="1" parent="1">
+          <mxGeometry x="40" y="435" width="180" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="eu2" style="edgeStyle=orthogonalEdgeStyle;strokeWidth=1.5;" edge="1" source="u1" target="u2" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="u3" value="Обновление&#xa;access-токена" style="rounded=0;whiteSpace=wrap;html=1;fontSize=11;strokeWidth=1.5;" vertex="1" parent="1">
+          <mxGeometry x="40" y="500" width="180" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="eu3" style="edgeStyle=orthogonalEdgeStyle;strokeWidth=1.5;" edge="1" source="u2" target="u3" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="u4" value="Просмотр и редактирование&#xa;профиля" style="rounded=0;whiteSpace=wrap;html=1;fontSize=11;strokeWidth=1.5;" vertex="1" parent="1">
+          <mxGeometry x="40" y="565" width="180" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="eu4" style="edgeStyle=orthogonalEdgeStyle;strokeWidth=1.5;" edge="1" source="u3" target="u4" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="u5" value="Создание профиля&#xa;при онбординге" style="rounded=0;whiteSpace=wrap;html=1;fontSize=11;strokeWidth=1.5;" vertex="1" parent="1">
+          <mxGeometry x="40" y="630" width="180" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="eu5" style="edgeStyle=orthogonalEdgeStyle;strokeWidth=1.5;" edge="1" source="u4" target="u5" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="u6" value="Выход из системы" style="rounded=0;whiteSpace=wrap;html=1;fontSize=11;strokeWidth=1.5;" vertex="1" parent="1">
+          <mxGeometry x="40" y="695" width="180" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="eu6" style="edgeStyle=orthogonalEdgeStyle;strokeWidth=1.5;" edge="1" source="u5" target="u6" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- ══════════════════════════════════════════════════════════════════ -->
+        <!-- ФУНКЦИИ ПОДСИСТЕМЫ УПРАВЛЕНИЯ ТРЕНИРОВКАМИ -->
+        <!-- ══════════════════════════════════════════════════════════════════ -->
+        <mxCell id="w1" value="Просмотр каталога&#xa;тренировок" style="rounded=0;whiteSpace=wrap;html=1;fontSize=11;strokeWidth=1.5;" vertex="1" parent="1">
+          <mxGeometry x="320" y="370" width="180" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="ew1" style="edgeStyle=orthogonalEdgeStyle;strokeWidth=1.5;" edge="1" source="sub_workouts" target="w1" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="w2" value="Фильтрация по типу&#xa;и сложности" style="rounded=0;whiteSpace=wrap;html=1;fontSize=11;strokeWidth=1.5;" vertex="1" parent="1">
+          <mxGeometry x="320" y="435" width="180" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="ew2" style="edgeStyle=orthogonalEdgeStyle;strokeWidth=1.5;" edge="1" source="w1" target="w2" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="w3" value="Просмотр деталей&#xa;тренировки" style="rounded=0;whiteSpace=wrap;html=1;fontSize=11;strokeWidth=1.5;" vertex="1" parent="1">
+          <mxGeometry x="320" y="500" width="180" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="ew3" style="edgeStyle=orthogonalEdgeStyle;strokeWidth=1.5;" edge="1" source="w2" target="w3" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="w4" value="Запись тренировочных&#xa;сессий" style="rounded=0;whiteSpace=wrap;html=1;fontSize=11;strokeWidth=1.5;" vertex="1" parent="1">
+          <mxGeometry x="320" y="565" width="180" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="ew4" style="edgeStyle=orthogonalEdgeStyle;strokeWidth=1.5;" edge="1" source="w3" target="w4" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="w5" value="История тренировок&#xa;пользователя" style="rounded=0;whiteSpace=wrap;html=1;fontSize=11;strokeWidth=1.5;" vertex="1" parent="1">
+          <mxGeometry x="320" y="630" width="180" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="ew5" style="edgeStyle=orthogonalEdgeStyle;strokeWidth=1.5;" edge="1" source="w4" target="w5" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="w6" value="Тепловая карта&#xa;тренировок за год" style="rounded=0;whiteSpace=wrap;html=1;fontSize=11;strokeWidth=1.5;" vertex="1" parent="1">
+          <mxGeometry x="320" y="695" width="180" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="ew6" style="edgeStyle=orthogonalEdgeStyle;strokeWidth=1.5;" edge="1" source="w5" target="w6" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- ══════════════════════════════════════════════════════════════════ -->
+        <!-- ФУНКЦИИ ПОДСИСТЕМЫ УПРАВЛЕНИЯ ПИТАНИЕМ -->
+        <!-- ══════════════════════════════════════════════════════════════════ -->
+        <mxCell id="n1" value="Просмотр дневника&#xa;питания" style="rounded=0;whiteSpace=wrap;html=1;fontSize=11;strokeWidth=1.5;" vertex="1" parent="1">
+          <mxGeometry x="600" y="370" width="180" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="en1" style="edgeStyle=orthogonalEdgeStyle;strokeWidth=1.5;" edge="1" source="sub_nutrition" target="n1" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="n2" value="Добавление записи&#xa;о приёме пищи" style="rounded=0;whiteSpace=wrap;html=1;fontSize=11;strokeWidth=1.5;" vertex="1" parent="1">
+          <mxGeometry x="600" y="435" width="180" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="en2" style="edgeStyle=orthogonalEdgeStyle;strokeWidth=1.5;" edge="1" source="n1" target="n2" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="n3" value="Удаление записи&#xa;о приёме пищи" style="rounded=0;whiteSpace=wrap;html=1;fontSize=11;strokeWidth=1.5;" vertex="1" parent="1">
+          <mxGeometry x="600" y="500" width="180" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="en3" style="edgeStyle=orthogonalEdgeStyle;strokeWidth=1.5;" edge="1" source="n2" target="n3" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="n4" value="Фильтрация&#xa;по дате" style="rounded=0;whiteSpace=wrap;html=1;fontSize=11;strokeWidth=1.5;" vertex="1" parent="1">
+          <mxGeometry x="600" y="565" width="180" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="en4" style="edgeStyle=orthogonalEdgeStyle;strokeWidth=1.5;" edge="1" source="n3" target="n4" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="n5" value="Тепловая карта&#xa;питания за год" style="rounded=0;whiteSpace=wrap;html=1;fontSize=11;strokeWidth=1.5;" vertex="1" parent="1">
+          <mxGeometry x="600" y="630" width="180" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="en5" style="edgeStyle=orthogonalEdgeStyle;strokeWidth=1.5;" edge="1" source="n4" target="n5" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- ══════════════════════════════════════════════════════════════════ -->
+        <!-- ФУНКЦИИ ПОДСИСТЕМЫ ОТСЛЕЖИВАНИЯ ПРОГРЕССА -->
+        <!-- ══════════════════════════════════════════════════════════════════ -->
+        <mxCell id="p1" value="Просмотр списка&#xa;замеров тела" style="rounded=0;whiteSpace=wrap;html=1;fontSize=11;strokeWidth=1.5;" vertex="1" parent="1">
+          <mxGeometry x="880" y="370" width="180" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="ep1" style="edgeStyle=orthogonalEdgeStyle;strokeWidth=1.5;" edge="1" source="sub_progress" target="p1" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="p2" value="Добавление нового&#xa;замера тела" style="rounded=0;whiteSpace=wrap;html=1;fontSize=11;strokeWidth=1.5;" vertex="1" parent="1">
+          <mxGeometry x="880" y="435" width="180" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="ep2" style="edgeStyle=orthogonalEdgeStyle;strokeWidth=1.5;" edge="1" source="p1" target="p2" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="p3" value="Отслеживание веса,&#xa;обхватов (грудь, талия,&#xa;бёдра)" style="rounded=0;whiteSpace=wrap;html=1;fontSize=11;strokeWidth=1.5;" vertex="1" parent="1">
+          <mxGeometry x="880" y="500" width="180" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="ep3" style="edgeStyle=orthogonalEdgeStyle;strokeWidth=1.5;" edge="1" source="p2" target="p3" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- ═════════════════════════════════════════════════════════════════ -->
+        <!-- ФУНКЦИИ ПОДСИСТЕМЫ УПРАВЛЕНИЯ СТАТЬЯМИ -->
+        <!-- ══════════════════════════════════════════════════════════════════ -->
+        <mxCell id="a1" value="Просмотр списка&#xa;опубликованных статей" style="rounded=0;whiteSpace=wrap;html=1;fontSize=11;strokeWidth=1.5;" vertex="1" parent="1">
+          <mxGeometry x="1160" y="370" width="180" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="ea1" style="edgeStyle=orthogonalEdgeStyle;strokeWidth=1.5;" edge="1" source="sub_articles" target="a1" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="a2" value="Просмотр отдельной&#xa;статьи по slug" style="rounded=0;whiteSpace=wrap;html=1;fontSize=11;strokeWidth=1.5;" vertex="1" parent="1">
+          <mxGeometry x="1160" y="435" width="180" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="ea2" style="edgeStyle=orthogonalEdgeStyle;strokeWidth=1.5;" edge="1" source="a1" target="a2" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="a3" value="Управление статьями&#xa;через Django Admin" style="rounded=0;whiteSpace=wrap;html=1;fontSize=11;strokeWidth=1.5;" vertex="1" parent="1">
+          <mxGeometry x="1160" y="500" width="180" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="ea3" style="edgeStyle=orthogonalEdgeStyle;strokeWidth=1.5;" edge="1" source="a2" target="a3" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- ══════════════════════════════════════════════════════════════════ -->
+        <!-- ФУНКЦИИ ПОДСИСТЕМЫ VK-БОТА -->
+        <!-- ══════════════════════════════════════════════════════════════════ -->
+        <mxCell id="v1" value="Привязка VK-аккаунта&#xa;к пользователю" style="rounded=0;whiteSpace=wrap;html=1;fontSize=11;strokeWidth=1.5;" vertex="1" parent="1">
+          <mxGeometry x="1440" y="370" width="180" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="ev1" style="edgeStyle=orthogonalEdgeStyle;strokeWidth=1.5;" edge="1" source="sub_vkbot" target="v1" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="v2" value="Подбор тренировок&#xa;по категории и сложности" style="rounded=0;whiteSpace=wrap;html=1;fontSize=11;strokeWidth=1.5;" vertex="1" parent="1">
+          <mxGeometry x="1440" y="435" width="180" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="ev2" style="edgeStyle=orthogonalEdgeStyle;strokeWidth=1.5;" edge="1" source="v1" target="v2" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="v3" value="Запись тренировки&#xa;через бота" style="rounded=0;whiteSpace=wrap;html=1;fontSize=11;strokeWidth=1.5;" vertex="1" parent="1">
+          <mxGeometry x="1440" y="500" width="180" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="ev3" style="edgeStyle=orthogonalEdgeStyle;strokeWidth=1.5;" edge="1" source="v2" target="v3" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="v4" value="Добавление питания&#xa;через бота" style="rounded=0;whiteSpace=wrap;html=1;fontSize=11;strokeWidth=1.5;" vertex="1" parent="1">
+          <mxGeometry x="1440" y="565" width="180" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="ev4" style="edgeStyle=orthogonalEdgeStyle;strokeWidth=1.5;" edge="1" source="v3" target="v4" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="v5" value="Добавление замеров&#xa;тела через бота" style="rounded=0;whiteSpace=wrap;html=1;fontSize=11;strokeWidth=1.5;" vertex="1" parent="1">
+          <mxGeometry x="1440" y="630" width="180" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="ev5" style="edgeStyle=orthogonalEdgeStyle;strokeWidth=1.5;" edge="1" source="v4" target="v5" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="v6" value="Поиск продуктов&#xa;в Open Food Facts" style="rounded=0;whiteSpace=wrap;html=1;fontSize=11;strokeWidth=1.5;" vertex="1" parent="1">
+          <mxGeometry x="1440" y="695" width="180" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="ev6" style="edgeStyle=orthogonalEdgeStyle;strokeWidth=1.5;" edge="1" source="v5" target="v6" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- ══════════════════════════════════════════════════════════════════ -->
+        <!-- ФУНКЦИИ ПОДСИСТЕМЫ ХРАНЕНИЯ ДАННЫХ -->
+        <!-- ══════════════════════════════════════════════════════════════════ -->
+        <mxCell id="d1" value="База данных&#xa;PostgreSQL" style="rounded=0;whiteSpace=wrap;html=1;fontSize=11;strokeWidth=1.5;" vertex="1" parent="1">
+          <mxGeometry x="1720" y="370" width="180" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="ed1" style="edgeStyle=orthogonalEdgeStyle;strokeWidth=1.5;" edge="1" source="sub_db" target="d1" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="d2" value="Django ORM" style="rounded=0;whiteSpace=wrap;html=1;fontSize=11;strokeWidth=1.5;" vertex="1" parent="1">
+          <mxGeometry x="1720" y="435" width="180" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="ed2" style="edgeStyle=orthogonalEdgeStyle;strokeWidth=1.5;" edge="1" source="d1" target="d2" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="d3" value="Миграции&#xa;базы данных" style="rounded=0;whiteSpace=wrap;html=1;fontSize=11;strokeWidth=1.5;" vertex="1" parent="1">
+          <mxGeometry x="1720" y="500" width="180" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="ed3" style="edgeStyle=orthogonalEdgeStyle;strokeWidth=1.5;" edge="1" source="d2" target="d3" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
