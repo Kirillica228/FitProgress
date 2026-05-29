@@ -72,22 +72,34 @@ class NutritionHeatmapView(APIView):
             user=request.user,
             created_at__date__gte=year_start,
             created_at__date__lte=year_end,
-        ).values('created_at__date', 'calories')
+        ).values('created_at__date', 'calories', 'protein', 'fats', 'carbs')
 
         # Агрегируем по дате
         day_map: dict[str, dict] = {}
         for row in entries:
             d = str(row['created_at__date'])
             if d not in day_map:
-                day_map[d] = {'count': 0, 'calories': 0.0}
+                day_map[d] = {
+                    'count': 0,
+                    'calories': 0.0,
+                    'protein': 0.0,
+                    'fats': 0.0,
+                    'carbs': 0.0,
+                }
             day_map[d]['count'] += 1
             day_map[d]['calories'] += row['calories'] or 0.0
+            day_map[d]['protein'] += row['protein'] or 0.0
+            day_map[d]['fats'] += row['fats'] or 0.0
+            day_map[d]['carbs'] += row['carbs'] or 0.0
 
         result = [
             {
                 'date': d,
                 'count': v['count'],
                 'calories': round(v['calories'], 1),
+                'protein': round(v['protein'], 1),
+                'fats': round(v['fats'], 1),
+                'carbs': round(v['carbs'], 1),
             }
             for d, v in sorted(day_map.items())
         ]

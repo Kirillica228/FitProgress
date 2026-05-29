@@ -8,7 +8,11 @@ class FoodEntrySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = FoodEntry
-        fields = ['id', 'food_name', 'calories', 'meal_type', 'logged_at']
+        fields = [
+            'id', 'food_name', 'fdc_id', 'grams',
+            'calories', 'protein', 'fats', 'carbs',
+            'meal_type', 'meal_group', 'logged_at',
+        ]
         read_only_fields = ['logged_at']
 
 
@@ -17,7 +21,11 @@ class FoodEntryCreateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = FoodEntry
-        fields = ['food_name', 'calories', 'meal_type']
+        fields = [
+            'food_name', 'fdc_id', 'grams',
+            'calories', 'protein', 'fats', 'carbs',
+            'meal_type', 'meal_group',
+        ]
         extra_kwargs = {
             'food_name': {
                 'error_messages': {

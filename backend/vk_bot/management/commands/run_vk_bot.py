@@ -4,7 +4,7 @@ Django management-команда для запуска VK-бота FitProgress.
 Использование:
     python manage.py run_vk_bot
 
-Бот работает напрямую через Django ORM — HTTP-запросы к бэкенду не нужны.
+Бот работает напрямую через Django ORM + FoodData Central API (USDA).
 VK_TOKEN берётся из переменной окружения (settings.VK_TOKEN).
 """
 import re
@@ -39,32 +39,6 @@ MEAL_TYPE_LABEL = {
 }
 
 log = logging.getLogger(__name__)
-
-# ── Маппинги кнопок → внутренние значения ────────────────────────────────────
-
-CATEGORY_MAP = {
-    "💪 силовая": "strength",
-    "🏃 кардио": "cardio",
-    "🏠 домашняя": "home",
-}
-
-DIFFICULTY_MAP = {
-    "🟢 новичок": "beginner",
-    "🟡 средний": "intermediate",
-    "🔴 опытный": "advanced",
-}
-
-DIFFICULTY_LABEL = {
-    "beginner": "Новичок",
-    "intermediate": "Средний",
-    "advanced": "Опытный",
-}
-
-TYPE_LABEL = {
-    "strength": "Силовая",
-    "cardio": "Кардио",
-    "home": "Домашняя",
-}
 
 
 # ── Отправка сообщений ────────────────────────────────────────────────────────
@@ -159,15 +133,20 @@ def handle_message(vk, event) -> None:
 
     if state == State.IDLE:
         if text_lower == "🏋️ тренировки":
-            send(vk, vk_id, "Выбери категорию тренировки:", kb.workout_category())
-            set_state(vk_id, State.WORKOUT_CATEGORY)
+            set_data(vk_id, "workout_exercises", [])
+            send(vk, vk_id,
+                 "🏋️ Введи название упражнения для поиска:",
+                 kb.workout_search())
+            set_state(vk_id, State.WORKOUT_SEARCH)
             return
 
         if text_lower == "🥗 питание":
+            set_data(vk_id, "food_items", [])
             send(vk, vk_id,
-                 "Что ты съел? Напиши название блюда или продукта:",
-                 kb.empty())
-            set_state(vk_id, State.FOOD_NAME)
+                 "🥗 Введи название продукта и количество грамм.\n"
+                 "Например: курица 200",
+                 kb.food_search())
+            set_state(vk_id, State.FOOD_INPUT)
             return
 
         if text_lower == "📏 замеры":
@@ -180,80 +159,170 @@ def handle_message(vk, event) -> None:
         send(vk, vk_id, "Выбери действие:", kb.main_menu())
         return
 
-    # ── Ветка тренировок ─────────────────────────────────────────────────────
-    if state == State.WORKOUT_CATEGORY:
-        if text_lower == "◀️ назад":
-            send(vk, vk_id, "Главное меню:", kb.main_menu())
-            set_state(vk_id, State.IDLE)
+    # ── Ветка тренировок (поиск и сборка) ─────────────────────────────────────
+    if state == State.WORKOUT_SEARCH:
+        query = text.strip()
+        if not query:
+            send(vk, vk_id, "Введи название упражнения:", kb.workout_search())
             return
 
-        category = CATEGORY_MAP.get(text_lower)
-        if not category:
-            send(vk, vk_id, "Выбери категорию из кнопок ниже:", kb.workout_category())
+        results = api.search_exercises(query)
+        if not results:
+            send(vk, vk_id,
+                 f"😔 По запросу «{query}» ничего не найдено.\n"
+                 "Попробуй другое название:",
+                 kb.workout_search())
             return
 
-        set_data(vk_id, "workout_category", category)
-        send(vk, vk_id, "Выбери уровень сложности:", kb.workout_difficulty())
-        set_state(vk_id, State.WORKOUT_DIFFICULTY)
+        # Сохраняем результаты поиска
+        set_data(vk_id, "search_results", results)
+
+        lines = ["🔍 Найдено:"]
+        for i, ex in enumerate(results, start=1):
+            lines.append(f"{i}. {ex['name']} /ex_{ex['id']}")
+        lines.append("\nОтправь команду /ex_ID чтобы посмотреть упражнение.")
+
+        send(vk, vk_id, "\n".join(lines), kb.workout_search())
+        set_state(vk_id, State.WORKOUT_SELECT)
         return
 
-    if state == State.WORKOUT_DIFFICULTY:
-        if text_lower == "◀️ назад":
-            send(vk, vk_id, "Выбери категорию тренировки:", kb.workout_category())
-            set_state(vk_id, State.WORKOUT_CATEGORY)
-            return
-
-        difficulty = DIFFICULTY_MAP.get(text_lower)
-        if not difficulty:
-            send(vk, vk_id, "Выбери сложность из кнопок ниже:", kb.workout_difficulty())
-            return
-
-        category = get_data(vk_id).get("workout_category", "strength")
-        send(vk, vk_id, "⏳ Загружаю тренировку...")
-
-        # Запрос через ORM (без HTTP)
-        workouts = api.get_workouts(category, difficulty)
-        if not workouts:
+    if state == State.WORKOUT_SELECT:
+        # Ожидаем /ex_ID
+        match = re.match(r"^/ex_(\d+)$", text.strip())
+        if not match:
             send(vk, vk_id,
-                 f"😔 Тренировок для категории «{TYPE_LABEL.get(category, category)}» "
-                 f"/ сложности «{DIFFICULTY_LABEL.get(difficulty, difficulty)}» пока нет.\n"
-                 "Попробуй другую комбинацию:",
-                 kb.workout_difficulty())
+                 "Отправь команду в формате /ex_ID (например /ex_15)\n"
+                 "Или введи новое название для поиска:",
+                 kb.workout_search())
+            # Если ввели текст без /ex_ — считаем новым поиском
+            if text.strip() and not text.startswith("/"):
+                set_state(vk_id, State.WORKOUT_SEARCH)
+                # Рекурсивно обработаем как поиск
+                results = api.search_exercises(text.strip())
+                if results:
+                    set_data(vk_id, "search_results", results)
+                    lines = ["🔍 Найдено:"]
+                    for i, ex in enumerate(results, start=1):
+                        lines.append(f"{i}. {ex['name']} /ex_{ex['id']}")
+                    lines.append("\nОтправь /ex_ID чтобы посмотреть упражнение.")
+                    send(vk, vk_id, "\n".join(lines), kb.workout_search())
+                    set_state(vk_id, State.WORKOUT_SELECT)
+                else:
+                    send(vk, vk_id,
+                         f"😔 По запросу «{text.strip()}» ничего не найдено.\n"
+                         "Попробуй другое название:",
+                         kb.workout_search())
+                    set_state(vk_id, State.WORKOUT_SEARCH)
             return
 
-        # Берём первую подходящую тренировку
-        workout = workouts[0]
-        set_data(vk_id, "workout_id", workout["id"])
+        exercise_id = int(match.group(1))
+        exercise = api.get_exercise_by_id(exercise_id)
+        if not exercise:
+            send(vk, vk_id, "❌ Упражнение не найдено. Попробуй другой ID.")
+            return
+
+        set_data(vk_id, "current_exercise", exercise)
 
         lines = [
-            f"🏋️ *{workout['name']}*",
-            f"Категория: {TYPE_LABEL.get(workout['type'], workout['type'])}  |  "
-            f"Сложность: {DIFFICULTY_LABEL.get(workout['difficulty'], workout['difficulty'])}",
-            "",
-            "📋 Упражнения:",
+            f"📋 {exercise['name']}",
+            f"🦴 Часть тела: {exercise['part_body']}",
+            f"🏗 Оборудование: {exercise['equipment']}",
+            f"💪 Основные мышцы: {exercise['main_muscles']}",
+            f"🔗 Вспомогательные: {exercise['accessory_muscles']}",
         ]
-
-        exercises = workout.get("exercises", [])
-        if exercises:
-            for i, we in enumerate(exercises, start=1):
-                ex = we.get("exercise", {})
-                name = ex.get("name", "—")
-                sets = we.get("sets", "?")
-                reps = we.get("reps", "?")
-                lines.append(f"{i}. {name} — {sets} подх. × {reps} повт.")
-        else:
-            lines.append("(упражнения не заданы)")
-
-        lines += ["", "Когда закончишь — нажми «Завершить тренировку»."]
-
-        send(vk, vk_id, "\n".join(lines), kb.workout_active())
-        set_state(vk_id, State.WORKOUT_ACTIVE)
+        send(vk, vk_id, "\n".join(lines), kb.workout_exercise_view())
+        set_state(vk_id, State.WORKOUT_VIEW)
         return
 
-    if state == State.WORKOUT_ACTIVE:
+    if state == State.WORKOUT_VIEW:
+        if text_lower == "➕ добавить в тренировку":
+            send(vk, vk_id,
+                 "Введи вес (кг). Если без веса — напиши 0:",
+                 kb.back_to_menu())
+            set_state(vk_id, State.WORKOUT_WEIGHT)
+            return
+
+        if text_lower == "🔍 искать ещё":
+            send(vk, vk_id,
+                 "Введи название упражнения для поиска:",
+                 kb.workout_search())
+            set_state(vk_id, State.WORKOUT_SEARCH)
+            return
+
+        send(vk, vk_id, "Выбери действие:", kb.workout_exercise_view())
+        return
+
+    if state == State.WORKOUT_WEIGHT:
+        match = re.match(r"^(\d+(?:[.,]\d+)?)$", text.strip())
+        if not match:
+            send(vk, vk_id, "Введи число (вес в кг), например: 80 или 0:")
+            return
+
+        weight = float(match.group(1).replace(",", "."))
+        set_data(vk_id, "ex_weight", weight)
+        send(vk, vk_id,
+             "Сколько подходов? (например: 4):",
+             kb.back_to_menu())
+        set_state(vk_id, State.WORKOUT_SETS)
+        return
+
+    if state == State.WORKOUT_SETS:
+        match = re.match(r"^(\d+)$", text.strip())
+        if not match:
+            send(vk, vk_id, "Введи целое число подходов, например: 4")
+            return
+
+        sets = int(match.group(1))
+        set_data(vk_id, "ex_sets", sets)
+        send(vk, vk_id,
+             "Продолжительность в секундах (если не нужно — напиши 0):",
+             kb.back_to_menu())
+        set_state(vk_id, State.WORKOUT_DURATION)
+        return
+
+    if state == State.WORKOUT_DURATION:
+        match = re.match(r"^(\d+)$", text.strip())
+        if not match:
+            send(vk, vk_id, "Введи число секунд, например: 60 или 0")
+            return
+
+        duration = int(match.group(1))
+        d = get_data(vk_id)
+        exercise = d.get("current_exercise", {})
+        exercises_list = d.get("workout_exercises", [])
+
+        exercises_list.append({
+            "exercise_id": exercise.get("id"),
+            "name": exercise.get("name", "—"),
+            "weight": d.get("ex_weight", 0),
+            "sets": d.get("ex_sets", 1),
+            "duration": duration,
+        })
+        set_data(vk_id, "workout_exercises", exercises_list)
+
+        # Показываем текущий состав тренировки
+        lines = ["🏋️ Твоя тренировка:"]
+        for i, ex in enumerate(exercises_list, start=1):
+            w = f"{ex['weight']}кг" if ex['weight'] > 0 else "без веса"
+            dur = f", {ex['duration']}сек" if ex['duration'] > 0 else ""
+            lines.append(f"{i}. {ex['name']} — {ex['sets']} подх., {w}{dur}")
+
+        lines.append("\nДобавить ещё или завершить?")
+        send(vk, vk_id, "\n".join(lines), kb.workout_building())
+        set_state(vk_id, State.WORKOUT_BUILDING)
+        return
+
+    if state == State.WORKOUT_BUILDING:
+        if text_lower == "🔍 добавить ещё":
+            send(vk, vk_id,
+                 "Введи название упражнения для поиска:",
+                 kb.workout_search())
+            set_state(vk_id, State.WORKOUT_SEARCH)
+            return
+
         if text_lower == "✅ завершить тренировку":
-            workout_id: int = get_data(vk_id).get("workout_id", 0)
-            ok = api.save_workout_session(vk_id, workout_id)
+            exercises_list = get_data(vk_id).get("workout_exercises", [])
+            ok = api.save_custom_workout(vk_id, exercises_list)
             if ok:
                 send(vk, vk_id,
                      "🎉 Тренировка записана! Отличная работа!",
@@ -265,62 +334,159 @@ def handle_message(vk, event) -> None:
             set_state(vk_id, State.IDLE)
             return
 
-        if text_lower == "◀️ главное меню":
-            send(vk, vk_id, "Главное меню:", kb.main_menu())
-            set_state(vk_id, State.IDLE)
-            return
-
-        send(vk, vk_id,
-             "Нажми «Завершить тренировку» когда будешь готов.",
-             kb.workout_active())
+        send(vk, vk_id, "Выбери действие:", kb.workout_building())
         return
 
-    # ── Ветка питания ────────────────────────────────────────────────────────
-    if state == State.FOOD_NAME:
-        if text_lower in ("◀️ главное меню", "главное меню", "меню"):
-            send(vk, vk_id, "Главное меню:", kb.main_menu())
-            set_state(vk_id, State.IDLE)
+    # ── Ветка питания (FoodData Central) ──────────────────────────────────────
+    if state == State.FOOD_INPUT:
+        # Парсим: "курица 200" → product="курица", grams=200
+        # Если грамм нет — по умолчанию 100
+        input_text = text.strip()
+        if not input_text:
+            send(vk, vk_id,
+                 "Введи название продукта и граммы (например: курица 200):",
+                 kb.food_search())
             return
 
-        food_name = text.strip()
-        if not food_name:
-            send(vk, vk_id, "Введи название блюда или продукта:")
+        # Пытаемся выделить число в конце
+        match = re.match(r"^(.+?)\s+(\d+(?:[.,]\d+)?)\s*$", input_text)
+        if match:
+            product_name = match.group(1).strip()
+            grams = float(match.group(2).replace(",", "."))
+        else:
+            product_name = input_text
+            grams = 100.0
+
+        set_data(vk_id, "food_query", product_name)
+        set_data(vk_id, "food_grams", grams)
+
+        send(vk, vk_id, "⏳ Ищу продукт...")
+
+        results = api.search_food_fdc(product_name)
+        if not results:
+            send(vk, vk_id,
+                 f"😔 По запросу «{product_name}» ничего не найдено.\n"
+                 "Попробуй другое название:",
+                 kb.food_search())
             return
 
-        set_data(vk_id, "f_name", food_name)
-        send(vk, vk_id,
-             f"Сколько калорий в «{food_name}»?\n"
-             "Введи число (например: 350):",
-             kb.empty())
-        set_state(vk_id, State.FOOD_CALORIES)
+        set_data(vk_id, "food_search_results", results)
+
+        lines = ["🔍 Найдено:"]
+        for i, food in enumerate(results, start=1):
+            lines.append(f"{i}. {food['description']} /fd_{food['fdc_id']}")
+        lines.append(f"\n(расчёт на {grams:.0f}г)")
+        lines.append("Отправь /fd_ID чтобы выбрать продукт.")
+
+        send(vk, vk_id, "\n".join(lines), kb.food_search())
+        set_state(vk_id, State.FOOD_SELECT)
         return
 
-    if state == State.FOOD_CALORIES:
-        if text_lower in ("◀️ главное меню", "главное меню", "меню"):
-            send(vk, vk_id, "Главное меню:", kb.main_menu())
-            set_state(vk_id, State.IDLE)
-            return
-
-        match = re.match(r"^(\d+(?:[.,]\d+)?)$", text.strip())
+    if state == State.FOOD_SELECT:
+        # Ожидаем /fd_ID
+        match = re.match(r"^/fd_(\d+)$", text.strip())
         if not match:
-            send(vk, vk_id, "Введи число калорий, например: 350")
+            # Если ввели текст без /fd_ — считаем новым поиском
+            if text.strip() and not text.startswith("/"):
+                set_state(vk_id, State.FOOD_INPUT)
+                # Повторно обработаем как ввод
+                input_text = text.strip()
+                m = re.match(r"^(.+?)\s+(\d+(?:[.,]\d+)?)\s*$", input_text)
+                if m:
+                    product_name = m.group(1).strip()
+                    grams = float(m.group(2).replace(",", "."))
+                else:
+                    product_name = input_text
+                    grams = get_data(vk_id).get("food_grams", 100.0)
+
+                set_data(vk_id, "food_query", product_name)
+                set_data(vk_id, "food_grams", grams)
+
+                results = api.search_food_fdc(product_name)
+                if not results:
+                    send(vk, vk_id,
+                         f"😔 По запросу «{product_name}» ничего не найдено.\n"
+                         "Попробуй другое название:",
+                         kb.food_search())
+                    set_state(vk_id, State.FOOD_INPUT)
+                    return
+
+                set_data(vk_id, "food_search_results", results)
+                lines = ["🔍 Найдено:"]
+                for i, food in enumerate(results, start=1):
+                    lines.append(f"{i}. {food['description']} /fd_{food['fdc_id']}")
+                lines.append(f"\n(расчёт на {grams:.0f}г)")
+                lines.append("Отправь /fd_ID чтобы выбрать продукт.")
+                send(vk, vk_id, "\n".join(lines), kb.food_search())
+                set_state(vk_id, State.FOOD_SELECT)
+            else:
+                send(vk, vk_id,
+                     "Отправь /fd_ID (например /fd_171077) или введи новый продукт:",
+                     kb.food_search())
             return
 
-        calories = float(match.group(1).replace(",", "."))
-        set_data(vk_id, "f_calories", calories)
+        fdc_id = int(match.group(1))
+        # Ищем в сохранённых результатах
+        results = get_data(vk_id).get("food_search_results", [])
+        food_data = None
+        for item in results:
+            if item.get("fdc_id") == fdc_id:
+                food_data = item
+                break
 
-        send(vk, vk_id,
-             "Выбери тип приёма пищи:",
-             kb.meal_type())
-        set_state(vk_id, State.FOOD_MEAL_TYPE)
+        if not food_data:
+            send(vk, vk_id, "❌ Продукт не найден в результатах. Попробуй ещё раз.")
+            return
+
+        grams = get_data(vk_id).get("food_grams", 100.0)
+        nutrients = api.calculate_nutrients(food_data, grams)
+
+        # Сохраняем выбранный продукт
+        food_item = {
+            "food_name": food_data["description"],
+            "fdc_id": fdc_id,
+            "grams": grams,
+            "calories": nutrients["calories"],
+            "protein": nutrients["protein"],
+            "fats": nutrients["fats"],
+            "carbs": nutrients["carbs"],
+        }
+
+        food_items = get_data(vk_id).get("food_items", [])
+        food_items.append(food_item)
+        set_data(vk_id, "food_items", food_items)
+
+        lines = [
+            f"✅ {food_data['description']} ({grams:.0f}г)",
+            f"🔥 {nutrients['calories']} ккал | Б: {nutrients['protein']}г | "
+            f"Ж: {nutrients['fats']}г | У: {nutrients['carbs']}г",
+            "",
+            f"📋 В приёме пищи: {len(food_items)} продукт(ов)",
+            "\nДобавить ещё или завершить?",
+        ]
+        send(vk, vk_id, "\n".join(lines), kb.food_confirm())
+        set_state(vk_id, State.FOOD_CONFIRM)
+        return
+
+    if state == State.FOOD_CONFIRM:
+        if text_lower == "➕ добавить ещё":
+            send(vk, vk_id,
+                 "Введи название продукта и граммы (например: рис 150):",
+                 kb.food_search())
+            set_state(vk_id, State.FOOD_INPUT)
+            return
+
+        if text_lower == "✅ завершить питание":
+            send(vk, vk_id,
+                 "Выбери тип приёма пищи:",
+                 kb.meal_type())
+            set_state(vk_id, State.FOOD_MEAL_TYPE)
+            return
+
+        send(vk, vk_id, "Выбери действие:", kb.food_confirm())
         return
 
     if state == State.FOOD_MEAL_TYPE:
-        if text_lower in ("◀️ главное меню", "главное меню", "меню"):
-            send(vk, vk_id, "Главное меню:", kb.main_menu())
-            set_state(vk_id, State.IDLE)
-            return
-
         meal = MEAL_TYPE_MAP.get(text_lower)
         if not meal:
             send(vk, vk_id,
@@ -328,21 +494,26 @@ def handle_message(vk, event) -> None:
                  kb.meal_type())
             return
 
-        d = get_data(vk_id)
-        food_name = d.get("f_name", "")
-        calories = d.get("f_calories", 0.0)
+        food_items = get_data(vk_id).get("food_items", [])
+        ok = api.save_food_entries(vk_id, food_items, meal)
 
-        result = api.save_food_entry(vk_id, food_name, calories, meal)
-        if result is None:
+        if not ok:
             send(vk, vk_id,
                  "⚠️ Не удалось сохранить запись. Попробуй позже.",
                  kb.main_menu())
         else:
-            send(vk, vk_id,
-                 f"✅ Записано!\n"
-                 f"🍽 {food_name}\n"
-                 f"🔥 {calories:.0f} ккал  |  {MEAL_TYPE_LABEL.get(meal, meal)}",
-                 kb.main_menu())
+            total_cal = sum(item["calories"] for item in food_items)
+            total_p = sum(item["protein"] for item in food_items)
+            total_f = sum(item["fats"] for item in food_items)
+            total_c = sum(item["carbs"] for item in food_items)
+
+            lines = [
+                f"✅ {MEAL_TYPE_LABEL.get(meal, meal)} записан!",
+                f"📋 Продуктов: {len(food_items)}",
+                f"🔥 Итого: {total_cal:.0f} ккал",
+                f"   Б: {total_p:.1f}г | Ж: {total_f:.1f}г | У: {total_c:.1f}г",
+            ]
+            send(vk, vk_id, "\n".join(lines), kb.main_menu())
 
         set_state(vk_id, State.IDLE)
         return

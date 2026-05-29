@@ -1,5 +1,5 @@
 """
-FSM-состояния диалога VK-бота.
+FSM-состояния диалога VK-бота FitProgress.
 Хранятся в памяти процесса: user_states[vk_id] = State.XXX
 user_data[vk_id] = {...} — временные данные в рамках сессии.
 """
@@ -11,21 +11,26 @@ class State:
     WAIT_USERNAME = "wait_username"
     WAIT_PASSWORD = "wait_password"
 
-    # Тренировки
-    WORKOUT_CATEGORY = "workout_category"
-    WORKOUT_DIFFICULTY = "workout_difficulty"
-    WORKOUT_ACTIVE = "workout_active"       # тренировка показана, ждём «Завершить»
+    # ── Тренировки (пользователь собирает свою тренировку) ──
+    WORKOUT_SEARCH = "workout_search"               # ждём название упражнения для поиска
+    WORKOUT_SELECT = "workout_select"               # ждём выбор упражнения из списка (/ex_ID)
+    WORKOUT_VIEW = "workout_view"                   # просмотр карточки упражнения
+    WORKOUT_WEIGHT = "workout_weight"               # ввод веса (кг)
+    WORKOUT_SETS = "workout_sets"                   # ввод кол-ва подходов
+    WORKOUT_DURATION = "workout_duration"           # ввод продолжительности (сек)
+    WORKOUT_BUILDING = "workout_building"           # тренировка собирается, ждём действие
 
-    # Питание (многошаговый диалог)
-    FOOD_NAME = "food_name"                 # ждём название блюда
-    FOOD_CALORIES = "food_calories"         # ждём калории
-    FOOD_MEAL_TYPE = "food_meal_type"       # ждём тип приёма пищи
+    # ── Питание (поиск через FoodData Central) ──
+    FOOD_INPUT = "food_input"                       # ждём название продукта + граммы
+    FOOD_SELECT = "food_select"                     # ждём выбор продукта из списка (/fd_ID)
+    FOOD_CONFIRM = "food_confirm"                   # подтверждение / добавить ещё
+    FOOD_MEAL_TYPE = "food_meal_type"               # выбор типа приёма пищи
 
-    # Замеры тела (многошаговый диалог)
-    MEASUREMENT_WEIGHT = "measurement_weight"   # ждём вес (обязательно)
-    MEASUREMENT_CHEST  = "measurement_chest"    # ждём обхват груди (можно пропустить)
-    MEASUREMENT_WAIST  = "measurement_waist"    # ждём обхват талии (можно пропустить)
-    MEASUREMENT_HIPS   = "measurement_hips"     # ждём обхват бёдер (можно пропустить)
+    # ── Замеры тела (без изменений) ──
+    MEASUREMENT_WEIGHT = "measurement_weight"
+    MEASUREMENT_CHEST = "measurement_chest"
+    MEASUREMENT_WAIST = "measurement_waist"
+    MEASUREMENT_HIPS = "measurement_hips"
 
 
 # Глобальные словари состояний (живут в памяти процесса)

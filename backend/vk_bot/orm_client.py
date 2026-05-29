@@ -1,21 +1,28 @@
 """
-Замена api_client.py: вся логика работает напрямую через Django ORM,
-без HTTP-запросов к бэкенду. Бот теперь является частью Django-проекта.
+ORM-клиент VK-бота FitProgress.
+Работает напрямую через Django ORM + внешний API FoodData Central (USDA).
 """
+import uuid
 import logging
 import requests
 
+from django.conf import settings
 from django.contrib.auth import authenticate
 
 from users.models import User
-from workouts.models import Workout, WorkoutSession
+from workouts.models import Exercise, WorkoutSession, WorkoutSessionExercise, Set as WorkoutSet
 from nutrition.models import FoodEntry
 from progress.models import BodyMeasurement
 
 log = logging.getLogger(__name__)
 
+# API-ключ FoodData Central (из .env → settings)
+FDC_API_KEY = getattr(settings, "FDC_API_KEY", "DEMO_KEY")
 
-# ── Вспомогательные функции ───────────────────────────────────────────────────
+
+# ══════════════════════════════════════════════════════════════════════════════
+# Вспомогательные функции
+# ══════════════════════════════════════════════════════════════════════════════
 
 def get_user_by_vk_id(vk_id: int) -> "User | None":
     """Возвращает пользователя по vk_id или None."""
@@ -25,62 +32,15 @@ def get_user_by_vk_id(vk_id: int) -> "User | None":
         return None
 
 
-# Приватный алиас для внутреннего использования внутри модуля
-_get_user_by_vk_id = get_user_by_vk_id
+_get_user = get_user_by_vk_id  # короткий алиас
 
 
-def _search_off(product_name: str) -> "dict | None":
-    """
-    Ищет продукт в Open Food Facts.
-    Возвращает словарь с ккал/белки/жиры/углеводы на 100г или None.
-    """
-    try:
-        url = "https://world.openfoodfacts.org/cgi/search.pl"
-        params = {
-            "search_terms": product_name,
-            "search_simple": 1,
-            "action": "process",
-            "json": 1,
-            "page_size": 5,
-            "fields": "product_name,nutriments,id",
-        }
-        resp = requests.get(url, params=params, timeout=8)
-        resp.raise_for_status()
-        data = resp.json()
-
-        products = data.get("products", [])
-        if not products:
-            return None
-
-        # берём первый продукт с заполненными нутриентами
-        for product in products:
-            nutriments = product.get("nutriments", {})
-            calories_100 = (
-                nutriments.get("energy-kcal_100g")
-                or nutriments.get("energy-kcal")
-            )
-            if calories_100 is None:
-                continue
-            return {
-                "product_name": product.get("product_name", product_name),
-                "off_product_id": product.get("id", ""),
-                "calories_100g": float(calories_100),
-                "protein_100g": float(nutriments.get("proteins_100g", 0)),
-                "fats_100g": float(nutriments.get("fat_100g", 0)),
-                "carbs_100g": float(nutriments.get("carbohydrates_100g", 0)),
-            }
-    except Exception as exc:
-        log.warning("Open Food Facts error: %s", exc)
-    return None
-
-
-# ── Публичный API (аналог функций api_client.py) ──────────────────────────────
+# ══════════════════════════════════════════════════════════════════════════════
+# Авторизация
+# ══════════════════════════════════════════════════════════════════════════════
 
 def login(username: str, password: str) -> "dict | None":
-    """
-    Аутентифицирует пользователя через Django auth.
-    Возвращает {"user": <User>} при успехе или None.
-    """
+    """Аутентифицирует пользователя через Django auth."""
     user = authenticate(username=username, password=password)
     if user is not None and user.is_active:
         return {"user": user}
@@ -88,10 +48,7 @@ def login(username: str, password: str) -> "dict | None":
 
 
 def link_vk(user: "User", vk_id: int) -> bool:
-    """
-    Привязывает vk_id к пользователю.
-    Возвращает True при успехе, False если vk_id занят другим аккаунтом.
-    """
+    """Привязывает vk_id к пользователю."""
     if User.objects.filter(vk_id=vk_id).exclude(pk=user.pk).exists():
         return False
     user.vk_id = vk_id
@@ -99,146 +56,237 @@ def link_vk(user: "User", vk_id: int) -> bool:
     return True
 
 
-def get_workouts(workout_type: str = "", difficulty: str = "") -> list[dict]:
-    """Возвращает список тренировок (каталог)."""
-    qs = Workout.objects.prefetch_related("exercises__exercise").all()
-    if workout_type:
-        qs = qs.filter(type=workout_type)
-    if difficulty:
-        qs = qs.filter(difficulty=difficulty)
+# ══════════════════════════════════════════════════════════════════════════════
+# Тренировки — поиск упражнений
+# ══════════════════════════════════════════════════════════════════════════════
 
-    result = []
-    for w in qs:
-        exercises = []
-        for we in w.exercises.all():
-            exercises.append({
-                "name": we.exercise.name,
-                "sets": we.sets,
-                "reps": we.reps,
-            })
-        result.append({
-            "id": w.pk,
-            "name": w.name,
-            "type": w.type,
-            "difficulty": w.difficulty,
-            "exercises": exercises,
-        })
-    return result
-
-
-def save_workout_session(vk_id: int, workout_id: int | None = None) -> bool:
+def search_exercises(query: str, limit: int = 8) -> list[dict]:
     """
-    Обёртка для вызова из бота: находит пользователя по vk_id
-    и создаёт тренировочную сессию. Возвращает True при успехе.
+    Ищет упражнения в БД по названию (icontains).
+    Возвращает список словарей с id и name.
     """
-    user = _get_user_by_vk_id(vk_id)
+    qs = Exercise.objects.filter(name__icontains=query)[:limit]
+    return [{"id": ex.pk, "name": ex.name} for ex in qs]
+
+
+def get_exercise_by_id(exercise_id: int) -> "dict | None":
+    """Возвращает полную карточку упражнения по ID."""
+    try:
+        ex = Exercise.objects.get(pk=exercise_id)
+    except Exercise.DoesNotExist:
+        return None
+    return {
+        "id": ex.pk,
+        "name": ex.name,
+        "part_body": ex.part_body,
+        "equipment": ex.equipment or "—",
+        "main_muscles": ex.main_muscles,
+        "accessory_muscles": ex.accessory_muscles,
+    }
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# Тренировки — сохранение пользовательской тренировки
+# ══════════════════════════════════════════════════════════════════════════════
+
+def save_custom_workout(vk_id: int, exercises: list[dict]) -> bool:
+    """
+    Сохраняет пользовательскую тренировку.
+
+    exercises — список словарей:
+        [
+            {"exercise_id": 15, "weight": 80.0, "sets": 4, "duration": 0},
+            ...
+        ]
+
+    Создаёт WorkoutSession (без привязки к каталожной Workout),
+    WorkoutSessionExercise и Set для каждого упражнения.
+    """
+    user = _get_user(vk_id)
     if not user:
         return False
+
+    if not exercises:
+        return False
+
     try:
-        create_workout_session(user, workout_id)
+        session = WorkoutSession.objects.create(
+            user=user,
+            workout=None,  # пользовательская тренировка, не из каталога
+            duration=None,
+            comment="Собрана через VK-бота",
+        )
+
+        for order, ex_data in enumerate(exercises, start=1):
+            exercise_id = ex_data.get("exercise_id")
+            try:
+                exercise = Exercise.objects.get(pk=exercise_id)
+            except Exercise.DoesNotExist:
+                continue
+
+            session_exercise = WorkoutSessionExercise.objects.create(
+                session=session,
+                exercise=exercise,
+                order=order,
+            )
+
+            sets_count = ex_data.get("sets", 1)
+            weight = ex_data.get("weight")
+            duration = ex_data.get("duration")
+
+            for _ in range(sets_count):
+                WorkoutSet.objects.create(
+                    session_exercise=session_exercise,
+                    reps=1,  # для пользовательских тренировок 1 повтор на подход
+                    weight=weight if weight and weight > 0 else None,
+                    duration=duration if duration and duration > 0 else None,
+                )
+
         return True
     except Exception as exc:
-        log.warning("save_workout_session error: %s", exc)
+        log.warning("save_custom_workout error: %s", exc)
         return False
 
 
-def create_workout_session(user: "User", workout_id: int | None = None,
-                           duration: int | None = None,
-                           comment: str = "") -> dict:
-    """Создаёт тренировочную сессию."""
-    workout = None
-    if workout_id:
-        try:
-            workout = Workout.objects.get(pk=workout_id)
-        except Workout.DoesNotExist:
-            pass
+# ══════════════════════════════════════════════════════════════════════════════
+# Питание — FoodData Central API (USDA)
+# ══════════════════════════════════════════════════════════════════════════════
 
-    session = WorkoutSession.objects.create(
-        user=user,
-        workout=workout,
-        duration=duration,
-        comment=comment,
-    )
-    return {
-        "id": session.pk,
-        "workout_name": workout.name if workout else "Свободная тренировка",
-        "created_at": session.created_at.isoformat(),
-    }
-
-
-def add_food_entry(user: "User", food_name: str, calories: float,
-                   meal_type: str = "snack") -> dict:
-    """Добавляет запись питания."""
-    entry = FoodEntry.objects.create(
-        user=user,
-        food_name=food_name,
-        calories=calories,
-        meal_type=meal_type,
-    )
-    return {
-        "id": entry.pk,
-        "food_name": entry.food_name,
-        "calories": entry.calories,
-        "meal_type": entry.meal_type,
-    }
-
-
-def search_food(product_name: str) -> "dict | None":
-    """Ищет продукт в Open Food Facts и возвращает нутриенты."""
-    return _search_off(product_name)
-
-
-def add_measurement(user: "User", weight: float,
-                    chest: float | None = None,
-                    waist: float | None = None,
-                    hips: float | None = None) -> dict:
-    """Добавляет замер тела."""
-    m = BodyMeasurement.objects.create(
-        user=user,
-        weight=weight,
-        chest=chest,
-        waist=waist,
-        hips=hips,
-    )
-    return {
-        "id": m.pk,
-        "weight": m.weight,
-        "chest": m.chest,
-        "waist": m.waist,
-        "hips": m.hips,
-        "created_at": m.created_at.isoformat(),
-    }
-
-
-def save_food_entry(vk_id: int, food_name: str, calories: float,
-                    meal_type: str = "snack") -> "dict | None":
+def search_food_fdc(query: str, limit: int = 5) -> list[dict]:
     """
-    Обёртка для вызова из бота: находит пользователя по vk_id
-    и добавляет запись питания. Возвращает dict при успехе или None.
+    Ищет продукты через FoodData Central API.
+
+    Возвращает список:
+    [
+        {
+            "fdc_id": 171077,
+            "description": "Chicken, breast, raw",
+            "calories_100g": 120.0,
+            "protein_100g": 22.5,
+            "fats_100g": 2.6,
+            "carbs_100g": 0.0,
+        },
+        ...
+    ]
     """
-    user = _get_user_by_vk_id(vk_id)
-    if not user:
-        return None
     try:
-        return add_food_entry(user, food_name, calories, meal_type)
-    except Exception as exc:
-        log.warning("save_food_entry error: %s", exc)
-        return None
+        url = "https://api.nal.usda.gov/fdc/v1/foods/search"
+        params = {
+            "api_key": FDC_API_KEY,
+            "query": query,
+            "pageSize": limit,
+            "dataType": ["Survey (FNDDS)", "Foundation", "SR Legacy"],
+        }
+        resp = requests.get(url, params=params, timeout=10)
+        resp.raise_for_status()
+        data = resp.json()
 
+        results = []
+        for food in data.get("foods", []):
+            nutrients = {n["nutrientName"]: n.get("value", 0) for n in food.get("foodNutrients", [])}
+
+            calories = nutrients.get("Energy", 0)
+            protein = nutrients.get("Protein", 0)
+            fats = nutrients.get("Total lipid (fat)", 0)
+            carbs = nutrients.get("Carbohydrate, by difference", 0)
+
+            results.append({
+                "fdc_id": food.get("fdcId"),
+                "description": food.get("description", ""),
+                "calories_100g": float(calories),
+                "protein_100g": float(protein),
+                "fats_100g": float(fats),
+                "carbs_100g": float(carbs),
+            })
+
+        return results
+    except Exception as exc:
+        log.warning("FoodData Central API error: %s", exc)
+        return []
+
+
+def calculate_nutrients(food_data: dict, grams: float) -> dict:
+    """
+    Рассчитывает КБЖУ на указанное количество грамм.
+    food_data — словарь из search_food_fdc (значения на 100г).
+    """
+    factor = grams / 100.0
+    return {
+        "calories": round(food_data["calories_100g"] * factor, 1),
+        "protein": round(food_data["protein_100g"] * factor, 1),
+        "fats": round(food_data["fats_100g"] * factor, 1),
+        "carbs": round(food_data["carbs_100g"] * factor, 1),
+    }
+
+
+def save_food_entries(vk_id: int, items: list[dict], meal_type: str) -> bool:
+    """
+    Сохраняет список продуктов как один приём пищи.
+
+    items — список словарей:
+        [
+            {
+                "food_name": "Chicken breast",
+                "fdc_id": 171077,
+                "grams": 200,
+                "calories": 240.0,
+                "protein": 45.0,
+                "fats": 5.2,
+                "carbs": 0.0,
+            },
+            ...
+        ]
+    """
+    user = _get_user(vk_id)
+    if not user:
+        return False
+
+    if not items:
+        return False
+
+    try:
+        group_id = uuid.uuid4()
+
+        for item in items:
+            FoodEntry.objects.create(
+                user=user,
+                food_name=item["food_name"],
+                fdc_id=item.get("fdc_id"),
+                grams=item.get("grams", 100),
+                calories=item["calories"],
+                protein=item.get("protein", 0),
+                fats=item.get("fats", 0),
+                carbs=item.get("carbs", 0),
+                meal_type=meal_type,
+                meal_group=group_id,
+            )
+
+        return True
+    except Exception as exc:
+        log.warning("save_food_entries error: %s", exc)
+        return False
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# Замеры тела (без изменений)
+# ══════════════════════════════════════════════════════════════════════════════
 
 def save_measurement(vk_id: int, weight: float,
                      chest: float | None = None,
                      waist: float | None = None,
                      hips: float | None = None) -> bool:
-    """
-    Обёртка для вызова из бота: находит пользователя по vk_id
-    и добавляет замер тела. Возвращает True при успехе.
-    """
-    user = _get_user_by_vk_id(vk_id)
+    """Сохраняет замер тела."""
+    user = _get_user(vk_id)
     if not user:
         return False
     try:
-        add_measurement(user, weight, chest=chest, waist=waist, hips=hips)
+        BodyMeasurement.objects.create(
+            user=user,
+            weight=weight,
+            chest=chest,
+            waist=waist,
+            hips=hips,
+        )
         return True
     except Exception as exc:
         log.warning("save_measurement error: %s", exc)
