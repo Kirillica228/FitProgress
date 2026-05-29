@@ -13,6 +13,7 @@ from users.models import User
 from workouts.models import Exercise, WorkoutSession, WorkoutSessionExercise, Set as WorkoutSet
 from nutrition.models import FoodEntry
 from progress.models import BodyMeasurement
+from vk_bot.translator import translate_to_english, translate_to_russian
 
 log = logging.getLogger(__name__)
 
@@ -156,11 +157,15 @@ def search_food_fdc(query: str, limit: int = 5) -> list[dict]:
     """
     Ищет продукты через FoodData Central API.
 
+    Запрос автоматически переводится на английский перед отправкой в API.
+    Описания продуктов переводятся на русский для отображения пользователю.
+
     Возвращает список:
     [
         {
             "fdc_id": 171077,
-            "description": "Chicken, breast, raw",
+            "description": "Курица, грудка, сырая",
+            "description_en": "Chicken, breast, raw",
             "calories_100g": 120.0,
             "protein_100g": 22.5,
             "fats_100g": 2.6,
@@ -170,10 +175,14 @@ def search_food_fdc(query: str, limit: int = 5) -> list[dict]:
     ]
     """
     try:
+        # Переводим запрос с русского на английский для FDC API
+        query_en = translate_to_english(query)
+        log.info("Поиск FDC: '%s' → '%s'", query, query_en)
+
         url = "https://api.nal.usda.gov/fdc/v1/foods/search"
         params = {
             "api_key": FDC_API_KEY,
-            "query": query,
+            "query": query_en,
             "pageSize": limit,
             "dataType": ["Survey (FNDDS)", "Foundation", "SR Legacy"],
         }
@@ -190,9 +199,15 @@ def search_food_fdc(query: str, limit: int = 5) -> list[dict]:
             fats = nutrients.get("Total lipid (fat)", 0)
             carbs = nutrients.get("Carbohydrate, by difference", 0)
 
+            # Оригинальное описание на английском
+            description_en = food.get("description", "")
+            # Переводим описание на русский
+            description_ru = translate_to_russian(description_en)
+
             results.append({
                 "fdc_id": food.get("fdcId"),
-                "description": food.get("description", ""),
+                "description": description_ru,
+                "description_en": description_en,
                 "calories_100g": float(calories),
                 "protein_100g": float(protein),
                 "fats_100g": float(fats),
