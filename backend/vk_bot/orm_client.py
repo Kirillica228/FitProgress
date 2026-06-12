@@ -76,13 +76,12 @@ def get_exercise_by_id(exercise_id: int) -> "dict | None":
         ex = Exercise.objects.get(pk=exercise_id)
     except Exercise.DoesNotExist:
         return None
+    muscle_names = ", ".join(mg.name for mg in ex.muscle_groups.all()) or "—"
     return {
         "id": ex.pk,
         "name": ex.name,
-        "part_body": ex.part_body,
         "equipment": ex.equipment or "—",
-        "main_muscles": ex.main_muscles,
-        "accessory_muscles": ex.accessory_muscles,
+        "muscle_groups": muscle_names,
     }
 
 
@@ -96,11 +95,11 @@ def save_custom_workout(vk_id: int, exercises: list[dict]) -> bool:
 
     exercises — список словарей:
         [
-            {"exercise_id": 15, "weight": 80.0, "sets": 4, "duration": 0},
+            {"exercise_id": 15, "weight": 80.0, "sets": 4, "reps": 8, "duration": 0},
             ...
         ]
 
-    Создаёт WorkoutSession (без привязки к каталожной Workout),
+    Создаёт WorkoutSession (без названия),
     WorkoutSessionExercise и Set для каждого упражнения.
     """
     user = _get_user(vk_id)
@@ -113,7 +112,6 @@ def save_custom_workout(vk_id: int, exercises: list[dict]) -> bool:
     try:
         session = WorkoutSession.objects.create(
             user=user,
-            workout=None,  # пользовательская тренировка, не из каталога
             duration=None,
             comment="Собрана через VK-бота",
         )
@@ -132,13 +130,14 @@ def save_custom_workout(vk_id: int, exercises: list[dict]) -> bool:
             )
 
             sets_count = ex_data.get("sets", 1)
+            reps = ex_data.get("reps", 1)
             weight = ex_data.get("weight")
             duration = ex_data.get("duration")
 
             for _ in range(sets_count):
                 WorkoutSet.objects.create(
                     session_exercise=session_exercise,
-                    reps=1,  # для пользовательских тренировок 1 повтор на подход
+                    reps=reps,
                     weight=weight if weight and weight > 0 else None,
                     duration=duration if duration and duration > 0 else None,
                 )
@@ -179,14 +178,13 @@ def search_food_fdc(query: str, limit: int = 5) -> list[dict]:
         query_en = translate_to_english(query)
         log.info("Поиск FDC: '%s' → '%s'", query, query_en)
 
-        url = "https://api.nal.usda.gov/fdc/v1/foods/search"
-        params = {
-            "api_key": FDC_API_KEY,
+        url = f"https://api.nal.usda.gov/fdc/v1/foods/search?api_key={FDC_API_KEY}"
+        payload = {
             "query": query_en,
             "pageSize": limit,
             "dataType": ["Survey (FNDDS)", "Foundation", "SR Legacy"],
         }
-        resp = requests.get(url, params=params, timeout=10)
+        resp = requests.post(url, json=payload, timeout=10)
         resp.raise_for_status()
         data = resp.json()
 

@@ -126,13 +126,7 @@ export function KpiCards({ calories, workoutStatus, weight, latestMeasurement }:
 
           {isGoalReached ? (
             <p className="mt-2 text-xs text-emerald-400">
-              🎉 Цель недели достигнута! Не забудь про восстановление.{" "}
-              <a
-                href="/articles/recovery-signals-that-matter"
-                className="underline underline-offset-2 hover:text-emerald-300"
-              >
-                Читать статью →
-              </a>
+              🎉 Цель недели достигнута! Не забудь про восстановление.
             </p>
           ) : (
             <p className="mt-2 text-xs text-slate-500">

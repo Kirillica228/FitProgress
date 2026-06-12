@@ -3,18 +3,18 @@
  *
  * Все запросы идут напрямую на DRF бэкенд с credentials: "include".
  * Бэкенд сам читает httpOnly cookie fp_access через CookieJWTAuthentication.
- * Никакого прокси и Bearer-заголовков на фронте не нужно.
  */
 
 import type {
-  Article,
   AuthUser,
   BodyMeasurement,
   DashboardPayload,
   FoodEntry,
+  NutritionDayDetail,
   NutritionHeatmapDay,
   HeatmapDay,
   Profile,
+  WorkoutDayDetail,
   WorkoutSession,
 } from "@/lib/types";
 
@@ -80,12 +80,7 @@ async function buildDashboard(): Promise<DashboardPayload> {
     request<BodyMeasurement[]>("/api/measurements/"),
   ]);
 
-  // Бэкенд возвращает замеры отсортированными по убыванию (-created_at),
-  // поэтому measurements[0] — самый новый, measurements[1] — предыдущий.
-  // Дополнительно сортируем по id desc как тай-брейкер (два замера в один день).
-  const sorted = [...measurements].sort(
-    (a, b) => b.id - a.id,
-  );
+  const sorted = [...measurements].sort((a, b) => b.id - a.id);
   const latestWeight = sorted[0]?.weight ?? 0;
   const prevWeight = sorted[1]?.weight ?? latestWeight;
 
@@ -96,7 +91,6 @@ async function buildDashboard(): Promise<DashboardPayload> {
   const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
   const weekSessions = sessions.filter((s) => new Date(s.started_at) >= weekAgo);
 
-  // Для графика берём последние 7 замеров в хронологическом порядке (старые → новые)
   const weightChart = sorted.slice(0, 7).reverse().map((m) => ({
     label: m.date.slice(5),
     value: m.weight,
@@ -138,11 +132,13 @@ export const api = {
   getDashboard: () => buildDashboard(),
 
   // Тренировки
-  getWorkouts: () => request<WorkoutSession[]>("/api/workout-sessions/"),
+  getWorkoutSessions: () => request<WorkoutSession[]>("/api/workout-sessions/"),
   getWorkoutHeatmap: (year?: number) =>
     request<HeatmapDay[]>(
       `/api/workout-heatmap/${year ? `?year=${year}` : ""}`,
     ),
+  getWorkoutDay: (date: string) =>
+    request<WorkoutDayDetail>(`/api/workout-day/?date=${date}`),
 
   // Питание
   getNutrition: () => request<FoodEntry[]>("/api/food-entries/"),
@@ -157,6 +153,8 @@ export const api = {
     request<NutritionHeatmapDay[]>(
       `/api/nutrition-heatmap/${year ? `?year=${year}` : ""}`,
     ),
+  getNutritionDay: (date: string) =>
+    request<NutritionDayDetail>(`/api/nutrition-day/?date=${date}`),
 
   // Замеры
   getProgress: () => request<BodyMeasurement[]>("/api/measurements/"),
@@ -179,8 +177,4 @@ export const api = {
       body: JSON.stringify(data),
     }),
 
-  // Статьи (бэкенд)
-  getArticles: () => request<Article[]>("/api/articles/"),
-  getArticleBySlug: (slug: string) =>
-    request<Article>(`/api/articles/${slug}/`).catch(() => null),
 };

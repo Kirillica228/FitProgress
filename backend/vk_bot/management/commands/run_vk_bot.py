@@ -225,10 +225,8 @@ def handle_message(vk, event) -> None:
 
         lines = [
             f"📋 {exercise['name']}",
-            f"🦴 Часть тела: {exercise['part_body']}",
             f"🏗 Оборудование: {exercise['equipment']}",
-            f"💪 Основные мышцы: {exercise['main_muscles']}",
-            f"🔗 Вспомогательные: {exercise['accessory_muscles']}",
+            f"💪 Группы мышц: {exercise['muscle_groups']}",
         ]
         send(vk, vk_id, "\n".join(lines), kb.workout_exercise_view())
         set_state(vk_id, State.WORKOUT_VIEW)

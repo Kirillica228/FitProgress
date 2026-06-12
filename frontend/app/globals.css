@@ -21,6 +21,25 @@ a {
   scrollbar-color: #334155 transparent;
 }
 
+/* Mobile safe area */
+.safe-bottom {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/* Responsive text scaling */
+@media (max-width: 640px) {
+  html {
+    font-size: 15px;
+  }
+}
+
+/* Better touch targets on mobile */
+@media (max-width: 768px) {
+  button, a {
+    min-height: auto;
+  }
+}
+
 @layer base {
   .theme {
     --font-heading: var(--font-sans);

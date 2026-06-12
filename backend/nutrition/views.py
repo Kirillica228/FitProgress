@@ -10,13 +10,12 @@ from .serializers import FoodEntrySerializer, FoodEntryCreateSerializer
 
 
 class FoodEntryListView(APIView):
-    """Дневник питания текущего пользователя. Поддерживает фильтрацию по дате."""
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
         qs = FoodEntry.objects.filter(user=request.user).order_by('-created_at')
 
-        date_param = request.query_params.get('date')  # формат YYYY-MM-DD
+        date_param = request.query_params.get('date')
         if date_param:
             qs = qs.filter(created_at__date=date_param)
 
@@ -52,11 +51,6 @@ class FoodEntryDetailView(APIView):
 
 
 class NutritionHeatmapView(APIView):
-    """
-    Возвращает данные питания в формате heatmap за указанный год.
-
-    GET /api/nutrition-heatmap/?year=2025
-    """
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
@@ -74,7 +68,6 @@ class NutritionHeatmapView(APIView):
             created_at__date__lte=year_end,
         ).values('created_at__date', 'calories', 'protein', 'fats', 'carbs')
 
-        # Агрегируем по дате
         day_map: dict[str, dict] = {}
         for row in entries:
             d = str(row['created_at__date'])
@@ -105,3 +98,75 @@ class NutritionHeatmapView(APIView):
         ]
 
         return Response(result)
+
+
+class NutritionDayDetailView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        date_param = request.query_params.get('date')
+        if not date_param:
+            return Response(
+                {"detail": "Параметр 'date' обязателен."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        entries = FoodEntry.objects.filter(
+            user=request.user,
+            created_at__date=date_param,
+        ).order_by('created_at')
+
+        if not entries.exists():
+            return Response(
+                {"detail": "Нет записей питания за эту дату."},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        totals = {
+            'calories': 0.0,
+            'protein': 0.0,
+            'fats': 0.0,
+            'carbs': 0.0,
+        }
+
+        entries_data = []
+        for entry in entries:
+            totals['calories'] += entry.calories
+            totals['protein'] += entry.protein
+            totals['fats'] += entry.fats
+            totals['carbs'] += entry.carbs
+            entries_data.append({
+                'id': entry.pk,
+                'food_name': entry.food_name,
+                'grams': entry.grams,
+                'calories': round(entry.calories, 1),
+                'protein': round(entry.protein, 1),
+                'fats': round(entry.fats, 1),
+                'carbs': round(entry.carbs, 1),
+                'meal_type': entry.meal_type,
+                'logged_at': entry.created_at.isoformat(),
+            })
+
+        totals = {k: round(v, 1) for k, v in totals.items()}
+
+        # Goals from profile
+        goals = None
+        try:
+            from users.models import Profile
+            profile = Profile.objects.get(user=request.user)
+            if any([profile.calorie_goal, profile.protein_goal, profile.fat_goal, profile.carbs_goal]):
+                goals = {
+                    'calories': profile.calorie_goal,
+                    'protein': profile.protein_goal,
+                    'fats': profile.fat_goal,
+                    'carbs': profile.carbs_goal,
+                }
+        except Exception:
+            pass
+
+        return Response({
+            'date': date_param,
+            'totals': totals,
+            'goals': goals,
+            'entries': entries_data,
+        })

@@ -3,8 +3,6 @@ from django.contrib import admin
 from .models import (
     MuscleGroup,
     Exercise,
-    Workout,
-    WorkoutExercise,
     WorkoutSession,
     WorkoutSessionExercise,
     Set,
@@ -20,29 +18,14 @@ class MuscleGroupAdmin(admin.ModelAdmin):
 
 @admin.register(Exercise)
 class ExerciseAdmin(admin.ModelAdmin):
-    list_display = ['name', 'part_body', 'equipment', 'main_muscles']
-    list_filter = ['part_body', 'equipment']
-    search_fields = ['name', 'main_muscles', 'accessory_muscles']
+    list_display = ['name', 'equipment']
+    list_filter = ['equipment']
+    search_fields = ['name']
     filter_horizontal = ['muscle_groups']
     fieldsets = (
-        (None, {'fields': ('name', 'part_body', 'equipment')}),
-        ('Мышцы', {'fields': ('main_muscles', 'accessory_muscles', 'muscle_groups')}),
+        (None, {'fields': ('name', 'equipment')}),
+        ('Мышцы', {'fields': ('muscle_groups',)}),
     )
-
-
-class WorkoutExerciseInline(admin.TabularInline):
-    model = WorkoutExercise
-    extra = 1
-    fields = ['exercise', 'order', 'sets', 'reps']
-    ordering = ['order']
-
-
-@admin.register(Workout)
-class WorkoutAdmin(admin.ModelAdmin):
-    list_display = ['name', 'type', 'difficulty']
-    list_filter = ['type', 'difficulty']
-    search_fields = ['name']
-    inlines = [WorkoutExerciseInline]
 
 
 class WorkoutSessionExerciseInline(admin.TabularInline):
@@ -55,10 +38,10 @@ class WorkoutSessionExerciseInline(admin.TabularInline):
 
 @admin.register(WorkoutSession)
 class WorkoutSessionAdmin(admin.ModelAdmin):
-    list_display = ['user', 'workout', 'created_at', 'duration', 'comment']
+    list_display = ['user', 'created_at', 'duration', 'comment']
     list_filter = ['created_at']
-    search_fields = ['user__username', 'workout__name']
-    raw_id_fields = ['user', 'workout']
+    search_fields = ['user__username']
+    raw_id_fields = ['user']
     inlines = [WorkoutSessionExerciseInline]
     date_hierarchy = 'created_at'
 

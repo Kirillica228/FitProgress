@@ -16,6 +16,5 @@ class UserAdmin(BaseUserAdmin):
 
 @admin.register(Profile)
 class ProfileAdmin(admin.ModelAdmin):
-    list_display = ['user', 'first_name', 'last_name', 'weight', 'height', 'age', 'goal']
-    search_fields = ['user__username', 'first_name', 'last_name']
-    list_filter = ['goal']
+    list_display = ['user', 'calorie_goal', 'protein_goal', 'fat_goal', 'carbs_goal']
+    search_fields = ['user__username']

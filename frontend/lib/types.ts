@@ -14,13 +14,10 @@ export type Profile = {
   username: string;
   email: string;
   vk_id: number | null;
-  first_name: string;
-  last_name: string;
-  height: number | null;
-  weight: number | null;
-  age: number | null;
-  goal: string;
-  extra_goal: string;
+  calorie_goal: number | null;
+  protein_goal: number | null;
+  fat_goal: number | null;
+  carbs_goal: number | null;
 };
 
 // ─── Muscle Groups ───────────────────────────────────────────────────────────
@@ -36,40 +33,70 @@ export type MuscleGroup = {
 export type Exercise = {
   id: number;
   name: string;
-  part_body: string;
-  equipment: string;
-  main_muscles: string;
-  accessory_muscles: string;
+  equipment: string | null;
   muscle_groups: MuscleGroup[];
 };
 
-export type WorkoutExercise = {
+export type SetData = {
   id: number;
-  exercise: Exercise;
-  sets: number;
   reps: number;
-  order: number;
+  weight: number | null;
+  duration: number | null;
 };
 
-export type Workout = {
+export type WorkoutSessionExercise = {
   id: number;
-  /** Бэкенд отдаёт оба поля: name и title (алиас) */
-  name: string;
-  title: string;
-  type: string;
-  difficulty: "beginner" | "intermediate" | "advanced";
-  exercises: WorkoutExercise[];
+  exercise: Exercise;
+  order: number;
+  sets: SetData[];
 };
 
 export type WorkoutSession = {
   id: number;
-  workout: Workout;
-  /** Алиас created_at → started_at (задаётся в сериализаторе) */
   started_at: string;
-  /** Вычисляется из created_at + duration, null если duration не задан */
   finished_at: string | null;
   duration: number | null;
   comment: string;
+  exercises: WorkoutSessionExercise[];
+};
+
+// ─── Workout Day Detail ─────────────────────────────────────────────────────
+
+export type WorkoutDayExercise = {
+  exercise: { id: number; name: string; muscle_groups: MuscleGroup[] };
+  sets: { reps: number; weight: number | null; duration: number | null }[];
+  total_sets: number;
+  best_set: { reps: number; weight: number | null } | null;
+};
+
+export type WorkoutDayProgress = {
+  exercise_name: string;
+  current_best: { reps: number; weight: number | null };
+  previous_best: { reps: number; weight: number | null } | null;
+  delta_weight: number;
+  delta_reps: number;
+};
+
+export type WorkoutDayRecord = {
+  exercise_name: string;
+  type: "weight" | "reps";
+  value: number;
+  reps: number;
+};
+
+export type WorkoutDayDetail = {
+  date: string;
+  summary: {
+    duration: number;
+    exercises_count: number;
+    total_sets: number;
+    total_reps: number;
+    total_tonnage: number;
+  };
+  exercises: WorkoutDayExercise[];
+  progress: WorkoutDayProgress[];
+  muscle_load: { muscle: string; sets_count: number }[];
+  records: WorkoutDayRecord[];
 };
 
 // ─── Nutrition ───────────────────────────────────────────────────────────────
@@ -77,17 +104,40 @@ export type WorkoutSession = {
 export type FoodEntry = {
   id: number;
   food_name: string;
+  grams: number;
   calories: number;
+  protein: number;
+  fats: number;
+  carbs: number;
   meal_type: "breakfast" | "lunch" | "dinner" | "snack";
-  /** Алиас created_at → logged_at (задаётся в сериализаторе) */
   logged_at: string;
+};
+
+// ─── Nutrition Day Detail ───────────────────────────────────────────────────
+
+export type NutritionGoals = {
+  calories: number | null;
+  protein: number | null;
+  fats: number | null;
+  carbs: number | null;
+};
+
+export type NutritionDayDetail = {
+  date: string;
+  totals: {
+    calories: number;
+    protein: number;
+    fats: number;
+    carbs: number;
+  };
+  goals: NutritionGoals | null;
+  entries: FoodEntry[];
 };
 
 // ─── Measurements ────────────────────────────────────────────────────────────
 
 export type BodyMeasurement = {
   id: number;
-  /** Алиас created_at.date() → date (задаётся в сериализаторе) */
   date: string;
   weight: number;
   waist: number | null;
@@ -98,46 +148,27 @@ export type BodyMeasurement = {
 // ─── Nutrition Heatmap ───────────────────────────────────────────────────────
 
 export type NutritionHeatmapDay = {
-  /** ISO date string: "2025-03-15" */
   date: string;
-  /** Количество записей питания за день */
   count: number;
-  /** Суммарные калории за день */
   calories: number;
+  protein: number;
+  fats: number;
+  carbs: number;
 };
 
 // ─── Heatmap ─────────────────────────────────────────────────────────────────
 
 export type HeatmapSession = {
   id: number;
-  workout_name: string;
-  workout_type: string;
   duration: number | null;
   exercises_count: number;
 };
 
 export type HeatmapDay = {
-  /** ISO date string: "2025-03-15" */
   date: string;
-  /** Количество сессий в этот день */
   count: number;
-  /** Объём нагрузки (reps×weight для силовых, duration×10 для кардио) */
   volume: number;
   sessions: HeatmapSession[];
-};
-
-// ─── Articles ────────────────────────────────────────────────────────────────
-
-export type Article = {
-  id: number;
-  slug: string;
-  title: string;
-  excerpt: string;
-  content: string;
-  category: string;
-  /** ISO date string: "2026-04-12" */
-  publishedAt: string;
-  readTime: string;
 };
 
 // ─── Dashboard ───────────────────────────────────────────────────────────────
@@ -146,7 +177,6 @@ export type DashboardPayload = {
   calories: { current: number; goal: number };
   workoutStatus: { completed: number; total: number };
   weight: { current: number; delta: number };
-  /** Последний замер тела (для отображения метрик на дашборде) */
   latestMeasurement: { chest: number | null; waist: number | null; hips: number | null } | null;
   weightChart: Array<{ label: string; value: number }>;
   workoutActivity: Array<{ label: string; value: number }>;

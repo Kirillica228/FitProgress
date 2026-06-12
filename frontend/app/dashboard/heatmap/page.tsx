@@ -12,12 +12,6 @@ import type { HeatmapDay, FoodEntry } from "@/lib/types";
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
-const TYPE_LABELS: Record<string, string> = {
-  strength: "Силовая",
-  cardio: "Кардио",
-  home: "Домашняя",
-};
-
 const MEAL_LABELS: Record<string, string> = {
   breakfast: "Завтрак",
   lunch: "Обед",
@@ -33,7 +27,6 @@ function formatDate(iso: string): string {
   });
 }
 
-/** Считает текущую серию (streak) — дней подряд с тренировками до сегодня */
 function computeStreak(data: HeatmapDay[]): { current: number; best: number } {
   if (data.length === 0) return { current: 0, best: 0 };
 
@@ -86,14 +79,13 @@ function busyMonth(data: HeatmapDay[]): string {
 
 function StatCard({ label, value }: { label: string; value: string | number }) {
   return (
-    <div className="rounded-2xl bg-white/[0.03] p-4 text-center">
-      <div className="text-2xl font-bold text-white">{value}</div>
-      <div className="mt-1 text-xs text-slate-400">{label}</div>
+    <div className="rounded-2xl bg-white/[0.03] p-3 sm:p-4 text-center">
+      <div className="text-xl sm:text-2xl font-bold text-white">{value}</div>
+      <div className="mt-1 text-[10px] sm:text-xs text-slate-400">{label}</div>
     </div>
   );
 }
 
-/** Панель деталей выбранного дня: тренировки + питание */
 function DayPanel({
   day,
   foodEntries,
@@ -111,17 +103,14 @@ function DayPanel({
       {day.sessions.length > 0 ? (
         <div>
           <p className="mb-2 text-xs font-medium uppercase tracking-wider text-slate-500">
-            🏋️ Тренировки
+            Тренировки
           </p>
           <div className="space-y-2">
             {day.sessions.map((s) => (
               <div key={s.id} className="rounded-xl bg-white/[0.04] p-3 text-sm">
-                <div className="font-medium text-white">{s.workout_name}</div>
+                <div className="font-medium text-white">Тренировка</div>
                 <div className="mt-1 flex flex-wrap gap-x-3 gap-y-1 text-xs text-slate-400">
-                  {s.workout_type && (
-                    <span>{TYPE_LABELS[s.workout_type] ?? s.workout_type}</span>
-                  )}
-                  {s.workout_type === "cardio" && s.duration != null && (
+                  {s.duration != null && (
                     <span>{s.duration} мин</span>
                   )}
                   {s.exercises_count > 0 && (
@@ -140,7 +129,7 @@ function DayPanel({
       {foodEntries.length > 0 ? (
         <div>
           <p className="mb-2 text-xs font-medium uppercase tracking-wider text-slate-500">
-            🥗 Питание · {Math.round(totalCal).toLocaleString("ru-RU")} ккал
+            Питание · {Math.round(totalCal).toLocaleString("ru-RU")} ккал
           </p>
           <div className="space-y-1.5">
             {foodEntries.map((e) => (
@@ -148,15 +137,15 @@ function DayPanel({
                 key={e.id}
                 className="flex items-center justify-between rounded-xl bg-white/[0.04] px-3 py-2 text-sm"
               >
-                <div>
-                  <span className="text-white">{e.food_name}</span>
+                <div className="min-w-0">
+                  <span className="text-white truncate">{e.food_name}</span>
                   {e.meal_type && (
                     <span className="ml-2 text-xs text-slate-500">
                       {MEAL_LABELS[e.meal_type] ?? e.meal_type}
                     </span>
                   )}
                 </div>
-                <span className="text-xs text-slate-400">
+                <span className="ml-2 shrink-0 text-xs text-slate-400">
                   {Math.round(e.calories)} ккал
                 </span>
               </div>
@@ -191,7 +180,6 @@ export default function HeatmapPage() {
   const activeDays = useMemo(() => (workoutData ?? []).length, [workoutData]);
   const topMonth = useMemo(() => busyMonth(workoutData ?? []), [workoutData]);
 
-  // Статистика питания
   const totalNutritionDays = useMemo(
     () => (nutritionData ?? []).filter((d) => d.count > 0).length,
     [nutritionData],
@@ -202,12 +190,10 @@ export default function HeatmapPage() {
     return Math.round(active.reduce((s, d) => s + d.calories, 0) / active.length);
   }, [nutritionData]);
 
-  // Записи питания для выбранного дня
   const selectedFoodEntries = useMemo<FoodEntry[]>(() => {
     if (!selectedDay || !allFoodEntries) return [];
     return allFoodEntries.filter((e) => {
       if (!e.logged_at) return false;
-      // Конвертируем в локальную дату (избегаем UTC-сдвига)
       const d = new Date(e.logged_at);
       const entryDate = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
       return entryDate === selectedDay.date;
@@ -236,14 +222,14 @@ export default function HeatmapPage() {
   return (
     <div className="space-y-6">
       {/* Заголовок + выбор года */}
-      <div className="flex items-center justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
           <h1 className="text-xl font-semibold text-white">Активность</h1>
           <p className="mt-0.5 text-sm text-slate-400">
             Тренировки и питание за {year} год
           </p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 self-end sm:self-auto">
           <button
             onClick={() => { setYear((y) => y - 1); setSelectedDay(null); }}
             className="rounded-lg bg-white/5 px-3 py-1.5 text-sm text-slate-300 hover:bg-white/10 transition-colors"
@@ -270,7 +256,7 @@ export default function HeatmapPage() {
         <p className="mb-2 text-xs font-medium uppercase tracking-wider text-slate-500">
           Тренировки
         </p>
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <div className="grid grid-cols-2 gap-2 sm:gap-3 sm:grid-cols-4">
           <StatCard label="Сессий за год" value={totalSessions} />
           <StatCard label="Активных дней" value={activeDays} />
           <StatCard label="Текущая серия" value={`${streak.current} дн.`} />
@@ -283,7 +269,7 @@ export default function HeatmapPage() {
         <p className="mb-2 text-xs font-medium uppercase tracking-wider text-slate-500">
           Питание
         </p>
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <div className="grid grid-cols-2 gap-2 sm:gap-3 sm:grid-cols-4">
           <StatCard label="Дней с записями" value={totalNutritionDays} />
           <StatCard label="Ккал/день (ср.)" value={avgCalPerDay > 0 ? avgCalPerDay : "—"} />
         </div>
@@ -294,13 +280,12 @@ export default function HeatmapPage() {
         <EmptyState
           title="Нет данных за этот год"
           description="Начни тренироваться и записывать питание через бота — активность появится здесь."
-          actionLabel="Открыть бота"
         />
       ) : (
         <div className="grid gap-6 xl:grid-cols-3">
           <Card className="xl:col-span-2">
             <p className="mb-3 text-sm font-medium text-slate-300">
-              🗓️ Календарь активности
+              Календарь активности
             </p>
             {hasWorkouts ? (
               <>
@@ -311,9 +296,11 @@ export default function HeatmapPage() {
                   onDayClick={handleDayClick}
                 />
                 <p className="mt-3 text-xs text-slate-500">
-                  Самый активный месяц: <span className="text-slate-300">{topMonth}</span>
-                  {" · "}
-                  <span className="text-slate-400">Нажми на день для деталей</span>
+                  Самый активный месяц:{" "}
+                  <span className="text-slate-300">{topMonth}</span>
+                  <span className="hidden sm:inline">
+                    {" · "}Нажми на день для деталей
+                  </span>
                 </p>
               </>
             ) : (

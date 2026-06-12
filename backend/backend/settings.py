@@ -38,7 +38,6 @@ INSTALLED_APPS = [
     'workouts',
     'nutrition',
     'progress',
-    'articles',
     'vk_bot',
 ]
 

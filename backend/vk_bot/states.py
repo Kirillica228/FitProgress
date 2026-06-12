@@ -17,6 +17,7 @@ class State:
     WORKOUT_VIEW = "workout_view"                   # просмотр карточки упражнения
     WORKOUT_WEIGHT = "workout_weight"               # ввод веса (кг)
     WORKOUT_SETS = "workout_sets"                   # ввод кол-ва подходов
+    WORKOUT_REPS = "workout_reps"                   # ввод кол-ва повторений в подходе
     WORKOUT_DURATION = "workout_duration"           # ввод продолжительности (сек)
     WORKOUT_BUILDING = "workout_building"           # тренировка собирается, ждём действие
 

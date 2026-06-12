@@ -5,43 +5,11 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 
-from .models import Workout, WorkoutSession, WorkoutSessionExercise, Set as WorkoutSet
-from .serializers import WorkoutSerializer, WorkoutSessionSerializer
-
-
-class WorkoutListView(APIView):
-    """Каталог готовых тренировок. Поддерживает фильтрацию по type и difficulty."""
-    permission_classes = [IsAuthenticated]
-
-    def get(self, request):
-        qs = Workout.objects.prefetch_related('exercises__exercise').all()
-
-        workout_type = request.query_params.get('type')
-        difficulty = request.query_params.get('difficulty')
-
-        if workout_type:
-            qs = qs.filter(type=workout_type)
-        if difficulty:
-            qs = qs.filter(difficulty=difficulty)
-
-        serializer = WorkoutSerializer(qs, many=True)
-        return Response(serializer.data)
-
-
-class WorkoutDetailView(APIView):
-    permission_classes = [IsAuthenticated]
-
-    def get(self, request, pk):
-        try:
-            workout = Workout.objects.prefetch_related('exercises__exercise').get(pk=pk)
-        except Workout.DoesNotExist:
-            return Response({"detail": "Not found."}, status=status.HTTP_404_NOT_FOUND)
-        serializer = WorkoutSerializer(workout)
-        return Response(serializer.data)
+from .models import WorkoutSession, WorkoutSessionExercise, Set as WorkoutSet
+from .serializers import WorkoutSessionSerializer
 
 
 class WorkoutSessionListView(APIView):
-    """История тренировочных сессий текущего пользователя."""
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
@@ -49,7 +17,6 @@ class WorkoutSessionListView(APIView):
             WorkoutSession.objects
             .filter(user=request.user)
             .prefetch_related('exercises__exercise', 'exercises__sets')
-            .select_related('workout')
             .order_by('-created_at')
         )
         serializer = WorkoutSessionSerializer(sessions, many=True)
@@ -57,11 +24,6 @@ class WorkoutSessionListView(APIView):
 
 
 class WorkoutHeatmapView(APIView):
-    """
-    Возвращает данные тренировок за год в формате heatmap (GitHub-style).
-
-    GET /api/workout-heatmap/?year=2025
-    """
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
@@ -80,8 +42,7 @@ class WorkoutHeatmapView(APIView):
                 created_at__date__gte=year_start,
                 created_at__date__lte=year_end,
             )
-            .prefetch_related('exercises__sets')
-            .select_related('workout')
+            .prefetch_related('exercises__sets', 'exercises__exercise')
             .order_by('created_at')
         )
 
@@ -98,13 +59,12 @@ class WorkoutHeatmapView(APIView):
                     'sessions': [],
                 }
 
-            session_exercises = WorkoutSessionExercise.objects.filter(session=session)
+            session_exercises = session.exercises.all()
             exercises_count = session_exercises.count()
 
             volume = 0.0
             for se in session_exercises:
-                sets_qs = WorkoutSet.objects.filter(session_exercise=se)
-                for s in sets_qs:
+                for s in se.sets.all():
                     if s.weight is not None and s.weight > 0:
                         volume += s.reps * s.weight
                     elif s.duration is not None:
@@ -117,10 +77,194 @@ class WorkoutHeatmapView(APIView):
             days[day_key]['volume'] += volume
             days[day_key]['sessions'].append({
                 'id': session.pk,
-                'workout_name': session.workout.name if session.workout else 'Свободная тренировка',
-                'workout_type': session.workout.type if session.workout else '',
                 'duration': session.duration,
                 'exercises_count': exercises_count,
             })
 
         return Response(sorted(days.values(), key=lambda d: d['date']))
+
+
+class WorkoutDayDetailView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        date_param = request.query_params.get('date')
+        if not date_param:
+            return Response(
+                {"detail": "Параметр 'date' обязателен."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        sessions = (
+            WorkoutSession.objects
+            .filter(user=request.user, created_at__date=date_param)
+            .prefetch_related(
+                'exercises__exercise__muscle_groups',
+                'exercises__sets',
+            )
+            .order_by('created_at')
+        )
+
+        if not sessions.exists():
+            return Response(
+                {"detail": "Нет тренировок за эту дату."},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        total_duration = 0
+        exercises_data = []
+        all_exercise_ids = set()
+        muscle_load: dict[str, int] = {}
+
+        for session in sessions:
+            if session.duration:
+                total_duration += session.duration
+
+            for se in session.exercises.all():
+                ex = se.exercise
+                all_exercise_ids.add(ex.pk)
+                sets_list = list(se.sets.all())
+
+                sets_data = [{'reps': s.reps, 'weight': s.weight, 'duration': s.duration} for s in sets_list]
+
+                best_set = None
+                for s in sets_list:
+                    w = s.weight or 0
+                    if best_set is None or w * s.reps > (best_set['weight'] or 0) * best_set['reps']:
+                        best_set = {'reps': s.reps, 'weight': s.weight}
+
+                muscle_groups = [{'id': mg.id, 'name': mg.name, 'slug': mg.slug} for mg in ex.muscle_groups.all()]
+                for mg in ex.muscle_groups.all():
+                    muscle_load[mg.name] = muscle_load.get(mg.name, 0) + len(sets_list)
+
+                exercises_data.append({
+                    'exercise': {
+                        'id': ex.pk,
+                        'name': ex.name,
+                        'muscle_groups': muscle_groups,
+                    },
+                    'sets': sets_data,
+                    'total_sets': len(sets_list),
+                    'best_set': best_set,
+                })
+
+        total_sets = sum(e['total_sets'] for e in exercises_data)
+        total_reps = sum(s['reps'] for e in exercises_data for s in e['sets'])
+        total_tonnage = sum(
+            (s['weight'] or 0) * s['reps']
+            for e in exercises_data
+            for s in e['sets']
+        )
+
+        # Progress: compare with previous session for each exercise
+        progress = []
+        for exercise_id in all_exercise_ids:
+            from .models import Exercise
+            ex = Exercise.objects.get(pk=exercise_id)
+
+            prev_sets = (
+                WorkoutSet.objects
+                .filter(
+                    session_exercise__exercise_id=exercise_id,
+                    session_exercise__session__user=request.user,
+                    session_exercise__session__created_at__date__lt=date_param,
+                )
+                .order_by('-session_exercise__session__created_at')
+            )
+
+            current_exercise_data = [e for e in exercises_data if e['exercise']['id'] == exercise_id]
+            if not current_exercise_data:
+                continue
+            current_best = current_exercise_data[0]['best_set']
+            if not current_best:
+                continue
+
+            prev_session_sets = []
+            if prev_sets.exists():
+                prev_session_date = prev_sets.first().session_exercise.session.created_at.date()
+                prev_session_sets = list(
+                    prev_sets.filter(
+                        session_exercise__session__created_at__date=prev_session_date
+                    )
+                )
+
+            if prev_session_sets:
+                prev_best = max(
+                    prev_session_sets,
+                    key=lambda s: (s.weight or 0) * s.reps,
+                )
+                previous_best = {'reps': prev_best.reps, 'weight': prev_best.weight}
+                delta_weight = (current_best['weight'] or 0) - (prev_best.weight or 0)
+                delta_reps = current_best['reps'] - prev_best.reps
+            else:
+                previous_best = None
+                delta_weight = 0
+                delta_reps = 0
+
+            progress.append({
+                'exercise_name': ex.name,
+                'current_best': current_best,
+                'previous_best': previous_best,
+                'delta_weight': delta_weight,
+                'delta_reps': delta_reps,
+            })
+
+        # Records: check if current best is all-time best
+        records = []
+        for exercise_id in all_exercise_ids:
+            from .models import Exercise
+            ex = Exercise.objects.get(pk=exercise_id)
+
+            all_time_best_set = (
+                WorkoutSet.objects
+                .filter(
+                    session_exercise__exercise_id=exercise_id,
+                    session_exercise__session__user=request.user,
+                    session_exercise__session__created_at__date__lt=date_param,
+                )
+                .order_by()
+            )
+
+            current_exercise_data = [e for e in exercises_data if e['exercise']['id'] == exercise_id]
+            if not current_exercise_data:
+                continue
+            current_best = current_exercise_data[0]['best_set']
+            if not current_best:
+                continue
+
+            current_score = (current_best['weight'] or 0) * current_best['reps']
+
+            is_record = True
+            for s in all_time_best_set:
+                if (s.weight or 0) * s.reps >= current_score:
+                    is_record = False
+                    break
+
+            if is_record and current_score > 0:
+                records.append({
+                    'exercise_name': ex.name,
+                    'type': 'weight' if current_best['weight'] else 'reps',
+                    'value': current_best['weight'] or current_best['reps'],
+                    'reps': current_best['reps'],
+                })
+
+        muscle_load_list = sorted(
+            [{'muscle': k, 'sets_count': v} for k, v in muscle_load.items()],
+            key=lambda x: x['sets_count'],
+            reverse=True,
+        )
+
+        return Response({
+            'date': date_param,
+            'summary': {
+                'duration': total_duration,
+                'exercises_count': len(exercises_data),
+                'total_sets': total_sets,
+                'total_reps': total_reps,
+                'total_tonnage': round(total_tonnage, 1),
+            },
+            'exercises': exercises_data,
+            'progress': progress,
+            'muscle_load': muscle_load_list,
+            'records': records,
+        })

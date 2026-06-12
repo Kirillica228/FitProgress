@@ -17,8 +17,8 @@ const schema = z
   .object({
     username: z.string().min(3, "Минимум 3 символа"),
     email: z.string().email("Введите корректный email"),
-    password: z.string().min(6, "Минимум 6 символов"),
-    confirmPassword: z.string().min(1, "Повторите пароль"),
+    password: z.string().min(8, "Минимум 8 символов"),
+    confirmPassword: z.string().min(8, "Минимум 8 символов"),
   })
   .refine((d) => d.password === d.confirmPassword, {
     message: "Пароли не совпадают",

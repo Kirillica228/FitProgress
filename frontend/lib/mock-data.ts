@@ -28,16 +28,6 @@ export type Measurement = {
   chest: number;
 };
 
-export type Article = {
-  slug: string;
-  title: string;
-  excerpt: string;
-  category: string;
-  publishedAt: string;
-  readTime: string;
-  content: string;
-};
-
 export type DashboardPayload = {
   calories: { current: number; goal: number };
   workoutStatus: { completed: number; total: number };
@@ -120,41 +110,3 @@ export const measurements: Measurement[] = [
   { date: "2026-04-21", weight: 78.4, waist: 84, chest: 99 },
 ];
 
-export const articles: Article[] = [
-  {
-    slug: "hypertrophy-basics",
-    title: "Hypertrophy Basics For Consistent Muscle Growth",
-    excerpt: "A practical guide to volume, recovery, and progression for lifters who want measurable progress.",
-    category: "Training",
-    publishedAt: "2026-04-12",
-    readTime: "6 min read",
-    content: "Consistency, sufficient volume, and progressive overload drive hypertrophy. Track your sets, keep recovery in check, and review weekly trends."
-  },
-  {
-    slug: "meal-timing-performance",
-    title: "Meal Timing That Supports Performance",
-    excerpt: "Simple nutrition timing ideas for better energy, smoother recovery, and more stable appetite control.",
-    category: "Nutrition",
-    publishedAt: "2026-04-08",
-    readTime: "5 min read",
-    content: "Prioritize protein distribution, carbs around sessions, and hydration. Keep food choices sustainable and easy to repeat."
-  },
-  {
-    slug: "recovery-signals-that-matter",
-    title: "Recovery Signals That Matter More Than Motivation",
-    excerpt: "Learn which weekly markers actually help you decide when to push harder and when to back off.",
-    category: "Recovery",
-    publishedAt: "2026-04-03",
-    readTime: "4 min read",
-    content: "Energy, sleep quality, soreness, and training quality tell a more honest story than motivation alone. Use trends, not emotions, to adjust your workload."
-  },
-  {
-    slug: "healthy-fat-loss-without-burnout",
-    title: "Healthy Fat Loss Without Burning Out",
-    excerpt: "A clean framework for building a calorie deficit that protects performance, recovery, and long-term consistency.",
-    category: "Progress",
-    publishedAt: "2026-03-29",
-    readTime: "7 min read",
-    content: "Aim for a moderate deficit, maintain protein, keep steps high, and protect sleep. The best fat-loss phase is the one you can sustain without chaos."
-  }
-];

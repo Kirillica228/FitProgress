@@ -6,7 +6,7 @@ import { api } from "@/lib/api";
 export function useWorkoutsData() {
   return useQuery({
     queryKey: ["workouts"],
-    queryFn: api.getWorkouts,
+    queryFn: api.getWorkoutSessions,
     staleTime: 30_000,
   });
 }
