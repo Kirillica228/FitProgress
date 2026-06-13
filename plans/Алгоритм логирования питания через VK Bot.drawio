@@ -1,0 +1,145 @@
+<mxfile host="app.diagrams.net">
+  <diagram name="Nutrition Logging" id="nutrition">
+    <mxGraphModel dx="1422" dy="794" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1680">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        
+        <!-- Начало -->
+        <mxCell id="start" value="Начало" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="340" y="40" width="120" height="60" as="geometry" />
+        </mxCell>
+        
+        <!-- Нажатие кнопки -->
+        <mxCell id="step1" value="Пользователь нажимает&lt;br&gt;кнопку 'Питание'&lt;br&gt;в главном меню" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="310" y="140" width="180" height="70" as="geometry" />
+        </mxCell>
+        
+        <!-- Запрос продукта -->
+        <mxCell id="request_food" value="Отправить:&lt;br&gt;'🥗 Введи название продукта&lt;br&gt;и количество грамм.&lt;br&gt;Например: курица 200'&lt;br&gt;&lt;br&gt;Состояние: FOOD_INPUT" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;align=left;spacingLeft=10;" vertex="1" parent="1">
+          <mxGeometry x="270" y="250" width="260" height="110" as="geometry" />
+        </mxCell>
+        
+        <!-- Ввод продукта -->
+        <mxCell id="input_food" value="Пользователь вводит&lt;br&gt;продукт и граммы&lt;br&gt;(например: 'курица 200')" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="290" y="400" width="220" height="70" as="geometry" />
+        </mxCell>
+        
+        <!-- Парсинг -->
+        <mxCell id="parse_input" value="Парсинг текста:&lt;br&gt;regex: r'^(.+?)\s+(\d+)'&lt;br&gt;&lt;br&gt;product_name = 'курица'&lt;br&gt;grams = 200" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;align=left;spacingLeft=10;" vertex="1" parent="1">
+          <mxGeometry x="280" y="510" width="240" height="100" as="geometry" />
+        </mxCell>
+        
+        <!-- Перевод на английский -->
+        <mxCell id="translate_en" value="translate_to_english()&lt;br&gt;&lt;br&gt;'курица' → 'chicken'" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;align=left;spacingLeft=10;" vertex="1" parent="1">
+          <mxGeometry x="290" y="650" width="220" height="70" as="geometry" />
+        </mxCell>
+        
+        <!-- Запрос к USDA API -->
+        <mxCell id="usda_request" value="HTTP POST:&lt;br&gt;https://api.nal.usda.gov/&lt;br&gt;fdc/v1/foods/search&lt;br&gt;&lt;br&gt;query='chicken', pageSize=5" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#b1ddf0;strokeColor=#10739e;align=left;spacingLeft=10;" vertex="1" parent="1">
+          <mxGeometry x="270" y="760" width="260" height="100" as="geometry" />
+        </mxCell>
+        
+        <!-- Проверка результатов -->
+        <mxCell id="check_found" value="Продукты&lt;br&gt;найдены?" style="rhombus;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="315" y="900" width="170" height="80" as="geometry" />
+        </mxCell>
+        
+        <!-- Не найдено -->
+        <mxCell id="not_found" value="Отправить:&lt;br&gt;'😔 По запросу «название»&lt;br&gt;ничего не найдено.&lt;br&gt;Попробуй другое название:'" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="1">
+          <mxGeometry x="560" y="900" width="200" height="80" as="geometry" />
+        </mxCell>
+        
+        <!-- Перевод на русский -->
+        <mxCell id="translate_ru" value="translate_to_russian()&lt;br&gt;&lt;br&gt;Описания продуктов&lt;br&gt;переводятся на русский" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;align=left;spacingLeft=10;" vertex="1" parent="1">
+          <mxGeometry x="280" y="1020" width="240" height="80" as="geometry" />
+        </mxCell>
+        
+        <!-- Показать список -->
+        <mxCell id="show_list" value="Отправить список (до 5):&lt;br&gt;'1. Курица, грудка, сырая /fd_171077&lt;br&gt;2. Курица, бедро /fd_171078'&lt;br&gt;и т.д.&lt;br&gt;&lt;br&gt;(расчёт на 200г)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;align=left;spacingLeft=10;" vertex="1" parent="1">
+          <mxGeometry x="260" y="1140" width="280" height="110" as="geometry" />
+        </mxCell>
+        
+        <!-- Выбор продукта -->
+        <mxCell id="select_food" value="Пользователь отправляет&lt;br&gt;команду (например: /fd_171077)&lt;br&gt;&lt;br&gt;Состояние: FOOD_SELECT" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;align=left;spacingLeft=10;" vertex="1" parent="1">
+          <mxGeometry x="270" y="1290" width="260" height="80" as="geometry" />
+        </mxCell>
+        
+        <!-- Расчет КБЖУ -->
+        <mxCell id="calculate_nutrients" value="calculate_nutrients()&lt;br&gt;&lt;br&gt;Расчёт на указанное кол-во:&lt;br&gt;calories = cal_100g * (grams/100)&lt;br&gt;protein = prot_100g * (grams/100)&lt;br&gt;fats, carbs аналогично" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;align=left;spacingLeft=10;" vertex="1" parent="1">
+          <mxGeometry x="250" y="1410" width="300" height="110" as="geometry" />
+        </mxCell>
+        
+        <!-- Показать данные -->
+        <mxCell id="show_nutrients" value="Отправить:&lt;br&gt;'✅ Курица, грудка, сырая (200г)&lt;br&gt;🔥 240 ккал | Б: 45г |&lt;br&gt;Ж: 5.2г | У: 0г'&lt;br&gt;&lt;br&gt;Показать счётчик продуктов" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;align=left;spacingLeft=10;" vertex="1" parent="1">
+          <mxGeometry x="260" y="1560" width="280" height="110" as="geometry" />
+        </mxCell>
+        
+        <!-- Добавить в список -->
+        <mxCell id="add_to_list" value="Добавить продукт&lt;br&gt;в food_items[]&lt;br&gt;&lt;br&gt;Состояние: FOOD_CONFIRM" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;align=left;spacingLeft=10;" vertex="1" parent="1">
+          <mxGeometry x="280" y="1710" width="240" height="80" as="geometry" />
+        </mxCell>
+        
+        <!-- Меню выбора -->
+        <mxCell id="menu_choice" value="Показать меню:&lt;br&gt;- Добавить ещё&lt;br&gt;- Завершить питание&lt;br&gt;- Главное меню" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;align=left;spacingLeft=10;" vertex="1" parent="1">
+          <mxGeometry x="280" y="1830" width="240" height="80" as="geometry" />
+        </mxCell>
+        
+        <!-- Проверка выбора -->
+        <mxCell id="check_choice" value="Выбор?" style="rhombus;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="320" y="1950" width="160" height="70" as="geometry" />
+        </mxCell>
+        
+        <!-- Добавить ещё -->
+        <mxCell id="add_more" value="'Добавить ещё'" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="100" y="1955" width="140" height="60" as="geometry" />
+        </mxCell>
+        
+        <!-- Завершить -->
+        <mxCell id="finish_meal" value="'Завершить&lt;br&gt;питание'" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="330" y="2060" width="140" height="60" as="geometry" />
+        </mxCell>
+        
+        <!-- Выбор типа приёма пищи -->
+        <mxCell id="select_meal_type" value="Показать кнопки:&lt;br&gt;- 🌅 Завтрак&lt;br&gt;- ☀️ Обед&lt;br&gt;- 🌙 Ужин&lt;br&gt;- 🍎 Перекус&lt;br&gt;&lt;br&gt;Состояние: FOOD_MEAL_TYPE" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;align=left;spacingLeft=10;" vertex="1" parent="1">
+          <mxGeometry x="270" y="2160" width="260" height="120" as="geometry" />
+        </mxCell>
+        
+        <!-- Пользователь выбирает -->
+        <mxCell id="user_selects_type" value="Пользователь выбирает&lt;br&gt;тип приёма пищи&lt;br&gt;(например: 'Обед')" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="280" y="2320" width="240" height="70" as="geometry" />
+        </mxCell>
+        
+        <!-- Сохранение -->
+        <mxCell id="save_nutrition" value="save_food_entries()&lt;br&gt;&lt;br&gt;- Генерация meal_group UUID&lt;br&gt;- Создать FoodEntry для&lt;br&gt;каждого продукта&lt;br&gt;- meal_type = 'lunch'" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;align=left;spacingLeft=10;" vertex="1" parent="1">
+          <mxGeometry x="260" y="2430" width="280" height="110" as="geometry" />
+        </mxCell>
+        
+        <!-- Итоговая статистика -->
+        <mxCell id="success" value="Отправить итоговую статистику:&lt;br&gt;'✅ Обед записан!&lt;br&gt;📋 Продуктов: 2&lt;br&gt;🔥 Итого: 450.5 ккал&lt;br&gt;Б: 65.3г | Ж: 12.4г | У: 15.2г'&lt;br&gt;&lt;br&gt;Главное меню" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;align=left;spacingLeft=10;" vertex="1" parent="1">
+          <mxGeometry x="250" y="2580" width="300" height="130" as="geometry" />
+        </mxCell>
+        
+        <!-- Конец -->
+        <mxCell id="end" value="Конец" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="340" y="2750" width="120" height="60" as="geometry" />
+        </mxCell>
+        
+        <!-- Стрелки -->
+        <mxCell id="a1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" edge="1" parent="1" source="start" target="step1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="a2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" edge="1" parent="1" source="step1" target="request_food">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="a3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" edge="1" parent="1" source="request_food" target="input_food">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="a4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" edge="1" parent="1" source="input_food" target="parse_input">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="a5" style="edgeStyle=

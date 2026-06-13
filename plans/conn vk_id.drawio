@@ -1,0 +1,174 @@
+<mxfile host="app.diagrams.net">
+  <diagram name="VK Link Algorithm" id="vk_link">
+    <mxGraphModel dx="764" dy="428" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="start" parent="1" style="ellipse;whiteSpace=wrap;html=1;fontStyle=1" value="Начало" vertex="1">
+          <mxGeometry height="60" width="120" x="360" y="30" as="geometry" />
+        </mxCell>
+        <mxCell id="step1" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="Пользователь отправляет&lt;br&gt;/start в VK Bot" vertex="1">
+          <mxGeometry height="60" width="160" x="340" y="130" as="geometry" />
+        </mxCell>
+        <mxCell id="step2" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="Bot извлекает VK ID&lt;br&gt;из объекта события" vertex="1">
+          <mxGeometry height="60" width="160" x="340" y="230" as="geometry" />
+        </mxCell>
+        <mxCell id="WV1Ug_rWWE_1RiJkF0Ju-8" edge="1" parent="1" source="check_vk_id" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="already_linked">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="WV1Ug_rWWE_1RiJkF0Ju-10" connectable="0" parent="WV1Ug_rWWE_1RiJkF0Ju-8" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" value="Да" vertex="1">
+          <mxGeometry relative="1" x="0.0502" y="-3" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="WV1Ug_rWWE_1RiJkF0Ju-9" edge="1" parent="1" source="check_vk_id" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" target="request_username">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="WV1Ug_rWWE_1RiJkF0Ju-11" connectable="0" parent="WV1Ug_rWWE_1RiJkF0Ju-9" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" value="Нет" vertex="1">
+          <mxGeometry relative="1" x="-0.0587" y="3" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="check_vk_id" parent="1" style="rhombus;whiteSpace=wrap;html=1;" value="&lt;br&gt;VK ID уже&lt;br&gt;привязан?" vertex="1">
+          <mxGeometry height="100" width="190" x="325" y="330" as="geometry" />
+        </mxCell>
+        <mxCell id="already_linked" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="Отправить:&lt;br&gt;&#39;👋 Добро пожаловать!&#39;&lt;br&gt;Показать главное меню" vertex="1">
+          <mxGeometry height="60" width="180" x="580" y="350" as="geometry" />
+        </mxCell>
+        <mxCell id="request_username" parent="1" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=10;" value="Отправить:&lt;br&gt;&#39;Введите ваше имя&lt;br&gt;пользователя (username)&lt;br&gt;от FitProgress:&#39;" vertex="1">
+          <mxGeometry height="110" width="220" x="310" y="470" as="geometry" />
+        </mxCell>
+        <mxCell id="input_username" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="Пользователь вводит&lt;br&gt;username" vertex="1">
+          <mxGeometry height="60" width="160" x="340" y="620" as="geometry" />
+        </mxCell>
+        <mxCell id="save_username" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="Сохранить username&lt;br&gt;в памяти" vertex="1">
+          <mxGeometry height="60" width="160" x="340" y="720" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow1" edge="1" parent="1" source="start" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" target="step1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow2" edge="1" parent="1" source="step1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" target="step2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow3" edge="1" parent="1" source="step2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" target="check_vk_id">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow_end1" edge="1" parent="1" source="already_linked" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="WV1Ug_rWWE_1RiJkF0Ju-32">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="670" y="890" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="arrow5" edge="1" parent="1" source="request_username" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" target="input_username">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow6" edge="1" parent="1" source="input_username" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" target="save_username">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow7" edge="1" parent="1" source="save_username" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="420" y="850" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="WV1Ug_rWWE_1RiJkF0Ju-12" parent="1" style="rounded=0;whiteSpace=wrap;html=1;align=center;spacingLeft=10;" value="Отправить:&lt;br&gt;&#39;Теперь введите&lt;br&gt;ваш пароль:&#39;" vertex="1">
+          <mxGeometry height="60" width="160" x="880" y="100" as="geometry" />
+        </mxCell>
+        <mxCell id="WV1Ug_rWWE_1RiJkF0Ju-13" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="Пользователь вводит&lt;br&gt;пароль" vertex="1">
+          <mxGeometry height="60" width="160" x="880" y="210" as="geometry" />
+        </mxCell>
+        <mxCell id="WV1Ug_rWWE_1RiJkF0Ju-14" parent="1" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=10;" value="Проверка username&lt;br&gt;и пароля через бд" vertex="1">
+          <mxGeometry height="80" width="200" x="860" y="310" as="geometry" />
+        </mxCell>
+        <mxCell id="WV1Ug_rWWE_1RiJkF0Ju-15" edge="1" parent="1" source="WV1Ug_rWWE_1RiJkF0Ju-19" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="WV1Ug_rWWE_1RiJkF0Ju-20">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="WV1Ug_rWWE_1RiJkF0Ju-16" connectable="0" parent="WV1Ug_rWWE_1RiJkF0Ju-15" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" value="Нет" vertex="1">
+          <mxGeometry relative="1" x="-0.0033" y="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="WV1Ug_rWWE_1RiJkF0Ju-17" edge="1" parent="1" source="WV1Ug_rWWE_1RiJkF0Ju-19" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="WV1Ug_rWWE_1RiJkF0Ju-22">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="WV1Ug_rWWE_1RiJkF0Ju-18" connectable="0" parent="WV1Ug_rWWE_1RiJkF0Ju-17" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" value="Да" vertex="1">
+          <mxGeometry relative="1" x="-0.363" y="-1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="WV1Ug_rWWE_1RiJkF0Ju-19" parent="1" style="rhombus;whiteSpace=wrap;html=1;" value="Аутентификация&lt;br&gt;успешна?" vertex="1">
+          <mxGeometry height="90" width="190" x="865" y="430" as="geometry" />
+        </mxCell>
+        <mxCell id="WV1Ug_rWWE_1RiJkF0Ju-33" edge="1" parent="1" source="WV1Ug_rWWE_1RiJkF0Ju-20" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" target="WV1Ug_rWWE_1RiJkF0Ju-36">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="WV1Ug_rWWE_1RiJkF0Ju-20" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="Отправить:&lt;br&gt;&#39;Неверное имя&lt;br&gt;пользователя или пароль.&lt;br&gt;Попробуйте снова.&#39;" vertex="1">
+          <mxGeometry height="80" width="180" x="1120" y="435" as="geometry" />
+        </mxCell>
+        <mxCell id="WV1Ug_rWWE_1RiJkF0Ju-21" edge="1" parent="1" source="WV1Ug_rWWE_1RiJkF0Ju-22" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" target="WV1Ug_rWWE_1RiJkF0Ju-29" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="WV1Ug_rWWE_1RiJkF0Ju-22" parent="1" style="rounded=0;whiteSpace=wrap;html=1;align=center;spacingLeft=10;" value="Сохранение VK_id пользователя в бд" vertex="1">
+          <mxGeometry height="80" width="180" x="870" y="560" as="geometry" />
+        </mxCell>
+        <mxCell id="WV1Ug_rWWE_1RiJkF0Ju-23" parent="1" style="rounded=0;whiteSpace=wrap;html=1;align=center;spacingLeft=10;" value="Отправить:&lt;br&gt;&#39;Ваш VK аккаунт&lt;br&gt;успешно привязан&lt;br&gt;к FitProgress!&#39;&lt;br&gt;&lt;br&gt;Показать главное меню" vertex="1">
+          <mxGeometry height="110" width="200" x="860" y="680" as="geometry" />
+        </mxCell>
+        <mxCell id="WV1Ug_rWWE_1RiJkF0Ju-24" edge="1" parent="1" source="WV1Ug_rWWE_1RiJkF0Ju-12" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" target="WV1Ug_rWWE_1RiJkF0Ju-13">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="WV1Ug_rWWE_1RiJkF0Ju-25" edge="1" parent="1" source="WV1Ug_rWWE_1RiJkF0Ju-13" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" target="WV1Ug_rWWE_1RiJkF0Ju-14">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="WV1Ug_rWWE_1RiJkF0Ju-26" edge="1" parent="1" source="WV1Ug_rWWE_1RiJkF0Ju-14" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" target="WV1Ug_rWWE_1RiJkF0Ju-19">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="WV1Ug_rWWE_1RiJkF0Ju-27" edge="1" parent="1" source="WV1Ug_rWWE_1RiJkF0Ju-22" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" target="WV1Ug_rWWE_1RiJkF0Ju-23">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="WV1Ug_rWWE_1RiJkF0Ju-28" edge="1" parent="1" source="WV1Ug_rWWE_1RiJkF0Ju-23" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="WV1Ug_rWWE_1RiJkF0Ju-30">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="960" y="830" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="WV1Ug_rWWE_1RiJkF0Ju-29" parent="1" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=15;" value="БД" vertex="1">
+          <mxGeometry height="80" width="60" x="740" y="560" as="geometry" />
+        </mxCell>
+        <mxCell id="WV1Ug_rWWE_1RiJkF0Ju-30" parent="1" style="ellipse;whiteSpace=wrap;html=1;fontStyle=1" value="Конец" vertex="1">
+          <mxGeometry height="60" width="120" x="900" y="840" as="geometry" />
+        </mxCell>
+        <mxCell id="WV1Ug_rWWE_1RiJkF0Ju-31" parent="1" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;" value="1" vertex="1">
+          <mxGeometry height="80" width="80" x="380" y="850" as="geometry" />
+        </mxCell>
+        <mxCell id="WV1Ug_rWWE_1RiJkF0Ju-32" parent="1" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;" value="2" vertex="1">
+          <mxGeometry height="80" width="80" x="630" y="660" as="geometry" />
+        </mxCell>
+        <mxCell id="WV1Ug_rWWE_1RiJkF0Ju-41" edge="1" parent="1" source="WV1Ug_rWWE_1RiJkF0Ju-34" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" target="WV1Ug_rWWE_1RiJkF0Ju-12">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="WV1Ug_rWWE_1RiJkF0Ju-34" parent="1" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;" value="1" vertex="1">
+          <mxGeometry height="80" width="80" x="920" as="geometry" />
+        </mxCell>
+        <mxCell id="WV1Ug_rWWE_1RiJkF0Ju-39" edge="1" parent="1" source="WV1Ug_rWWE_1RiJkF0Ju-35" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1370" y="820" />
+            </Array>
+            <mxPoint x="1730" y="70" as="sourcePoint" />
+            <mxPoint x="960" y="820" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="WV1Ug_rWWE_1RiJkF0Ju-35" parent="1" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;" value="2" vertex="1">
+          <mxGeometry height="80" width="80" x="1330" as="geometry" />
+        </mxCell>
+        <mxCell id="WV1Ug_rWWE_1RiJkF0Ju-36" parent="1" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;" value="3" vertex="1">
+          <mxGeometry height="80" width="80" x="1170" as="geometry" />
+        </mxCell>
+        <mxCell id="WV1Ug_rWWE_1RiJkF0Ju-38" edge="1" parent="1" source="WV1Ug_rWWE_1RiJkF0Ju-37" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" target="request_username">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="WV1Ug_rWWE_1RiJkF0Ju-37" parent="1" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;" value="3" vertex="1">
+          <mxGeometry height="80" width="80" x="530" y="860" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
