@@ -1,3 +1,6 @@
+from datetime import timedelta
+
+from django.utils import timezone
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -8,15 +11,26 @@ from .serializers import BodyMeasurementSerializer
 
 
 class MeasurementListView(APIView):
-    """Список замеров тела текущего пользователя."""
+    """Список замеров тела текущего пользователя.
+
+    GET /api/measurements/?days=7   — только за последние 7 дней
+    GET /api/measurements/?days=30  — за последние 30 дней
+    GET /api/measurements/          — все замеры
+    """
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        measurements = (
-            BodyMeasurement.objects
-            .filter(user=request.user)
-            .order_by('-created_at')
-        )
+        measurements = BodyMeasurement.objects.filter(user=request.user)
+
+        days_param = request.query_params.get('days')
+        if days_param:
+            try:
+                cutoff = timezone.now() - timedelta(days=int(days_param))
+                measurements = measurements.filter(created_at__gte=cutoff)
+            except (ValueError, TypeError):
+                pass
+
+        measurements = measurements.order_by('created_at')
         serializer = BodyMeasurementSerializer(measurements, many=True)
         return Response(serializer.data)
 

@@ -17,6 +17,7 @@ import type { HeatmapDay, WorkoutDayDetail } from "@/lib/types";
 const CURRENT_YEAR = new Date().getFullYear();
 
 const MUSCLE_COLORS: Record<string, string> = {
+  // English
   chest: "#ef4444",
   back: "#3b82f6",
   shoulders: "#8b5cf6",
@@ -27,11 +28,45 @@ const MUSCLE_COLORS: Record<string, string> = {
   biceps: "#ec4899",
   triceps: "#06b6d4",
   hamstrings: "#6366f1",
+  abs: "#a855f7",
+  glutes: "#84cc16",
+  // Russian
+  "грудь": "#ef4444",
+  "грудные": "#ef4444",
+  "спина": "#3b82f6",
+  "широчайшие": "#3b82f6",
+  "плечи": "#8b5cf6",
+  "дельты": "#8b5cf6",
+  "руки": "#f97316",
+  "бицепс": "#ec4899",
+  "бицепсы": "#ec4899",
+  "трицепс": "#06b6d4",
+  "трицепсы": "#06b6d4",
+  "ноги": "#10b981",
+  "квадрицепсы": "#10b981",
+  "бёдра": "#10b981",
+  "икры": "#14b8a6",
+  "икроножная": "#14b8a6",
+  "предплечья": "#f59e0b",
+  "пресс": "#a855f7",
+  "ягодицы": "#84cc16",
+  "подколенные": "#6366f1",
+  "бицепс бедра": "#6366f1",
 };
+
+const COLOR_PALETTE = [
+  "#ef4444","#3b82f6","#8b5cf6","#f97316","#10b981",
+  "#ec4899","#06b6d4","#f59e0b","#14b8a6","#a855f7","#84cc16",
+];
 
 function getMuscleColor(muscle: string): string {
   const normalized = muscle.toLowerCase();
-  return MUSCLE_COLORS[normalized] || "#6b7280";
+  if (MUSCLE_COLORS[normalized]) return MUSCLE_COLORS[normalized];
+  let hash = 0;
+  for (let i = 0; i < normalized.length; i++) {
+    hash = normalized.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  return COLOR_PALETTE[Math.abs(hash) % COLOR_PALETTE.length];
 }
 
 function formatDate(iso: string): string {
@@ -124,15 +159,7 @@ function WorkoutDayPanel({ data }: { data: WorkoutDayDetail }) {
             {exercises.map((ex, i) => (
               <div key={i} className="rounded-xl border border-white/5 bg-white/[0.02] px-4 py-3">
                 <p className="text-sm font-medium text-white">{ex.exercise.name}</p>
-                <div className="mt-1 flex flex-wrap gap-x-3 text-xs text-slate-400">
-                  <span>{ex.total_sets} подходов</span>
-                  {ex.best_set && ex.best_set.weight && (
-                    <span>Лучший: {ex.best_set.weight} x {ex.best_set.reps}</span>
-                  )}
-                  {ex.best_set && !ex.best_set.weight && (
-                    <span>Всего повторений: {ex.sets.reduce((s, set) => s + set.reps, 0)}</span>
-                  )}
-                </div>
+                <p className="mt-1 text-xs text-slate-400">{ex.total_sets} подходов</p>
               </div>
             ))}
           </div>
@@ -155,11 +182,6 @@ function WorkoutDayPanel({ data }: { data: WorkoutDayDetail }) {
                   <div key={i} className="rounded-xl border border-white/5 bg-white/[0.02] px-4 py-3">
                     <p className="text-sm font-medium text-white">{p.exercise_name}</p>
                     <div className="mt-1 flex flex-wrap gap-x-3 text-xs">
-                      {p.current_best.weight && (
-                        <span className="text-slate-300">
-                          {p.current_best.weight} x {p.current_best.reps}
-                        </span>
-                      )}
                       {hasWeightDelta && (
                         <span className={p.delta_weight > 0 ? "text-green-400" : "text-red-400"}>
                           {p.delta_weight > 0 ? "↑" : "↓"} {Math.abs(p.delta_weight)} кг

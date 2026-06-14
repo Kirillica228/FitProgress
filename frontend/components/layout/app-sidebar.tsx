@@ -9,7 +9,7 @@ const navItems = [
   { href: "/dashboard/heatmap", label: "Активность", icon: "АК" },
   { href: "/dashboard/workouts", label: "Тренировки", icon: "ТР" },
   { href: "/dashboard/nutrition", label: "Питание", icon: "ПТ" },
-  { href: "/dashboard/progress", label: "Прогресс", icon: "ПГ" },
+  { href: "/dashboard/progress", label: "Замеры", icon: "ЗМ" },
 ];
 
 export function AppSidebar() {

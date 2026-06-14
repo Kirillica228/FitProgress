@@ -11,7 +11,7 @@ from .models import (
 class MuscleGroupSerializer(serializers.ModelSerializer):
     class Meta:
         model = MuscleGroup
-        fields = ['id', 'name', 'slug']
+        fields = ['id', 'name']
 
 
 class ExerciseSerializer(serializers.ModelSerializer):

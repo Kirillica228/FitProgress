@@ -5,7 +5,41 @@ import { api } from "@/lib/api";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Card } from "@/components/ui/card";
 import { ProgressBar } from "@/components/ui/progress-bar";
+import { DonutChart } from "@/components/charts/donut-chart";
 import type { ActivityToday, ActivityTodayFoodEntry } from "@/lib/types";
+
+// ─── Muscle colors ────────────────────────────────────────────────────────────
+
+const MUSCLE_COLORS: Record<string, string> = {
+  chest: "#ef4444", back: "#3b82f6", shoulders: "#8b5cf6",
+  arms: "#f97316", forearms: "#f59e0b", legs: "#10b981",
+  calves: "#14b8a6", biceps: "#ec4899", triceps: "#06b6d4",
+  hamstrings: "#6366f1", abs: "#a855f7", glutes: "#84cc16",
+  "грудь": "#ef4444", "грудные": "#ef4444",
+  "спина": "#3b82f6", "широчайшие": "#3b82f6",
+  "плечи": "#8b5cf6", "дельты": "#8b5cf6",
+  "руки": "#f97316", "бицепс": "#ec4899", "бицепсы": "#ec4899",
+  "трицепс": "#06b6d4", "трицепсы": "#06b6d4",
+  "ноги": "#10b981", "квадрицепсы": "#10b981", "бёдра": "#10b981",
+  "икры": "#14b8a6", "икроножная": "#14b8a6",
+  "предплечья": "#f59e0b", "пресс": "#a855f7",
+  "ягодицы": "#84cc16", "подколенные": "#6366f1",
+};
+
+const COLOR_PALETTE = [
+  "#ef4444","#3b82f6","#8b5cf6","#f97316","#10b981",
+  "#ec4899","#06b6d4","#f59e0b","#14b8a6","#a855f7","#84cc16",
+];
+
+function getMuscleColor(muscle: string): string {
+  const normalized = muscle.toLowerCase();
+  if (MUSCLE_COLORS[normalized]) return MUSCLE_COLORS[normalized];
+  let hash = 0;
+  for (let i = 0; i < normalized.length; i++) {
+    hash = normalized.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  return COLOR_PALETTE[Math.abs(hash) % COLOR_PALETTE.length];
+}
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -58,6 +92,23 @@ function WorkoutsSection({ data }: { data: ActivityToday["workouts"] }) {
     return <EmptyBlock text="Тренировок ещё нет — самое время!" />;
   }
 
+  // Aggregate muscle groups across all sessions for the donut chart
+  const muscleMap: Record<string, number> = {};
+  sessions.forEach((session) => {
+    session.exercises.forEach((ex) => {
+      ex.muscle_groups.forEach((mg) => {
+        muscleMap[mg] = (muscleMap[mg] || 0) + ex.total_sets;
+      });
+    });
+  });
+  const muscleSegments = Object.entries(muscleMap)
+    .sort((a, b) => b[1] - a[1])
+    .map(([muscle, sets]) => ({
+      value: sets,
+      color: getMuscleColor(muscle),
+      label: muscle,
+    }));
+
   return (
     <div className="space-y-3">
       {/* Summary row */}
@@ -88,17 +139,30 @@ function WorkoutsSection({ data }: { data: ActivityToday["workouts"] }) {
         )}
       </div>
 
+      {/* Muscle distribution donut */}
+      {muscleSegments.length > 0 && (
+        <div className="flex flex-col items-center pt-2">
+          <p className="mb-3 text-xs font-medium uppercase tracking-wider text-slate-500">
+            Распределение подходов по мышцам
+          </p>
+          <DonutChart
+            segments={muscleSegments}
+            size={130}
+            strokeWidth={22}
+            showLegend
+          />
+        </div>
+      )}
+
       {/* Sessions */}
       {sessions.map((session) => (
         <div
           key={session.id}
           className="rounded-2xl border border-white/5 bg-white/[0.02] p-4 space-y-3"
         >
-          <div className="flex items-center justify-between">
-            <p className="text-sm font-medium text-white">
-              Тренировка {session.duration ? `· ${session.duration} мин` : ""}
-            </p>
-          </div>
+          <p className="text-sm font-medium text-white">
+            Тренировка {session.duration ? `· ${session.duration} мин` : ""}
+          </p>
 
           <div className="space-y-1.5">
             {session.exercises.map((ex, i) => (
@@ -112,14 +176,7 @@ function WorkoutsSection({ data }: { data: ActivityToday["workouts"] }) {
                     <p className="text-[11px] text-slate-500">{ex.muscle_groups.join(", ")}</p>
                   )}
                 </div>
-                <div className="ml-3 shrink-0 text-right text-xs text-slate-400">
-                  <span>{ex.total_sets} подх.</span>
-                  {ex.best_set?.weight && (
-                    <span className="ml-2 text-slate-300">
-                      {ex.best_set.weight} × {ex.best_set.reps}
-                    </span>
-                  )}
-                </div>
+                <span className="ml-3 shrink-0 text-xs text-slate-400">{ex.total_sets} подх.</span>
               </div>
             ))}
           </div>

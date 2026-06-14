@@ -1,14 +1,14 @@
 <mxfile host="app.diagrams.net">
   <diagram name="Login Algorithm" id="JlpULRx5UV9ognDDVLM7">
-    <mxGraphModel dx="2357" dy="1320" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+    <mxGraphModel dx="1414" dy="792" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
         <mxCell id="bzk-Thg4Nawm8KJKOuyE-1" parent="1" style="ellipse;whiteSpace=wrap;html=1;fontStyle=1" value="Начало" vertex="1">
-          <mxGeometry height="60" width="120" x="340" y="40" as="geometry" />
+          <mxGeometry height="60" width="120" x="340" y="20" as="geometry" />
         </mxCell>
         <mxCell id="bzk-Thg4Nawm8KJKOuyE-2" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="Пользователь переходит&lt;br&gt;на страницу авторизации" vertex="1">
-          <mxGeometry height="60" width="160" x="320" y="140" as="geometry" />
+          <mxGeometry height="80" width="160" x="320" y="120" as="geometry" />
         </mxCell>
         <mxCell id="bzk-Thg4Nawm8KJKOuyE-3" parent="1" style="rounded=0;whiteSpace=wrap;html=1;align=center;spacingLeft=10;" value="&lt;div style=&quot;&quot;&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;Заполнение форму&lt;/span&gt;&lt;/div&gt;" vertex="1">
           <mxGeometry height="80" width="160" x="320" y="240" as="geometry" />
@@ -35,11 +35,14 @@
         <mxCell id="bzk-Thg4Nawm8KJKOuyE-5" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="Показать сообщение:&lt;br&gt;&#39;Поле обязательно&lt;br&gt;для заполнения&#39;" vertex="1">
           <mxGeometry height="60" width="160" x="560" y="380" as="geometry" />
         </mxCell>
-        <mxCell id="bzk-Thg4Nawm8KJKOuyE-6" parent="1" style="rounded=0;whiteSpace=wrap;html=1;align=center;spacingLeft=10;" value="Запрос к серверной части API" vertex="1">
-          <mxGeometry height="70" width="190" x="305" y="500" as="geometry" />
+        <mxCell id="o1voBBchRaHj9LzE9yE5-1" edge="1" parent="1" source="bzk-Thg4Nawm8KJKOuyE-6" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="bzk-Thg4Nawm8KJKOuyE-7">
+          <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="bzk-Thg4Nawm8KJKOuyE-7" parent="1" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=10;" value="Поиск пользователя&lt;br&gt;с username" vertex="1">
-          <mxGeometry height="80" width="180" x="315" y="640" as="geometry" />
+        <mxCell id="bzk-Thg4Nawm8KJKOuyE-6" parent="1" style="rounded=0;whiteSpace=wrap;html=1;align=center;spacingLeft=10;" value="Запрос к серверной части API" vertex="1">
+          <mxGeometry height="80" width="190" x="305" y="520" as="geometry" />
+        </mxCell>
+        <mxCell id="bzk-Thg4Nawm8KJKOuyE-7" parent="1" style="rounded=0;whiteSpace=wrap;html=1;align=center;spacingLeft=10;" value="Поиск пользователя с username" vertex="1">
+          <mxGeometry height="80" width="180" x="310" y="640" as="geometry" />
         </mxCell>
         <mxCell id="bzk-Thg4Nawm8KJKOuyE-31" edge="1" parent="1" source="bzk-Thg4Nawm8KJKOuyE-8" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" target="bzk-Thg4Nawm8KJKOuyE-9">
           <mxGeometry relative="1" as="geometry" />
@@ -63,7 +66,7 @@
           <mxGeometry height="100" width="210" x="295" y="760" as="geometry" />
         </mxCell>
         <mxCell id="bzk-Thg4Nawm8KJKOuyE-9" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="Вернуть ошибку:&lt;br&gt;&#39;Неверное имя&lt;br&gt;пользователя или пароль&#39;" vertex="1">
-          <mxGeometry height="80" width="180" x="560" y="740" as="geometry" />
+          <mxGeometry height="80" width="180" x="570" y="770" as="geometry" />
         </mxCell>
         <mxCell id="bzk-Thg4Nawm8KJKOuyE-11" parent="1" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=10;" value="Вернуть ответ об успешно аутентификации пользователя с данными" vertex="1">
           <mxGeometry height="80" width="190" x="305" y="900" as="geometry" />
@@ -83,14 +86,6 @@
         <mxCell id="bzk-Thg4Nawm8KJKOuyE-16" edge="1" parent="1" source="bzk-Thg4Nawm8KJKOuyE-3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" target="bzk-Thg4Nawm8KJKOuyE-4">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="bzk-Thg4Nawm8KJKOuyE-20" edge="1" parent="1" source="bzk-Thg4Nawm8KJKOuyE-6" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" target="bzk-Thg4Nawm8KJKOuyE-7">
-          <mxGeometry relative="1" as="geometry">
-            <Array as="points">
-              <mxPoint x="400" y="610" />
-              <mxPoint x="405" y="610" />
-            </Array>
-          </mxGeometry>
-        </mxCell>
         <mxCell id="bzk-Thg4Nawm8KJKOuyE-21" edge="1" parent="1" source="bzk-Thg4Nawm8KJKOuyE-7" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" target="bzk-Thg4Nawm8KJKOuyE-8">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
@@ -109,10 +104,10 @@
             <mxPoint x="480" y="270" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="bzk-Thg4Nawm8KJKOuyE-30" edge="1" parent="1" source="bzk-Thg4Nawm8KJKOuyE-9" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=1;entryY=0.375;entryDx=0;entryDy=0;entryPerimeter=0;" target="bzk-Thg4Nawm8KJKOuyE-3">
+        <mxCell id="bzk-Thg4Nawm8KJKOuyE-30" edge="1" parent="1" source="bzk-Thg4Nawm8KJKOuyE-9" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=1;entryY=0.375;entryDx=0;entryDy=0;entryPerimeter=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" target="bzk-Thg4Nawm8KJKOuyE-3">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
-              <mxPoint x="790" y="780" />
+              <mxPoint x="790" y="810" />
               <mxPoint x="790" y="270" />
             </Array>
           </mxGeometry>

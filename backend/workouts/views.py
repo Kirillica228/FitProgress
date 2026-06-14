@@ -275,7 +275,7 @@ class WorkoutDayDetailView(APIView):
                     if best_set is None or w * s.reps > (best_set['weight'] or 0) * best_set['reps']:
                         best_set = {'reps': s.reps, 'weight': s.weight}
 
-                muscle_groups = [{'id': mg.id, 'name': mg.name, 'slug': mg.slug} for mg in ex.muscle_groups.all()]
+                muscle_groups = [{'id': mg.id, 'name': mg.name} for mg in ex.muscle_groups.all()]
                 for mg in ex.muscle_groups.all():
                     muscle_load[mg.name] = muscle_load.get(mg.name, 0) + len(sets_list)
 

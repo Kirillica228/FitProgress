@@ -273,6 +273,20 @@ def handle_message(vk, event) -> None:
         sets = int(match.group(1))
         set_data(vk_id, "ex_sets", sets)
         send(vk, vk_id,
+             "Сколько повторений в каждом подходе? (например: 10):",
+             kb.back_to_menu())
+        set_state(vk_id, State.WORKOUT_REPS)
+        return
+
+    if state == State.WORKOUT_REPS:
+        match = re.match(r"^(\d+)$", text.strip())
+        if not match:
+            send(vk, vk_id, "Введи целое число повторений, например: 10")
+            return
+
+        reps = int(match.group(1))
+        set_data(vk_id, "ex_reps", reps)
+        send(vk, vk_id,
              "Продолжительность в секундах (если не нужно — напиши 0):",
              kb.back_to_menu())
         set_state(vk_id, State.WORKOUT_DURATION)
@@ -294,6 +308,7 @@ def handle_message(vk, event) -> None:
             "name": exercise.get("name", "—"),
             "weight": d.get("ex_weight", 0),
             "sets": d.get("ex_sets", 1),
+            "reps": d.get("ex_reps", 1),
             "duration": duration,
         })
         set_data(vk_id, "workout_exercises", exercises_list)
@@ -303,7 +318,7 @@ def handle_message(vk, event) -> None:
         for i, ex in enumerate(exercises_list, start=1):
             w = f"{ex['weight']}кг" if ex['weight'] > 0 else "без веса"
             dur = f", {ex['duration']}сек" if ex['duration'] > 0 else ""
-            lines.append(f"{i}. {ex['name']} — {ex['sets']} подх., {w}{dur}")
+            lines.append(f"{i}. {ex['name']} — {ex['sets']}×{ex['reps']} повт., {w}{dur}")
 
         lines.append("\nДобавить ещё или завершить?")
         send(vk, vk_id, "\n".join(lines), kb.workout_building())

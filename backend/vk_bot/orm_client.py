@@ -113,7 +113,6 @@ def save_custom_workout(vk_id: int, exercises: list[dict]) -> bool:
         session = WorkoutSession.objects.create(
             user=user,
             duration=None,
-            comment="Собрана через VK-бота",
         )
 
         for order, ex_data in enumerate(exercises, start=1):

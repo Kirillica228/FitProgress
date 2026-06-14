@@ -18,6 +18,7 @@ class FoodEntry(models.Model):
     grams = models.FloatField(default=100, help_text="Количество грамм")
     calories = models.FloatField()
     protein = models.FloatField(default=0, help_text="Белки (г)")
+
     fats = models.FloatField(default=0, help_text="Жиры (г)")
     carbs = models.FloatField(default=0, help_text="Углеводы (г)")
     meal_type = models.CharField(max_length=20, choices=MEAL_TYPES)

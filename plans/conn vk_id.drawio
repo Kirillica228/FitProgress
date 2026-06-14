@@ -1,6 +1,6 @@
 <mxfile host="app.diagrams.net">
   <diagram name="VK Link Algorithm" id="vk_link">
-    <mxGraphModel dx="764" dy="428" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+    <mxGraphModel dx="1488" dy="834" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
@@ -32,11 +32,11 @@
         <mxCell id="check_vk_id" parent="1" style="rhombus;whiteSpace=wrap;html=1;" value="&lt;br&gt;VK ID уже&lt;br&gt;привязан?" vertex="1">
           <mxGeometry height="100" width="190" x="325" y="330" as="geometry" />
         </mxCell>
-        <mxCell id="already_linked" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="Отправить:&lt;br&gt;&#39;👋 Добро пожаловать!&#39;&lt;br&gt;Показать главное меню" vertex="1">
+        <mxCell id="already_linked" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="Отправить:&lt;br&gt;&#39;&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;Добро пожаловать!&#39;&lt;/span&gt;&lt;div&gt;Показать главное меню&lt;/div&gt;" vertex="1">
           <mxGeometry height="60" width="180" x="580" y="350" as="geometry" />
         </mxCell>
-        <mxCell id="request_username" parent="1" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=10;" value="Отправить:&lt;br&gt;&#39;Введите ваше имя&lt;br&gt;пользователя (username)&lt;br&gt;от FitProgress:&#39;" vertex="1">
-          <mxGeometry height="110" width="220" x="310" y="470" as="geometry" />
+        <mxCell id="request_username" parent="1" style="rounded=0;whiteSpace=wrap;html=1;align=center;spacingLeft=10;" value="Отправить:&lt;br&gt;&#39;Введите ваше имя&lt;br&gt;пользователя (username)&lt;br&gt;от FitProgress:&#39;" vertex="1">
+          <mxGeometry height="80" width="160" x="340" y="480" as="geometry" />
         </mxCell>
         <mxCell id="input_username" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="Пользователь вводит&lt;br&gt;username" vertex="1">
           <mxGeometry height="60" width="160" x="340" y="620" as="geometry" />
@@ -70,13 +70,13 @@
           </mxGeometry>
         </mxCell>
         <mxCell id="WV1Ug_rWWE_1RiJkF0Ju-12" parent="1" style="rounded=0;whiteSpace=wrap;html=1;align=center;spacingLeft=10;" value="Отправить:&lt;br&gt;&#39;Теперь введите&lt;br&gt;ваш пароль:&#39;" vertex="1">
-          <mxGeometry height="60" width="160" x="880" y="100" as="geometry" />
+          <mxGeometry height="60" width="160" x="880" y="110" as="geometry" />
         </mxCell>
         <mxCell id="WV1Ug_rWWE_1RiJkF0Ju-13" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="Пользователь вводит&lt;br&gt;пароль" vertex="1">
-          <mxGeometry height="60" width="160" x="880" y="210" as="geometry" />
+          <mxGeometry height="80" width="160" x="880" y="200" as="geometry" />
         </mxCell>
-        <mxCell id="WV1Ug_rWWE_1RiJkF0Ju-14" parent="1" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=10;" value="Проверка username&lt;br&gt;и пароля через бд" vertex="1">
-          <mxGeometry height="80" width="200" x="860" y="310" as="geometry" />
+        <mxCell id="WV1Ug_rWWE_1RiJkF0Ju-14" parent="1" style="rounded=0;whiteSpace=wrap;html=1;align=center;spacingLeft=10;" value="Проверка username&lt;br&gt;и пароля через бд" vertex="1">
+          <mxGeometry height="80" width="160" x="880" y="320" as="geometry" />
         </mxCell>
         <mxCell id="WV1Ug_rWWE_1RiJkF0Ju-15" edge="1" parent="1" source="WV1Ug_rWWE_1RiJkF0Ju-19" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="WV1Ug_rWWE_1RiJkF0Ju-20">
           <mxGeometry relative="1" as="geometry" />
@@ -109,8 +109,8 @@
         <mxCell id="WV1Ug_rWWE_1RiJkF0Ju-22" parent="1" style="rounded=0;whiteSpace=wrap;html=1;align=center;spacingLeft=10;" value="Сохранение VK_id пользователя в бд" vertex="1">
           <mxGeometry height="80" width="180" x="870" y="560" as="geometry" />
         </mxCell>
-        <mxCell id="WV1Ug_rWWE_1RiJkF0Ju-23" parent="1" style="rounded=0;whiteSpace=wrap;html=1;align=center;spacingLeft=10;" value="Отправить:&lt;br&gt;&#39;Ваш VK аккаунт&lt;br&gt;успешно привязан&lt;br&gt;к FitProgress!&#39;&lt;br&gt;&lt;br&gt;Показать главное меню" vertex="1">
-          <mxGeometry height="110" width="200" x="860" y="680" as="geometry" />
+        <mxCell id="WV1Ug_rWWE_1RiJkF0Ju-23" parent="1" style="rounded=0;whiteSpace=wrap;html=1;align=center;spacingLeft=10;" value="Отправить:&lt;br&gt;&#39;Ваш VK аккаунт&lt;br&gt;успешно привязан&lt;br&gt;к FitProgress!&#39;&lt;br&gt;Показать главное меню" vertex="1">
+          <mxGeometry height="80" width="185" x="867.5" y="680" as="geometry" />
         </mxCell>
         <mxCell id="WV1Ug_rWWE_1RiJkF0Ju-24" edge="1" parent="1" source="WV1Ug_rWWE_1RiJkF0Ju-12" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" target="WV1Ug_rWWE_1RiJkF0Ju-13">
           <mxGeometry relative="1" as="geometry" />
@@ -163,7 +163,11 @@
           <mxGeometry height="80" width="80" x="1170" as="geometry" />
         </mxCell>
         <mxCell id="WV1Ug_rWWE_1RiJkF0Ju-38" edge="1" parent="1" source="WV1Ug_rWWE_1RiJkF0Ju-37" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" target="request_username">
-          <mxGeometry relative="1" as="geometry" />
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="570" y="520" />
+            </Array>
+          </mxGeometry>
         </mxCell>
         <mxCell id="WV1Ug_rWWE_1RiJkF0Ju-37" parent="1" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;" value="3" vertex="1">
           <mxGeometry height="80" width="80" x="530" y="860" as="geometry" />

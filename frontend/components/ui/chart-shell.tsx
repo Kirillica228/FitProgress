@@ -3,11 +3,14 @@ import { Card } from "@/components/ui/card";
 export function ChartShell({
   title,
   subtitle,
+  actions,
   children,
 }: {
   title: string;
-  /** Строка или произвольный React-узел (например, переключатель периода) */
+  /** Строка или произвольный React-узел (например, текущее значение) */
   subtitle?: React.ReactNode;
+  /** Контент в правой части заголовка (например, переключатель периода) */
+  actions?: React.ReactNode;
   children: React.ReactNode;
 }) {
   return (
@@ -23,6 +26,7 @@ export function ChartShell({
             )
           ) : null}
         </div>
+        {actions && <div className="shrink-0">{actions}</div>}
       </div>
       {children}
     </Card>

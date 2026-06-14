@@ -12,11 +12,60 @@ import type { BodyMeasurement } from "@/lib/types";
 
 type Period = "7d" | "30d" | "all";
 
+const PERIOD_LABELS: Record<Period, string> = {
+  "7d": "7 дн",
+  "30d": "30 дн",
+  all: "Всё",
+};
+
 function filterByPeriod(data: BodyMeasurement[], period: Period): BodyMeasurement[] {
   if (period === "all") return data;
   const days = period === "7d" ? 7 : 30;
   const cutoff = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
   return data.filter((m) => new Date(m.date) >= cutoff);
+}
+
+/** Каждый замер — отдельная точка на графике (без усреднения). */
+function toChartData(
+  items: BodyMeasurement[],
+  key: "weight" | "chest" | "waist" | "hips",
+): Array<{ label: string; value: number }> {
+  return items
+    .filter((m) => m[key] != null)
+    .map((m) => ({
+      label: new Date(m.date).toLocaleDateString("ru-RU", {
+        day: "2-digit",
+        month: "2-digit",
+      }),
+      value: m[key] as number,
+    }));
+}
+
+function PeriodButtons({
+  period,
+  onChange,
+}: {
+  period: Period;
+  onChange: (p: Period) => void;
+}) {
+  return (
+    <div className="flex gap-1">
+      {(["7d", "30d", "all"] as Period[]).map((p) => (
+        <button
+          key={p}
+          onClick={() => onChange(p)}
+          className={[
+            "rounded-lg px-2.5 py-1 text-xs transition",
+            period === p
+              ? "bg-white text-slate-950 font-medium"
+              : "text-slate-400 hover:text-white hover:bg-white/5",
+          ].join(" ")}
+        >
+          {PERIOD_LABELS[p]}
+        </button>
+      ))}
+    </div>
+  );
 }
 
 // ─── Sub-components ──────────────────────────────────────────────────────────
@@ -50,32 +99,42 @@ function KpiCard({
 
 function MiniChart({
   title,
-  data,
+  allData,
+  dataKey,
   unit,
 }: {
   title: string;
-  data: Array<{ label: string; value: number }>;
+  allData: BodyMeasurement[];
+  dataKey: "chest" | "waist" | "hips";
   unit: string;
 }) {
-  if (data.length < 2) return null;
+  const [period, setPeriod] = useState<Period>("7d");
+
+  const allMetricData = toChartData(allData, dataKey);
+  if (allMetricData.length === 0) return null;
+
+  const filtered = filterByPeriod(allData, period);
+  const periodData = toChartData(filtered, dataKey);
+  // Если в выбранном периоде нет точек — показываем все данные по метрике
+  const chartData = periodData.length > 0 ? periodData : allMetricData;
+  const currentValue = chartData.at(-1)?.value ?? "—";
+
   return (
-    <ChartShell title={title} subtitle={`${data.at(-1)?.value ?? "—"} ${unit}`}>
-      <LineChart data={data} />
+    <ChartShell
+      title={title}
+      subtitle={`${currentValue} ${unit}`}
+      actions={<PeriodButtons period={period} onChange={setPeriod} />}
+    >
+      <LineChart data={chartData} unit={unit} />
     </ChartShell>
   );
 }
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
-const PERIOD_LABELS: Record<Period, string> = {
-  "7d": "7 дней",
-  "30d": "30 дней",
-  all: "Всё время",
-};
-
 export default function ProgressPage() {
   const { data, isLoading } = useProgressData();
-  const [period, setPeriod] = useState<Period>("30d");
+  const [weightPeriod, setWeightPeriod] = useState<Period>("7d");
 
   if (isLoading) {
     return (
@@ -93,59 +152,41 @@ export default function ProgressPage() {
   if (!data || data.length === 0) {
     return (
       <EmptyState
-        title="Нет данных о прогрессе"
+        title="Нет данных о замерах"
         description="Добавь замеры через бота — динамика веса и замеров появится здесь."
         actionLabel="Открыть бота"
       />
     );
   }
 
-  // Сортируем по дате, при одинаковой дате — по id (чтобы порядок был стабильным)
+  // Сортируем по дате, при одинаковой дате — по id
   const sorted = [...data].sort((a, b) => {
     const dateDiff = new Date(a.date).getTime() - new Date(b.date).getTime();
     return dateDiff !== 0 ? dateDiff : a.id - b.id;
   });
 
-  const filtered = filterByPeriod(sorted, period);
-  const displayData = filtered.length > 0 ? filtered : sorted;
+  const filtered = filterByPeriod(sorted, weightPeriod);
+  const weightDisplayData = filtered.length > 0 ? filtered : sorted;
 
-  const first = sorted[0].weight;
-  const last = sorted[sorted.length - 1].weight;
+  // KPI считаются по выбранному периоду (с fallback на все данные если пусто)
+  const kpiData = weightDisplayData;
+  const first = kpiData[0].weight;
+  const last = kpiData[kpiData.length - 1].weight;
   const change = last - first;
   const changeLabel = change > 0 ? `+${change.toFixed(1)} кг` : `${change.toFixed(1)} кг`;
-  // Набор веса — "down" (красный), похудение — "up" (зелёный)
   const changeDir: "up" | "down" | "neutral" =
     change > 0 ? "down" : change < 0 ? "up" : "neutral";
 
-  const weights = sorted.map((m) => m.weight);
+  const weights = kpiData.map((m) => m.weight);
   const minWeight = Math.min(...weights);
   const maxWeight = Math.max(...weights);
 
-  // Последний замер с данными по каждой метрике
   const latestChest = [...sorted].reverse().find((m) => m.chest != null)?.chest ?? null;
   const latestWaist = [...sorted].reverse().find((m) => m.waist != null)?.waist ?? null;
   const latestHips = [...sorted].reverse().find((m) => m.hips != null)?.hips ?? null;
   const hasBodyMetrics = latestChest !== null || latestWaist !== null || latestHips !== null;
 
-  function toChartData(
-    items: BodyMeasurement[],
-    key: keyof BodyMeasurement,
-  ): Array<{ label: string; value: number }> {
-    return items
-      .filter((m) => m[key] != null)
-      .map((m) => ({
-        label: new Date(m.date).toLocaleDateString("ru-RU", {
-          day: "2-digit",
-          month: "2-digit",
-        }),
-        value: m[key] as number,
-      }));
-  }
-
-  const weightChartData = toChartData(displayData, "weight");
-  const chestChartData = toChartData(sorted, "chest");
-  const waistChartData = toChartData(sorted, "waist");
-  const hipsChartData = toChartData(sorted, "hips");
+  const weightChartData = toChartData(weightDisplayData, "weight");
 
   return (
     <div className="space-y-6">
@@ -162,29 +203,12 @@ export default function ProgressPage() {
         <KpiCard label="Максимум" value={`${maxWeight} кг`} />
       </div>
 
-      {/* Переключатель периода + график веса */}
+      {/* График веса с переключателем периода */}
       <ChartShell
         title="График веса"
-        subtitle={
-          <div className="flex gap-1">
-            {(["7d", "30d", "all"] as Period[]).map((p) => (
-              <button
-                key={p}
-                onClick={() => setPeriod(p)}
-                className={[
-                  "rounded-lg px-2.5 py-1 text-xs transition",
-                  period === p
-                    ? "bg-white text-slate-950 font-medium"
-                    : "text-slate-400 hover:text-white hover:bg-white/5",
-                ].join(" ")}
-              >
-                {PERIOD_LABELS[p]}
-              </button>
-            ))}
-          </div>
-        }
+        actions={<PeriodButtons period={weightPeriod} onChange={setWeightPeriod} />}
       >
-        <LineChart data={weightChartData} />
+        <LineChart data={weightChartData} unit="кг" />
       </ChartShell>
 
       {/* Замеры тела — текущие значения */}
@@ -214,14 +238,12 @@ export default function ProgressPage() {
         </div>
       )}
 
-      {/* Мини-графики замеров тела (только если >= 2 точек) */}
-      {(chestChartData.length >= 2 ||
-        waistChartData.length >= 2 ||
-        hipsChartData.length >= 2) && (
+      {/* Мини-графики замеров тела */}
+      {hasBodyMetrics && (
         <div className="grid gap-4 sm:grid-cols-3">
-          <MiniChart title="Динамика груди" data={chestChartData} unit="см" />
-          <MiniChart title="Динамика талии" data={waistChartData} unit="см" />
-          <MiniChart title="Динамика бёдер" data={hipsChartData} unit="см" />
+          <MiniChart title="Динамика груди" allData={sorted} dataKey="chest" unit="см" />
+          <MiniChart title="Динамика талии" allData={sorted} dataKey="waist" unit="см" />
+          <MiniChart title="Динамика бёдер" allData={sorted} dataKey="hips" unit="см" />
         </div>
       )}
     </div>
