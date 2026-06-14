@@ -61,7 +61,7 @@ class WorkoutSessionSerializer(serializers.ModelSerializer):
         model = WorkoutSession
         fields = [
             'id', 'started_at', 'finished_at',
-            'duration', 'comment', 'exercises',
+            'duration', 'exercises',
         ]
         read_only_fields = ['started_at']
 

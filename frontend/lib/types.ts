@@ -56,7 +56,6 @@ export type WorkoutSession = {
   started_at: string;
   finished_at: string | null;
   duration: number | null;
-  comment: string;
   exercises: WorkoutSessionExercise[];
 };
 
@@ -169,6 +168,64 @@ export type HeatmapDay = {
   count: number;
   volume: number;
   sessions: HeatmapSession[];
+};
+
+// ─── Activity Today ──────────────────────────────────────────────────────────
+
+export type ActivityTodayExercise = {
+  name: string;
+  total_sets: number;
+  best_set: { reps: number; weight: number | null } | null;
+  muscle_groups: string[];
+};
+
+export type ActivityTodaySession = {
+  id: number;
+  duration: number | null;
+  exercises: ActivityTodayExercise[];
+};
+
+export type ActivityTodayFoodEntry = {
+  id: number;
+  food_name: string;
+  grams: number;
+  calories: number;
+  protein: number;
+  fats: number;
+  carbs: number;
+};
+
+export type ActivityToday = {
+  date: string;
+  streak: number;
+  workouts: {
+    sessions: ActivityTodaySession[];
+    summary: {
+      sessions_count: number;
+      total_duration: number;
+      total_exercises: number;
+      total_sets: number;
+      total_reps: number;
+      total_tonnage: number;
+    };
+  };
+  nutrition: {
+    totals: { calories: number; protein: number; fats: number; carbs: number };
+    goals: { calories: number | null; protein: number | null; fats: number | null; carbs: number | null } | null;
+    entries_by_meal: {
+      breakfast: ActivityTodayFoodEntry[];
+      lunch: ActivityTodayFoodEntry[];
+      dinner: ActivityTodayFoodEntry[];
+      snack: ActivityTodayFoodEntry[];
+    };
+    has_entries: boolean;
+  };
+  measurement: {
+    weight: number;
+    chest: number | null;
+    waist: number | null;
+    hips: number | null;
+  } | null;
 };
 
 // ─── Dashboard ───────────────────────────────────────────────────────────────

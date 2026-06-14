@@ -10,25 +10,13 @@ export default function LandingPage() {
       icon: "📊",
       title: "Единый обзор прогресса",
       description:
-        "Тренировки, питание, замеры тела и цели — всё в одном спокойном дашборде с чёткими сигналами.",
+        "Тренировки, питание, замеры тела  — всё в спокойном дашборде.",
     },
     {
       icon: "📈",
       title: "Понятные тренды",
       description:
         "Видите, что улучшается неделя за неделей, а не гадаете по отдельным тренировкам или взвешиваниям.",
-    },
-    {
-      icon: "🔄",
-      title: "Структурированные привычки",
-      description:
-        "Выстраивайте повторяемый режим с помощью онбординга, сохранённых целей и простого ежедневного трекинга.",
-    },
-    {
-      icon: "🎯",
-      title: "Долгосрочные цели",
-      description:
-        "Ставьте цели по калориям и макронутриентам, отслеживайте прогресс и корректируйте план.",
     },
     {
       icon: "📱",
@@ -45,11 +33,8 @@ export default function LandingPage() {
       description="Записывайте тренировки и питание, следите за прогрессом и достигайте целей. Весь инструментарий в одном месте."
       actions={
         <>
-          <Link href="/auth/register">
-            <Button className="px-8 py-3 text-base">Попробовать бесплатно</Button>
-          </Link>
           <Link href="/auth/login">
-            <Button variant="secondary" className="px-8 py-3 text-base">
+            <Button className="px-8 py-3 text-base bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 hover:bg-emerald-500/30 hover:border-emerald-500/50 hover:text-emerald-200 transition-all">
               Войти
             </Button>
           </Link>
@@ -98,12 +83,12 @@ export default function LandingPage() {
             {
               step: "01",
               title: "Зарегистрируйтесь",
-              desc: "Создайте аккаунт за минуту и настройте профиль под свои цели.",
+              desc: "Создайте аккаунт за минуту и настройте профиль.",
             },
             {
               step: "02",
               title: "Записывайте данные",
-              desc: "Вносите тренировки и питание через сайт или чат-бота ВКонтакте.",
+              desc: "Вносите тренировки и питание через чат-бота ВКонтакте.",
             },
             {
               step: "03",

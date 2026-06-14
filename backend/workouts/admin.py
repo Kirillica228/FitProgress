@@ -11,8 +11,7 @@ from .models import (
 
 @admin.register(MuscleGroup)
 class MuscleGroupAdmin(admin.ModelAdmin):
-    list_display = ['name', 'slug']
-    prepopulated_fields = {'slug': ('name',)}
+    list_display = ['name']
     search_fields = ['name']
 
 
@@ -38,7 +37,7 @@ class WorkoutSessionExerciseInline(admin.TabularInline):
 
 @admin.register(WorkoutSession)
 class WorkoutSessionAdmin(admin.ModelAdmin):
-    list_display = ['user', 'created_at', 'duration', 'comment']
+    list_display = ['user', 'created_at', 'duration']
     list_filter = ['created_at']
     search_fields = ['user__username']
     raw_id_fields = ['user']

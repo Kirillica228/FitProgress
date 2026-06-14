@@ -61,11 +61,11 @@ export function MarketingShell({
                     Личный кабинет
                   </Link>
                   <Button
-                    variant="secondary"
-                    className="text-black hover:text-red-300 text-xs sm:text-sm"
+                    variant="ghost"
+                    size="sm"
+                    className="text-xs sm:text-sm border border-white/10 bg-white/[0.05] text-slate-300 hover:text-red-400 hover:border-red-400/30 hover:bg-red-400/5 transition-colors"
                     onClick={() => logout.mutate()}
                     disabled={logout.isPending}
-                    size="sm"
                   >
                     {logout.isPending ? "Выход..." : "Выйти"}
                   </Button>
@@ -74,7 +74,7 @@ export function MarketingShell({
                 <>
                   <Link
                     href="/auth/login"
-                    className="rounded-2xl px-3 py-2 transition hover:bg-white/5 hover:text-white"
+                    className={cn(buttonVariants(), "text-xs sm:text-sm")}
                   >
                     Войти
                   </Link>

@@ -90,7 +90,7 @@ function MacroRow({
         <span className="text-slate-300">{label}</span>
         <span className={isOver ? "text-red-400 font-medium" : "text-white font-medium"}>
           {Math.round(value)} г
-          {goal != null && <span className="text-slate-500"> / {goal} г</span>}
+          {goal != null && goal > 0 && <span className="text-slate-500"> / {goal} г</span>}
         </span>
       </div>
       {goal != null && goal > 0 && (
@@ -100,6 +100,17 @@ function MacroRow({
   );
 }
 
+function clampInput(val: string): string {
+  if (val === "") return "";
+  const n = parseFloat(val);
+  return isNaN(n) || n < 0 ? "0" : val;
+}
+
+function toGoal(s: string): number | null {
+  const n = Number(s);
+  return s !== "" && n > 0 ? n : null;
+}
+
 function GoalsEditor({
   currentGoals,
 }: {
@@ -107,20 +118,20 @@ function GoalsEditor({
 }) {
   const queryClient = useQueryClient();
   const [editing, setEditing] = useState(false);
-  const [calories, setCalories] = useState(String(currentGoals.calories ?? ""));
-  const [protein, setProtein] = useState(String(currentGoals.protein ?? ""));
-  const [fats, setFats] = useState(String(currentGoals.fats ?? ""));
-  const [carbs, setCarbs] = useState(String(currentGoals.carbs ?? ""));
+  const [calories, setCalories] = useState(currentGoals.calories ? String(currentGoals.calories) : "");
+  const [protein, setProtein] = useState(currentGoals.protein ? String(currentGoals.protein) : "");
+  const [fats, setFats] = useState(currentGoals.fats ? String(currentGoals.fats) : "");
+  const [carbs, setCarbs] = useState(currentGoals.carbs ? String(currentGoals.carbs) : "");
   const [saving, setSaving] = useState(false);
 
   async function handleSave() {
     setSaving(true);
     try {
       await api.updateProfile({
-        calorie_goal: calories ? Number(calories) : null,
-        protein_goal: protein ? Number(protein) : null,
-        fat_goal: fats ? Number(fats) : null,
-        carbs_goal: carbs ? Number(carbs) : null,
+        calorie_goal: toGoal(calories),
+        protein_goal: toGoal(protein),
+        fat_goal: toGoal(fats),
+        carbs_goal: toGoal(carbs),
       });
       queryClient.invalidateQueries({ queryKey: ["profile"] });
       queryClient.invalidateQueries({ queryKey: ["nutrition-day"] });
@@ -134,37 +145,37 @@ function GoalsEditor({
     const hasGoals =
       currentGoals.calories || currentGoals.protein || currentGoals.fats || currentGoals.carbs;
     return (
-      <div className="rounded-xl border border-white/10 bg-white/[0.02] p-4">
-        <div className="flex items-center justify-between mb-3">
-          <p className="text-sm font-medium text-slate-300">Лимиты КБЖУ</p>
+      <div>
+        <div className="flex items-center justify-between mb-4">
+          <p className="text-sm font-medium text-slate-300">Дневные лимиты КБЖУ</p>
           <button
             onClick={() => setEditing(true)}
             className="text-xs text-sky-400 hover:text-sky-300 transition-colors"
           >
-            {hasGoals ? "Изменить" : "Задать"}
+            {hasGoals ? "Изменить" : "Задать лимиты"}
           </button>
         </div>
         {hasGoals ? (
-          <div className="grid grid-cols-4 gap-2 text-center">
-            <div>
-              <p className="text-lg font-semibold text-white">{currentGoals.calories ?? "—"}</p>
-              <p className="text-[10px] text-slate-500">ккал</p>
+          <div className="grid grid-cols-4 gap-3 text-center">
+            <div className="rounded-xl bg-white/[0.04] p-3">
+              <p className="text-xl font-semibold text-white">{currentGoals.calories ?? "—"}</p>
+              <p className="text-[11px] text-slate-500 mt-1">ккал</p>
             </div>
-            <div>
-              <p className="text-lg font-semibold text-green-400">{currentGoals.protein ?? "—"}</p>
-              <p className="text-[10px] text-slate-500">белки г</p>
+            <div className="rounded-xl bg-white/[0.04] p-3">
+              <p className="text-xl font-semibold text-green-400">{currentGoals.protein ?? "—"}</p>
+              <p className="text-[11px] text-slate-500 mt-1">белки г</p>
             </div>
-            <div>
-              <p className="text-lg font-semibold text-orange-400">{currentGoals.fats ?? "—"}</p>
-              <p className="text-[10px] text-slate-500">жиры г</p>
+            <div className="rounded-xl bg-white/[0.04] p-3">
+              <p className="text-xl font-semibold text-orange-400">{currentGoals.fats ?? "—"}</p>
+              <p className="text-[11px] text-slate-500 mt-1">жиры г</p>
             </div>
-            <div>
-              <p className="text-lg font-semibold text-blue-400">{currentGoals.carbs ?? "—"}</p>
-              <p className="text-[10px] text-slate-500">углеводы г</p>
+            <div className="rounded-xl bg-white/[0.04] p-3">
+              <p className="text-xl font-semibold text-blue-400">{currentGoals.carbs ?? "—"}</p>
+              <p className="text-[11px] text-slate-500 mt-1">углеводы г</p>
             </div>
           </div>
         ) : (
-          <p className="text-xs text-slate-500">
+          <p className="text-sm text-slate-500">
             Задайте дневные лимиты, чтобы отслеживать прогресс по питанию.
           </p>
         )}
@@ -173,24 +184,24 @@ function GoalsEditor({
   }
 
   return (
-    <div className="rounded-xl border border-white/10 bg-white/[0.02] p-4">
-      <p className="text-sm font-medium text-slate-300 mb-3">Лимиты КБЖУ</p>
+    <div>
+      <p className="text-sm font-medium text-slate-300 mb-4">Дневные лимиты КБЖУ</p>
       <div className="grid grid-cols-2 gap-3 mb-4">
         <div>
-          <label className="text-[11px] text-slate-400">Калории (ккал)</label>
-          <Input value={calories} onChange={(e) => setCalories(e.target.value)} type="number" />
+          <label className="text-[11px] text-slate-400 mb-1 block">Калории (ккал)</label>
+          <Input value={calories} onChange={(e) => setCalories(clampInput(e.target.value))} type="number" min="0" />
         </div>
         <div>
-          <label className="text-[11px] text-slate-400">Белки (г)</label>
-          <Input value={protein} onChange={(e) => setProtein(e.target.value)} type="number" />
+          <label className="text-[11px] text-slate-400 mb-1 block">Белки (г)</label>
+          <Input value={protein} onChange={(e) => setProtein(clampInput(e.target.value))} type="number" min="0" />
         </div>
         <div>
-          <label className="text-[11px] text-slate-400">Жиры (г)</label>
-          <Input value={fats} onChange={(e) => setFats(e.target.value)} type="number" />
+          <label className="text-[11px] text-slate-400 mb-1 block">Жиры (г)</label>
+          <Input value={fats} onChange={(e) => setFats(clampInput(e.target.value))} type="number" min="0" />
         </div>
         <div>
-          <label className="text-[11px] text-slate-400">Углеводы (г)</label>
-          <Input value={carbs} onChange={(e) => setCarbs(e.target.value)} type="number" />
+          <label className="text-[11px] text-slate-400 mb-1 block">Углеводы (г)</label>
+          <Input value={carbs} onChange={(e) => setCarbs(clampInput(e.target.value))} type="number" min="0" />
         </div>
       </div>
       <div className="flex justify-end gap-2">
@@ -218,7 +229,7 @@ function NutritionDayPanel({ data }: { data: NutritionDayDetail }) {
         </p>
         <p className="mt-1 text-sm text-slate-400">
           ккал
-          {goals?.calories != null && (
+          {goals?.calories != null && goals.calories > 0 && (
             <span> / {goals.calories} ккал</span>
           )}
         </p>
@@ -384,14 +395,16 @@ export default function NutritionPage() {
           title="Нет данных о питании"
           description="Добавляй приёмы пищи через бота, чтобы видеть статистику здесь."
         />
-        <GoalsEditor
-          currentGoals={{
-            calories: profile?.calorie_goal ?? null,
-            protein: profile?.protein_goal ?? null,
-            fats: profile?.fat_goal ?? null,
-            carbs: profile?.carbs_goal ?? null,
-          }}
-        />
+        <Card>
+          <GoalsEditor
+            currentGoals={{
+              calories: profile?.calorie_goal ?? null,
+              protein: profile?.protein_goal ?? null,
+              fats: profile?.fat_goal ?? null,
+              carbs: profile?.carbs_goal ?? null,
+            }}
+          />
+        </Card>
       </div>
     );
   }
@@ -409,21 +422,11 @@ export default function NutritionPage() {
     <div className="space-y-6">
       {yearSwitcher}
 
-      {/* KPI + Goals side by side */}
-      <div className="grid gap-4 lg:grid-cols-[1fr,280px]">
-        <div className="grid grid-cols-3 gap-3">
-          <StatCard label="Всего записей" value={totalEntries} />
-          <StatCard label="Активных дней" value={activeDays} />
-          <StatCard label="Ккал/день (ср.)" value={avgCalPerDay} />
-        </div>
-        <GoalsEditor
-          currentGoals={{
-            calories: profile?.calorie_goal ?? null,
-            protein: profile?.protein_goal ?? null,
-            fats: profile?.fat_goal ?? null,
-            carbs: profile?.carbs_goal ?? null,
-          }}
-        />
+      {/* KPI */}
+      <div className="grid grid-cols-3 gap-3">
+        <StatCard label="Всего записей" value={totalEntries} />
+        <StatCard label="Активных дней" value={activeDays} />
+        <StatCard label="Ккал/день (ср.)" value={avgCalPerDay} />
       </div>
 
       {/* Heatmap — full width on top */}
@@ -436,6 +439,18 @@ export default function NutritionPage() {
           year={year}
           selectedDate={selectedDate}
           onDayClick={handleDayClick}
+        />
+      </Card>
+
+      {/* Goals — отдельный блок */}
+      <Card>
+        <GoalsEditor
+          currentGoals={{
+            calories: profile?.calorie_goal ?? null,
+            protein: profile?.protein_goal ?? null,
+            fats: profile?.fat_goal ?? null,
+            carbs: profile?.carbs_goal ?? null,
+          }}
         />
       </Card>
 

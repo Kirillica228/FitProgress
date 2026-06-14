@@ -1,0 +1,52 @@
+services:
+
+  db:
+    image: postgres:17
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: fit
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres_password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  backend:
+    build:
+      context: ./backend
+    restart: unless-stopped
+    env_file:
+      - ./backend/.env
+    depends_on:
+      - db
+    environment:
+      DB_HOST: db
+      DB_PORT: 5432
+    ports:
+      - "8000:8000"
+
+  vk_bot:
+    build:
+      context: ./backend
+    restart: unless-stopped
+    env_file:
+      - ./backend/.env
+    depends_on:
+      - db
+    environment:
+      DB_HOST: db
+      DB_PORT: 5432
+    command: python manage.py run_vk_bot
+
+  frontend:
+    build:
+      context: ./frontend
+    restart: unless-stopped
+    env_file:
+      - ./frontend/.env.local
+    depends_on:
+      - backend
+    ports:
+      - "3000:3000"
+
+volumes:
+  postgres_data:

@@ -49,10 +49,10 @@ export default function LoginPage() {
           </p>
           <form onSubmit={handleSubmit(onSubmit)} className="mt-6 space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="username">Имя пользователя</Label>
+              <Label htmlFor="username">Логин</Label>
               <Input
                 id="username"
-                placeholder="ваш_логин"
+                placeholder="Ваш логин"
                 autoComplete="username"
                 {...register("username")}
               />

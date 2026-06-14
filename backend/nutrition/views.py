@@ -1,5 +1,6 @@
 from datetime import date
 
+from django.utils.timezone import localdate
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -55,9 +56,9 @@ class NutritionHeatmapView(APIView):
 
     def get(self, request):
         try:
-            year = int(request.query_params.get('year', date.today().year))
+            year = int(request.query_params.get('year', localdate().year))
         except (ValueError, TypeError):
-            year = date.today().year
+            year = localdate().year
 
         year_start = date(year, 1, 1)
         year_end = date(year, 12, 31)

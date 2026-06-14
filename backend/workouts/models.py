@@ -4,7 +4,6 @@ from django.db import models
 
 class MuscleGroup(models.Model):
     name = models.CharField(max_length=100, unique=True)
-    slug = models.SlugField(max_length=100, unique=True)
 
     def __str__(self):
         return self.name
@@ -30,7 +29,6 @@ class WorkoutSession(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     duration = models.IntegerField(null=True, blank=True)
-    comment = models.TextField(blank=True)
 
 
 class WorkoutSessionExercise(models.Model):

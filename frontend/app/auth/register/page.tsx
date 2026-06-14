@@ -51,15 +51,13 @@ export default function RegisterPage() {
       <div className="flex min-h-[calc(100vh-12rem)] items-center justify-center">
         <Card className="w-full max-w-md">
           <h1 className="text-2xl font-semibold">Создать аккаунт</h1>
-          <p className="mt-2 text-sm text-slate-400">
-            Начните с регистрации и перейдите к короткому онбордингу.
-          </p>
+          
           <form onSubmit={handleSubmit(onSubmit)} className="mt-6 space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="username">Имя пользователя</Label>
+              <Label htmlFor="username">Логин</Label>
               <Input
                 id="username"
-                placeholder="ваш_логин"
+                placeholder="Ваш логин"
                 autoComplete="username"
                 {...register("username")}
               />

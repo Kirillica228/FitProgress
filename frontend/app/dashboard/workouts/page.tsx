@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useHeatmapData } from "@/hooks/use-heatmap-data";
 import { WorkoutHeatmap } from "@/components/charts/workout-heatmap";
+import { DonutChart } from "@/components/charts/donut-chart";
 import { ProgressBar } from "@/components/ui/progress-bar";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -14,6 +15,24 @@ import type { HeatmapDay, WorkoutDayDetail } from "@/lib/types";
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
 const CURRENT_YEAR = new Date().getFullYear();
+
+const MUSCLE_COLORS: Record<string, string> = {
+  chest: "#ef4444",
+  back: "#3b82f6",
+  shoulders: "#8b5cf6",
+  arms: "#f97316",
+  forearms: "#f59e0b",
+  legs: "#10b981",
+  calves: "#14b8a6",
+  biceps: "#ec4899",
+  triceps: "#06b6d4",
+  hamstrings: "#6366f1",
+};
+
+function getMuscleColor(muscle: string): string {
+  const normalized = muscle.toLowerCase();
+  return MUSCLE_COLORS[normalized] || "#6b7280";
+}
 
 function formatDate(iso: string): string {
   return new Date(iso).toLocaleDateString("ru-RU", {
@@ -75,6 +94,25 @@ function WorkoutDayPanel({ data }: { data: WorkoutDayDetail }) {
           </div>
         </div>
       </div>
+
+      {/* Muscle load distribution */}
+      {muscle_load.length > 0 && (
+        <div className="flex flex-col items-center">
+          <p className="mb-4 text-xs font-medium uppercase tracking-wider text-slate-500">
+            Распределение подходов по мышцам
+          </p>
+          <DonutChart
+            segments={muscle_load.map((m) => ({
+              value: m.sets_count,
+              color: getMuscleColor(m.muscle),
+              label: m.muscle,
+            }))}
+            size={130}
+            strokeWidth={22}
+            showLegend
+          />
+        </div>
+      )}
 
       {/* Exercises + Progress side by side on wider screens */}
       <div className="grid gap-6 lg:grid-cols-2">

@@ -6,6 +6,7 @@
  */
 
 import type {
+  ActivityToday,
   AuthUser,
   BodyMeasurement,
   DashboardPayload,
@@ -163,6 +164,9 @@ export const api = {
       method: "POST",
       body: JSON.stringify(data),
     }),
+
+  // Активность сегодня
+  getActivityToday: () => request<ActivityToday>("/api/activity/today/"),
 
   // Профиль
   getProfile: () => request<Profile>("/api/profile/"),

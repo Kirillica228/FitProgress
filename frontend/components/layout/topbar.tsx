@@ -60,17 +60,17 @@ export function Topbar() {
           </div>
 
           <Button
-            variant="secondary"
+            variant="ghost"
             size="sm"
-            className="hidden sm:inline-flex"
+            className="hidden sm:inline-flex border border-white/10 bg-white/[0.05] text-slate-300 hover:bg-white/[0.08] hover:text-white hover:border-white/20 transition-colors"
             onClick={() => router.push("/")}
           >
             На главную
           </Button>
           <Button
-            variant="secondary"
+            variant="ghost"
             size="sm"
-            className="text-black hover:text-red-300 text-xs sm:text-sm"
+            className="text-xs sm:text-sm border border-white/10 bg-white/[0.05] text-slate-300 hover:text-red-400 hover:border-red-400/30 hover:bg-red-400/5 transition-colors"
             onClick={() => logout.mutate()}
             disabled={logout.isPending}
           >

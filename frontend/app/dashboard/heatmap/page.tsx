@@ -1,331 +1,326 @@
 "use client";
 
-import { useState, useMemo } from "react";
-import { WorkoutHeatmap } from "@/components/charts/workout-heatmap";
-import { Card } from "@/components/ui/card";
+import { useQuery } from "@tanstack/react-query";
+import { api } from "@/lib/api";
 import { Skeleton } from "@/components/ui/skeleton";
-import { EmptyState } from "@/components/ui/empty-state";
-import { useHeatmapData } from "@/hooks/use-heatmap-data";
-import { useNutritionHeatmapData } from "@/hooks/use-nutrition-heatmap-data";
-import { useNutritionData } from "@/hooks/use-nutrition-data";
-import type { HeatmapDay, FoodEntry } from "@/lib/types";
+import { Card } from "@/components/ui/card";
+import { ProgressBar } from "@/components/ui/progress-bar";
+import type { ActivityToday, ActivityTodayFoodEntry } from "@/lib/types";
 
-// ─── Helpers ─────────────────────────────────────────────────────────────────
+// ─── Constants ────────────────────────────────────────────────────────────────
 
-const MEAL_LABELS: Record<string, string> = {
+const MEAL_LABEL: Record<string, string> = {
   breakfast: "Завтрак",
   lunch: "Обед",
   dinner: "Ужин",
   snack: "Перекус",
 };
 
-function formatDate(iso: string): string {
-  return new Date(iso).toLocaleDateString("ru-RU", {
+const MEAL_EMOJI: Record<string, string> = {
+  breakfast: "🌅",
+  lunch: "☀️",
+  dinner: "🌙",
+  snack: "🍎",
+};
+
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+
+function todayLabel(): string {
+  return new Date().toLocaleDateString("ru-RU", {
+    weekday: "long",
     day: "numeric",
     month: "long",
-    year: "numeric",
   });
 }
 
-function computeStreak(data: HeatmapDay[]): { current: number; best: number } {
-  if (data.length === 0) return { current: 0, best: 0 };
+// ─── Sub-components ───────────────────────────────────────────────────────────
 
-  const dateSet = new Set(data.map((d) => d.date));
-  const today = new Date().toISOString().slice(0, 10);
-
-  let current = 0;
-  const cur = new Date(today);
-  while (dateSet.has(cur.toISOString().slice(0, 10))) {
-    current++;
-    cur.setDate(cur.getDate() - 1);
-  }
-
-  const sorted = [...data].sort((a, b) => a.date.localeCompare(b.date));
-  let best = 0;
-  let streak = 0;
-  let prev: Date | null = null;
-
-  for (const day of sorted) {
-    const d = new Date(day.date);
-    if (prev) {
-      const diff = (d.getTime() - prev.getTime()) / 86400000;
-      streak = diff === 1 ? streak + 1 : 1;
-    } else {
-      streak = 1;
-    }
-    if (streak > best) best = streak;
-    prev = d;
-  }
-
-  return { current, best };
-}
-
-function busyMonth(data: HeatmapDay[]): string {
-  if (data.length === 0) return "—";
-  const counts: Record<string, number> = {};
-  for (const d of data) {
-    const m = d.date.slice(0, 7);
-    counts[m] = (counts[m] ?? 0) + d.count;
-  }
-  const best = Object.entries(counts).sort((a, b) => b[1] - a[1])[0];
-  if (!best) return "—";
-  return new Date(best[0] + "-01").toLocaleDateString("ru-RU", {
-    month: "long",
-    year: "numeric",
-  });
-}
-
-// ─── Sub-components ──────────────────────────────────────────────────────────
-
-function StatCard({ label, value }: { label: string; value: string | number }) {
+function SectionTitle({ children }: { children: React.ReactNode }) {
   return (
-    <div className="rounded-2xl bg-white/[0.03] p-3 sm:p-4 text-center">
-      <div className="text-xl sm:text-2xl font-bold text-white">{value}</div>
-      <div className="mt-1 text-[10px] sm:text-xs text-slate-400">{label}</div>
+    <p className="text-xs font-medium uppercase tracking-wider text-slate-500">
+      {children}
+    </p>
+  );
+}
+
+function EmptyBlock({ text }: { text: string }) {
+  return (
+    <div className="rounded-2xl border border-dashed border-white/10 py-6 text-center">
+      <p className="text-sm text-slate-500">{text}</p>
     </div>
   );
 }
 
-function DayPanel({
-  day,
-  foodEntries,
-}: {
-  day: HeatmapDay;
-  foodEntries: FoodEntry[];
-}) {
-  const totalCal = foodEntries.reduce((s, e) => s + (e.calories ?? 0), 0);
+function WorkoutsSection({ data }: { data: ActivityToday["workouts"] }) {
+  const { sessions, summary } = data;
+
+  if (sessions.length === 0) {
+    return <EmptyBlock text="Тренировок ещё нет — самое время!" />;
+  }
 
   return (
-    <div className="space-y-4">
-      <h3 className="text-base font-semibold text-white">{formatDate(day.date)}</h3>
-
-      {/* Тренировки */}
-      {day.sessions.length > 0 ? (
-        <div>
-          <p className="mb-2 text-xs font-medium uppercase tracking-wider text-slate-500">
-            Тренировки
-          </p>
-          <div className="space-y-2">
-            {day.sessions.map((s) => (
-              <div key={s.id} className="rounded-xl bg-white/[0.04] p-3 text-sm">
-                <div className="font-medium text-white">Тренировка</div>
-                <div className="mt-1 flex flex-wrap gap-x-3 gap-y-1 text-xs text-slate-400">
-                  {s.duration != null && (
-                    <span>{s.duration} мин</span>
-                  )}
-                  {s.exercises_count > 0 && (
-                    <span>{s.exercises_count} упражнений</span>
-                  )}
-                </div>
-              </div>
-            ))}
+    <div className="space-y-3">
+      {/* Summary row */}
+      <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+        {summary.total_duration > 0 && (
+          <div className="rounded-xl bg-white/[0.04] p-3 text-center">
+            <p className="text-lg font-semibold text-white">{summary.total_duration}</p>
+            <p className="text-[11px] text-slate-400">мин</p>
           </div>
+        )}
+        <div className="rounded-xl bg-white/[0.04] p-3 text-center">
+          <p className="text-lg font-semibold text-white">{summary.total_exercises}</p>
+          <p className="text-[11px] text-slate-400">упражнений</p>
         </div>
-      ) : (
-        <p className="text-sm text-slate-500">Тренировок нет</p>
-      )}
+        <div className="rounded-xl bg-white/[0.04] p-3 text-center">
+          <p className="text-lg font-semibold text-white">{summary.total_sets}</p>
+          <p className="text-[11px] text-slate-400">подходов</p>
+        </div>
+        {summary.total_tonnage > 0 && (
+          <div className="rounded-xl bg-white/[0.04] p-3 text-center">
+            <p className="text-lg font-semibold text-white">
+              {summary.total_tonnage >= 1000
+                ? `${(summary.total_tonnage / 1000).toFixed(1)} т`
+                : `${Math.round(summary.total_tonnage)} кг`}
+            </p>
+            <p className="text-[11px] text-slate-400">тоннаж</p>
+          </div>
+        )}
+      </div>
 
-      {/* Питание */}
-      {foodEntries.length > 0 ? (
-        <div>
-          <p className="mb-2 text-xs font-medium uppercase tracking-wider text-slate-500">
-            Питание · {Math.round(totalCal).toLocaleString("ru-RU")} ккал
-          </p>
+      {/* Sessions */}
+      {sessions.map((session) => (
+        <div
+          key={session.id}
+          className="rounded-2xl border border-white/5 bg-white/[0.02] p-4 space-y-3"
+        >
+          <div className="flex items-center justify-between">
+            <p className="text-sm font-medium text-white">
+              Тренировка {session.duration ? `· ${session.duration} мин` : ""}
+            </p>
+          </div>
+
           <div className="space-y-1.5">
-            {foodEntries.map((e) => (
+            {session.exercises.map((ex, i) => (
               <div
-                key={e.id}
-                className="flex items-center justify-between rounded-xl bg-white/[0.04] px-3 py-2 text-sm"
+                key={i}
+                className="flex items-center justify-between rounded-xl bg-white/[0.03] px-3 py-2"
               >
                 <div className="min-w-0">
-                  <span className="text-white truncate">{e.food_name}</span>
-                  {e.meal_type && (
-                    <span className="ml-2 text-xs text-slate-500">
-                      {MEAL_LABELS[e.meal_type] ?? e.meal_type}
+                  <p className="text-sm text-white truncate">{ex.name}</p>
+                  {ex.muscle_groups.length > 0 && (
+                    <p className="text-[11px] text-slate-500">{ex.muscle_groups.join(", ")}</p>
+                  )}
+                </div>
+                <div className="ml-3 shrink-0 text-right text-xs text-slate-400">
+                  <span>{ex.total_sets} подх.</span>
+                  {ex.best_set?.weight && (
+                    <span className="ml-2 text-slate-300">
+                      {ex.best_set.weight} × {ex.best_set.reps}
                     </span>
                   )}
                 </div>
-                <span className="ml-2 shrink-0 text-xs text-slate-400">
-                  {Math.round(e.calories)} ккал
-                </span>
               </div>
             ))}
           </div>
         </div>
-      ) : (
-        <p className="text-sm text-slate-500">Записей питания нет</p>
-      )}
+      ))}
+    </div>
+  );
+}
+
+function MealGroup({
+  mealType,
+  entries,
+}: {
+  mealType: string;
+  entries: ActivityTodayFoodEntry[];
+}) {
+  if (entries.length === 0) return null;
+
+  const total = entries.reduce((s, e) => s + e.calories, 0);
+
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-1.5">
+        <p className="text-sm font-medium text-slate-200">
+          {MEAL_EMOJI[mealType]} {MEAL_LABEL[mealType] ?? mealType}
+        </p>
+        <p className="text-xs text-slate-500">{Math.round(total)} ккал</p>
+      </div>
+      <div className="space-y-1">
+        {entries.map((e) => (
+          <div
+            key={e.id}
+            className="flex items-center justify-between rounded-xl border border-white/5 bg-white/[0.02] px-3 py-2"
+          >
+            <div className="min-w-0">
+              <p className="text-sm text-white truncate">{e.food_name}</p>
+              <p className="text-[11px] text-slate-500">
+                {e.grams} г &nbsp;·&nbsp;
+                <span className="text-green-400">Б {Math.round(e.protein)}</span>
+                &nbsp;
+                <span className="text-orange-400">Ж {Math.round(e.fats)}</span>
+                &nbsp;
+                <span className="text-blue-400">У {Math.round(e.carbs)}</span>
+              </p>
+            </div>
+            <p className="ml-3 shrink-0 text-sm font-medium text-orange-400">
+              {Math.round(e.calories)} ккал
+            </p>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function NutritionSection({ data }: { data: ActivityToday["nutrition"] }) {
+  const { totals, goals, entries_by_meal, has_entries } = data;
+
+  if (!has_entries) {
+    return <EmptyBlock text="Записей питания ещё нет" />;
+  }
+
+  const calPct = goals?.calories && goals.calories > 0
+    ? Math.min((totals.calories / goals.calories) * 100, 100)
+    : null;
+  const calOver = goals?.calories != null && totals.calories > goals.calories;
+
+  return (
+    <div className="space-y-4">
+      {/* Calories block */}
+      <div className="rounded-2xl bg-white/[0.03] p-4">
+        <div className="flex items-end justify-between mb-2">
+          <div>
+            <p className={`text-3xl font-bold ${calOver ? "text-red-400" : "text-white"}`}>
+              {Math.round(totals.calories)}
+            </p>
+            <p className="text-xs text-slate-400">
+              ккал{goals?.calories != null ? ` / ${goals.calories}` : ""}
+            </p>
+          </div>
+          {calPct !== null && (
+            <p className={`text-sm font-medium ${calOver ? "text-red-400" : "text-emerald-400"}`}>
+              {Math.round(calPct)}%
+            </p>
+          )}
+        </div>
+        {calPct !== null && (
+          <ProgressBar value={calPct} color={calOver ? "bg-red-500" : "bg-emerald-500"} />
+        )}
+
+        {/* Macros row */}
+        <div className="mt-3 grid grid-cols-3 gap-2">
+          {[
+            { label: "Белки", value: totals.protein, goal: goals?.protein ?? null, color: "text-green-400", bar: "bg-green-500" },
+            { label: "Жиры", value: totals.fats, goal: goals?.fats ?? null, color: "text-orange-400", bar: "bg-orange-500" },
+            { label: "Углеводы", value: totals.carbs, goal: goals?.carbs ?? null, color: "text-blue-400", bar: "bg-blue-500" },
+          ].map(({ label, value, goal, color, bar }) => {
+            const pct = goal && goal > 0 ? Math.min((value / goal) * 100, 100) : null;
+            return (
+              <div key={label}>
+                <p className={`text-sm font-semibold ${color}`}>{Math.round(value)} г</p>
+                <p className="text-[10px] text-slate-500">{label}{goal ? ` / ${goal}` : ""}</p>
+                {pct !== null && <ProgressBar value={pct} color={bar} />}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Meals */}
+      <div className="space-y-3">
+        {(["breakfast", "lunch", "dinner", "snack"] as const).map((mt) => (
+          <MealGroup key={mt} mealType={mt} entries={entries_by_meal[mt]} />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function MeasurementSection({ data }: { data: NonNullable<ActivityToday["measurement"]> }) {
+  const items = [
+    { label: "Вес", value: data.weight, unit: "кг" },
+    { label: "Грудь", value: data.chest, unit: "см" },
+    { label: "Талия", value: data.waist, unit: "см" },
+    { label: "Бёдра", value: data.hips, unit: "см" },
+  ].filter((item) => item.value != null);
+
+  return (
+    <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+      {items.map(({ label, value, unit }) => (
+        <div key={label} className="rounded-2xl bg-white/[0.03] p-3 text-center">
+          <p className="text-lg font-semibold text-white">{value} {unit}</p>
+          <p className="text-[11px] text-slate-400">{label}</p>
+        </div>
+      ))}
     </div>
   );
 }
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
-export default function HeatmapPage() {
-  const currentYear = new Date().getFullYear();
-  const [year, setYear] = useState(currentYear);
-  const [selectedDay, setSelectedDay] = useState<HeatmapDay | null>(null);
-
-  const { data: workoutData, isLoading: workoutLoading } = useHeatmapData(year);
-  const { data: nutritionData, isLoading: nutritionLoading } = useNutritionHeatmapData(year);
-  const { data: allFoodEntries, isLoading: foodLoading } = useNutritionData();
-
-  const isLoading = workoutLoading || nutritionLoading || foodLoading;
-
-  const streak = useMemo(() => computeStreak(workoutData ?? []), [workoutData]);
-  const totalSessions = useMemo(
-    () => (workoutData ?? []).reduce((s, d) => s + d.count, 0),
-    [workoutData],
-  );
-  const activeDays = useMemo(() => (workoutData ?? []).length, [workoutData]);
-  const topMonth = useMemo(() => busyMonth(workoutData ?? []), [workoutData]);
-
-  const totalNutritionDays = useMemo(
-    () => (nutritionData ?? []).filter((d) => d.count > 0).length,
-    [nutritionData],
-  );
-  const avgCalPerDay = useMemo(() => {
-    const active = (nutritionData ?? []).filter((d) => d.count > 0);
-    if (active.length === 0) return 0;
-    return Math.round(active.reduce((s, d) => s + d.calories, 0) / active.length);
-  }, [nutritionData]);
-
-  const selectedFoodEntries = useMemo<FoodEntry[]>(() => {
-    if (!selectedDay || !allFoodEntries) return [];
-    return allFoodEntries.filter((e) => {
-      if (!e.logged_at) return false;
-      const d = new Date(e.logged_at);
-      const entryDate = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
-      return entryDate === selectedDay.date;
-    });
-  }, [selectedDay, allFoodEntries]);
-
-  function handleDayClick(day: HeatmapDay | null) {
-    setSelectedDay((prev) =>
-      prev?.date === day?.date ? null : day,
-    );
-  }
+export default function ActivityTodayPage() {
+  const { data, isLoading } = useQuery({
+    queryKey: ["activity-today"],
+    queryFn: () => api.getActivityToday(),
+    refetchOnWindowFocus: true,
+  });
 
   if (isLoading) {
     return (
       <div className="space-y-4">
-        <Skeleton className="h-8 w-48" />
-        <Skeleton className="h-40" />
-        <Skeleton className="h-40" />
+        <Skeleton className="h-8 w-64" />
+        <Skeleton className="h-28 w-full" />
+        <Skeleton className="h-40 w-full" />
+        <Skeleton className="h-40 w-full" />
       </div>
     );
   }
 
-  const hasWorkouts = workoutData && workoutData.length > 0;
-  const hasNutrition = nutritionData && nutritionData.length > 0;
+  if (!data) return null;
 
   return (
     <div className="space-y-6">
-      {/* Заголовок + выбор года */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+      {/* Header */}
+      <div className="flex items-start justify-between">
         <div>
-          <h1 className="text-xl font-semibold text-white">Активность</h1>
-          <p className="mt-0.5 text-sm text-slate-400">
-            Тренировки и питание за {year} год
-          </p>
+          <h1 className="text-xl font-semibold text-white capitalize">{todayLabel()}</h1>
+          <p className="mt-0.5 text-sm text-slate-400">Активность сегодня</p>
         </div>
-        <div className="flex items-center gap-2 self-end sm:self-auto">
-          <button
-            onClick={() => { setYear((y) => y - 1); setSelectedDay(null); }}
-            className="rounded-lg bg-white/5 px-3 py-1.5 text-sm text-slate-300 hover:bg-white/10 transition-colors"
-            aria-label="Предыдущий год"
-          >
-            ←
-          </button>
-          <span className="min-w-[3rem] text-center text-sm font-medium text-white">
-            {year}
-          </span>
-          <button
-            onClick={() => { setYear((y) => y + 1); setSelectedDay(null); }}
-            disabled={year >= currentYear}
-            className="rounded-lg bg-white/5 px-3 py-1.5 text-sm text-slate-300 hover:bg-white/10 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
-            aria-label="Следующий год"
-          >
-            →
-          </button>
-        </div>
+        {data.streak > 0 && (
+          <div className="flex items-center gap-1.5 rounded-full border border-orange-500/30 bg-orange-500/10 px-3 py-1.5">
+            <span className="text-base">🔥</span>
+            <span className="text-sm font-medium text-orange-400">{data.streak} дн.</span>
+          </div>
+        )}
       </div>
 
-      {/* KPI — тренировки */}
-      <div>
-        <p className="mb-2 text-xs font-medium uppercase tracking-wider text-slate-500">
-          Тренировки
-        </p>
-        <div className="grid grid-cols-2 gap-2 sm:gap-3 sm:grid-cols-4">
-          <StatCard label="Сессий за год" value={totalSessions} />
-          <StatCard label="Активных дней" value={activeDays} />
-          <StatCard label="Текущая серия" value={`${streak.current} дн.`} />
-          <StatCard label="Лучшая серия" value={`${streak.best} дн.`} />
+      {/* Workouts */}
+      <Card>
+        <SectionTitle>Тренировки</SectionTitle>
+        <div className="mt-3">
+          <WorkoutsSection data={data.workouts} />
         </div>
-      </div>
+      </Card>
 
-      {/* KPI — питание */}
-      <div>
-        <p className="mb-2 text-xs font-medium uppercase tracking-wider text-slate-500">
-          Питание
-        </p>
-        <div className="grid grid-cols-2 gap-2 sm:gap-3 sm:grid-cols-4">
-          <StatCard label="Дней с записями" value={totalNutritionDays} />
-          <StatCard label="Ккал/день (ср.)" value={avgCalPerDay > 0 ? avgCalPerDay : "—"} />
+      {/* Nutrition */}
+      <Card>
+        <SectionTitle>Питание</SectionTitle>
+        <div className="mt-3">
+          <NutritionSection data={data.nutrition} />
         </div>
-      </div>
+      </Card>
 
-      {/* Единый календарь + drill-down панель */}
-      {!hasWorkouts && !hasNutrition ? (
-        <EmptyState
-          title="Нет данных за этот год"
-          description="Начни тренироваться и записывать питание через бота — активность появится здесь."
-        />
-      ) : (
-        <div className="grid gap-6 xl:grid-cols-3">
-          <Card className="xl:col-span-2">
-            <p className="mb-3 text-sm font-medium text-slate-300">
-              Календарь активности
-            </p>
-            {hasWorkouts ? (
-              <>
-                <WorkoutHeatmap
-                  data={workoutData}
-                  year={year}
-                  selectedDate={selectedDay?.date ?? null}
-                  onDayClick={handleDayClick}
-                />
-                <p className="mt-3 text-xs text-slate-500">
-                  Самый активный месяц:{" "}
-                  <span className="text-slate-300">{topMonth}</span>
-                  <span className="hidden sm:inline">
-                    {" · "}Нажми на день для деталей
-                  </span>
-                </p>
-              </>
-            ) : (
-              <p className="py-6 text-center text-sm text-slate-500">
-                Нет тренировок за {year} год
-              </p>
-            )}
-          </Card>
-
-          {/* Панель деталей дня */}
-          <Card>
-            {selectedDay ? (
-              <DayPanel day={selectedDay} foodEntries={selectedFoodEntries} />
-            ) : (
-              <div className="flex h-full min-h-[120px] flex-col items-center justify-center gap-2 text-center">
-                <p className="text-sm text-slate-500">
-                  Нажми на день в календаре
-                </p>
-                <p className="text-xs text-slate-600">
-                  Увидишь тренировки и питание за этот день
-                </p>
-              </div>
-            )}
-          </Card>
-        </div>
+      {/* Measurements (only if logged today) */}
+      {data.measurement && (
+        <Card>
+          <SectionTitle>Замеры тела</SectionTitle>
+          <div className="mt-3">
+            <MeasurementSection data={data.measurement} />
+          </div>
+        </Card>
       )}
     </div>
   );

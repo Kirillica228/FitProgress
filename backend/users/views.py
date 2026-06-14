@@ -162,24 +162,12 @@ class ProfileView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request):
-        try:
-            profile = Profile.objects.get(user=request.user)
-        except Profile.DoesNotExist:
-            return Response(
-                {"detail": "Profile not found. Complete onboarding first."},
-                status=status.HTTP_404_NOT_FOUND,
-            )
+        profile, _ = Profile.objects.get_or_create(user=request.user)
         serializer = ProfileSerializer(profile)
         return Response(serializer.data)
 
     def patch(self, request):
-        try:
-            profile = Profile.objects.get(user=request.user)
-        except Profile.DoesNotExist:
-            return Response(
-                {"detail": "Profile not found."},
-                status=status.HTTP_404_NOT_FOUND,
-            )
+        profile, _ = Profile.objects.get_or_create(user=request.user)
         serializer = ProfileUpdateSerializer(profile, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
