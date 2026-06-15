@@ -2,10 +2,6 @@ import "./globals.css";
 
 import { QueryProvider } from "@/components/providers/query-provider";
 import { Toaster } from "@/components/ui/sonner";
-import { Geist } from "next/font/google";
-import { cn } from "@/lib/utils";
-
-const geist = Geist({ subsets: ["latin"], variable: "--font-sans" });
 
 export const metadata = {
   title: "FitProgress",
@@ -18,7 +14,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ru" className={cn("font-sans", geist.variable)}>
+    <html lang="ru" >
       <body>
         <QueryProvider>{children}</QueryProvider>
         <Toaster richColors position="top-right" />
