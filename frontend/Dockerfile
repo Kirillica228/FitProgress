@@ -2,15 +2,20 @@ FROM node:22-alpine
 
 WORKDIR /app
 
+RUN apk add --no-cache libc6-compat
+
 COPY package*.json ./
 
-# yarn уже встроен в node:22-alpine, просто используем его
-RUN yarn install --network-timeout 600000
+RUN npm config set registry https://registry.npmjs.org/ && \
+    npm config set fetch-retry-mintimeout 20000 && \
+    npm config set fetch-retry-maxtimeout 120000 && \
+    npm config set fetch-timeout 600000 && \
+    npm install --legacy-peer-deps
 
 COPY . .
 
-RUN yarn build
+RUN npm run build
 
 EXPOSE 3000
 
-CMD ["yarn", "start"]
+CMD ["npm", "start"]
