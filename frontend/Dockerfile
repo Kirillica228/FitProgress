@@ -4,10 +4,7 @@ WORKDIR /app
 
 COPY package*.json ./
 
-# Устанавливаем yarn
-RUN npm install -g yarn
-
-# Используем yarn
+# yarn уже встроен в node:22-alpine, просто используем его
 RUN yarn install --network-timeout 600000
 
 COPY . .
