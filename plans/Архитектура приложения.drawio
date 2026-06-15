@@ -4,6 +4,22 @@
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
+        <mxCell id="NQ6Y-9tax5FY3avgenpm-1" edge="1" parent="1" source="2QhXoDtOp-W1-DC2pUFL-1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="2QhXoDtOp-W1-DC2pUFL-2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="NQ6Y-9tax5FY3avgenpm-2" connectable="0" parent="NQ6Y-9tax5FY3avgenpm-1" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" value="HTTP&lt;span style=&quot;background-color: light-dark(#ffffff, var(--ge-dark-color, #121212)); color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;S&lt;/span&gt;" vertex="1">
+          <mxGeometry relative="1" x="0.26" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="NQ6Y-9tax5FY3avgenpm-3" edge="1" parent="1" source="2QhXoDtOp-W1-DC2pUFL-1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" target="2QhXoDtOp-W1-DC2pUFL-3">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="NQ6Y-9tax5FY3avgenpm-4" connectable="0" parent="NQ6Y-9tax5FY3avgenpm-3" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" value="Сообщение" vertex="1">
+          <mxGeometry relative="1" x="-0.181" y="3" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
         <mxCell id="2QhXoDtOp-W1-DC2pUFL-1" parent="1" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;" value="Пользователь" vertex="1">
           <mxGeometry height="100" width="60" x="60" y="410" as="geometry" />
         </mxCell>
@@ -18,8 +34,24 @@
         <mxCell id="2QhXoDtOp-W1-DC2pUFL-2" parent="1" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;fontSize=12;" value="&lt;div&gt;&lt;b&gt;&lt;br&gt;&lt;/b&gt;&lt;/div&gt;&lt;b&gt;&lt;div&gt;&lt;b&gt;&lt;br&gt;&lt;/b&gt;&lt;/div&gt;&lt;div&gt;&lt;b&gt;&lt;br&gt;&lt;/b&gt;&lt;/div&gt;Клиенская&lt;/b&gt;&lt;div&gt;&lt;b&gt;часть&lt;/b&gt;&lt;/div&gt;" vertex="1">
           <mxGeometry height="120" width="160" x="240" y="320" as="geometry" />
         </mxCell>
+        <mxCell id="NQ6Y-9tax5FY3avgenpm-6" edge="1" parent="1" source="2QhXoDtOp-W1-DC2pUFL-3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;startArrow=classic;startFill=1;" target="2QhXoDtOp-W1-DC2pUFL-5">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="NQ6Y-9tax5FY3avgenpm-7" connectable="0" parent="NQ6Y-9tax5FY3avgenpm-6" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" value="VK Long Pool APi" vertex="1">
+          <mxGeometry relative="1" x="-0.2068" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
         <mxCell id="2QhXoDtOp-W1-DC2pUFL-3" parent="1" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;fontSize=12;" value="&lt;b&gt;VK Messenger&lt;/b&gt;&lt;br&gt;Мобильное приложение&lt;br&gt;/ Веб-версия" vertex="1">
           <mxGeometry height="100" width="160" x="240" y="500" as="geometry" />
+        </mxCell>
+        <mxCell id="NQ6Y-9tax5FY3avgenpm-10" edge="1" parent="1" source="2QhXoDtOp-W1-DC2pUFL-4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;startArrow=classic;startFill=1;" target="2QhXoDtOp-W1-DC2pUFL-6">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="NQ6Y-9tax5FY3avgenpm-12" connectable="0" parent="NQ6Y-9tax5FY3avgenpm-10" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" value="Django ORM" vertex="1">
+          <mxGeometry relative="1" x="-0.2079" y="2" as="geometry">
+            <mxPoint y="17" as="offset" />
+          </mxGeometry>
         </mxCell>
         <mxCell id="2QhXoDtOp-W1-DC2pUFL-4" parent="1" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;fontSize=11;" value="&lt;div&gt;&lt;b&gt;&lt;br&gt;&lt;/b&gt;&lt;/div&gt;&lt;b&gt;&lt;div&gt;&lt;b&gt;&lt;br&gt;&lt;/b&gt;&lt;/div&gt;&lt;div&gt;&lt;b&gt;&lt;br&gt;&lt;/b&gt;&lt;/div&gt;Серверная часть&lt;/b&gt;" vertex="1">
           <mxGeometry height="110" width="200" x="520" y="340" as="geometry" />
@@ -40,23 +72,6 @@
         </mxCell>
         <mxCell id="2QhXoDtOp-W1-DC2pUFL-7" parent="1" style="ellipse;whiteSpace=wrap;html=1;verticalAlign=top;fontSize=11;" value="&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;b&gt;USDA FoodData Central API&lt;/b&gt;" vertex="1">
           <mxGeometry height="95" width="220" x="940" y="615" as="geometry" />
-        </mxCell>
-        <mxCell id="2QhXoDtOp-W1-DC2pUFL-8" edge="1" parent="1" source="2QhXoDtOp-W1-DC2pUFL-1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.3;entryX=0;entryY=0.5;strokeWidth=2;fontSize=10;fontColor=#666666;" target="2QhXoDtOp-W1-DC2pUFL-2" value="HTTPS">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-        <mxCell id="2QhXoDtOp-W1-DC2pUFL-9" edge="1" parent="1" source="2QhXoDtOp-W1-DC2pUFL-1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.7;entryX=0;entryY=0.5;strokeWidth=2;fontSize=10;fontColor=#666666;" target="2QhXoDtOp-W1-DC2pUFL-3" value="Сообщения">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-        <mxCell id="2QhXoDtOp-W1-DC2pUFL-11" edge="1" parent="1" source="2QhXoDtOp-W1-DC2pUFL-3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;strokeWidth=2;fontSize=10;fontColor=#666666;startArrow=classic;startFill=1;" target="2QhXoDtOp-W1-DC2pUFL-5" value="VK Long Poll API">
-          <mxGeometry relative="1" x="-0.0016" as="geometry">
-            <mxPoint as="offset" />
-          </mxGeometry>
-        </mxCell>
-        <mxCell id="2QhXoDtOp-W1-DC2pUFL-12" edge="1" parent="1" source="2QhXoDtOp-W1-DC2pUFL-4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.4;entryX=0;entryY=0.5;strokeWidth=2;fontSize=10;fontColor=#666666;startArrow=classic;startFill=1;" target="2QhXoDtOp-W1-DC2pUFL-6" value="Django ORM">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-        <mxCell id="2QhXoDtOp-W1-DC2pUFL-13" edge="1" parent="1" source="2QhXoDtOp-W1-DC2pUFL-5" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.3;entryX=0;entryY=0.8;strokeWidth=2;fontSize=10;fontColor=#666666;startArrow=classic;startFill=1;" target="2QhXoDtOp-W1-DC2pUFL-6" value="Django ORM">
-          <mxGeometry relative="1" as="geometry" />
         </mxCell>
         <mxCell id="2QhXoDtOp-W1-DC2pUFL-20" edge="1" parent="1" source="2QhXoDtOp-W1-DC2pUFL-4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.988;entryY=0.622;entryDx=0;entryDy=0;entryPerimeter=0;" target="2QhXoDtOp-W1-DC2pUFL-2">
           <mxGeometry relative="1" as="geometry">
@@ -79,6 +94,19 @@
         </mxCell>
         <mxCell id="2QhXoDtOp-W1-DC2pUFL-27" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="JSON" vertex="1">
           <mxGeometry height="30" width="60" x="827" y="685" as="geometry" />
+        </mxCell>
+        <mxCell id="NQ6Y-9tax5FY3avgenpm-8" edge="1" parent="1" source="2QhXoDtOp-W1-DC2pUFL-5" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0;entryDx=0;entryDy=127.5;entryPerimeter=0;startArrow=classic;startFill=1;" target="2QhXoDtOp-W1-DC2pUFL-6">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="804" y="610" />
+              <mxPoint x="804" y="468" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="NQ6Y-9tax5FY3avgenpm-9" connectable="0" parent="NQ6Y-9tax5FY3avgenpm-8" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" value="Django ORM" vertex="1">
+          <mxGeometry relative="1" x="0.0709" y="2" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
         </mxCell>
       </root>
     </mxGraphModel>
