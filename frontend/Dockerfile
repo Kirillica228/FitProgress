@@ -4,12 +4,16 @@ WORKDIR /app
 
 COPY package*.json ./
 
-RUN npm install
+# Устанавливаем yarn
+RUN npm install -g yarn
+
+# Используем yarn
+RUN yarn install --network-timeout 600000
 
 COPY . .
 
-RUN npm run build
+RUN yarn build
 
 EXPOSE 3000
 
-CMD ["npm", "start"]
+CMD ["yarn", "start"]
