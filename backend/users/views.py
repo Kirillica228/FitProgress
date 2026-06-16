@@ -22,14 +22,12 @@ def _is_prod() -> bool:
 
 def _set_auth_cookies(response: Response, refresh: RefreshToken) -> None:
     """Записывает access и refresh токены в httpOnly cookies."""
-    is_prod = _is_prod()
-
     response.set_cookie(
         "fp_access",
         str(refresh.access_token),
         max_age=60 * 60,          # 1 час
         httponly=True,
-        secure=is_prod,
+        secure=False,
         samesite="Lax",
         path="/",
     )
@@ -38,7 +36,7 @@ def _set_auth_cookies(response: Response, refresh: RefreshToken) -> None:
         str(refresh),
         max_age=60 * 60 * 24 * 7,  # 7 дней
         httponly=True,
-        secure=is_prod,
+        secure=False,
         samesite="Lax",
         path="/",
     )
