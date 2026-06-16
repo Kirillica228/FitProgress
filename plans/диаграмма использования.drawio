@@ -1,6 +1,6 @@
 <mxfile host="app.diagrams.net">
   <diagram name="FitProgress Use Case" id="9JZ2y8M0cF6sNXs7l6vB">
-    <mxGraphModel dx="2020" dy="2300" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+    <mxGraphModel dx="1664" dy="2101" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
@@ -75,11 +75,8 @@
         <mxCell id="9UH2vfzYbyjzuRudU_ZF-14" parent="9UH2vfzYbyjzuRudU_ZF-1" style="ellipse;whiteSpace=wrap;html=1;" value="Просмотр истории&lt;br&gt;замеров" vertex="1">
           <mxGeometry height="70" width="140" x="40" y="640" as="geometry" />
         </mxCell>
-        <mxCell id="9UH2vfzYbyjzuRudU_ZF-15" parent="9UH2vfzYbyjzuRudU_ZF-1" style="ellipse;whiteSpace=wrap;html=1;" value="Поиск упражнений" vertex="1">
-          <mxGeometry height="60" width="140" x="310" y="390" as="geometry" />
-        </mxCell>
-        <mxCell id="9UH2vfzYbyjzuRudU_ZF-16" parent="9UH2vfzYbyjzuRudU_ZF-1" style="ellipse;whiteSpace=wrap;html=1;" value="Поиск продуктов&lt;br&gt;(USDA API)" vertex="1">
-          <mxGeometry height="60" width="140" x="340" y="280" as="geometry" />
+        <mxCell id="jBu0NGfkauPGYRwx4WHF-1" parent="9UH2vfzYbyjzuRudU_ZF-1" style="ellipse;whiteSpace=wrap;html=1;" value="Установка целей КБЖУ" vertex="1">
+          <mxGeometry height="60" width="140" x="330" y="480" as="geometry" />
         </mxCell>
         <mxCell id="9UH2vfzYbyjzuRudU_ZF-52" edge="1" parent="1" source="9UH2vfzYbyjzuRudU_ZF-17" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;endArrow=none;endFill=0;" target="9UH2vfzYbyjzuRudU_ZF-13">
           <mxGeometry relative="1" as="geometry" />
@@ -87,33 +84,11 @@
         <mxCell id="9UH2vfzYbyjzuRudU_ZF-17" parent="1" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;" value="Пользователь" vertex="1">
           <mxGeometry height="100" width="60" x="120" y="350" as="geometry" />
         </mxCell>
-        <mxCell id="9UH2vfzYbyjzuRudU_ZF-56" edge="1" parent="1" source="9UH2vfzYbyjzuRudU_ZF-18" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=1;entryY=1;entryDx=0;entryDy=0;endArrow=none;endFill=0;" target="9UH2vfzYbyjzuRudU_ZF-16">
-          <mxGeometry relative="1" as="geometry">
-            <Array as="points">
-              <mxPoint x="720" y="410" />
-            </Array>
-          </mxGeometry>
-        </mxCell>
-        <mxCell id="9UH2vfzYbyjzuRudU_ZF-18" parent="1" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;" value="VK Bot" vertex="1">
-          <mxGeometry height="100" width="60" x="827" y="360" as="geometry" />
-        </mxCell>
-        <mxCell id="9UH2vfzYbyjzuRudU_ZF-19" parent="1" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;" value="USDA API" vertex="1">
-          <mxGeometry height="100" width="60" x="800" y="170" as="geometry" />
-        </mxCell>
-        <mxCell id="9UH2vfzYbyjzuRudU_ZF-35" edge="1" parent="1" source="9UH2vfzYbyjzuRudU_ZF-19" style="endArrow=none;html=1;exitX=0;exitY=0.3;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;dashed=1;edgeStyle=orthogonalEdgeStyle;rounded=0;curved=0;" target="9UH2vfzYbyjzuRudU_ZF-16">
+        <mxCell id="jBu0NGfkauPGYRwx4WHF-2" edge="1" parent="1" source="9UH2vfzYbyjzuRudU_ZF-18" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=none;endFill=0;" target="jBu0NGfkauPGYRwx4WHF-1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="9UH2vfzYbyjzuRudU_ZF-36" edge="1" parent="1" source="9UH2vfzYbyjzuRudU_ZF-7" style="endArrow=open;endSize=12;dashed=1;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="9UH2vfzYbyjzuRudU_ZF-15" value="&amp;lt;&amp;lt;include&amp;gt;&amp;gt;">
-          <mxGeometry relative="1" width="160" as="geometry">
-            <mxPoint x="500" y="400" as="sourcePoint" />
-            <mxPoint x="660" y="400" as="targetPoint" />
-          </mxGeometry>
-        </mxCell>
-        <mxCell id="9UH2vfzYbyjzuRudU_ZF-37" edge="1" parent="1" source="9UH2vfzYbyjzuRudU_ZF-10" style="endArrow=open;endSize=12;dashed=1;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="9UH2vfzYbyjzuRudU_ZF-16" value="&amp;lt;&amp;lt;include&amp;gt;&amp;gt;">
-          <mxGeometry relative="1" width="160" as="geometry">
-            <mxPoint x="500" y="500" as="sourcePoint" />
-            <mxPoint x="660" y="500" as="targetPoint" />
-          </mxGeometry>
+        <mxCell id="9UH2vfzYbyjzuRudU_ZF-18" parent="1" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;" value="Администратор&lt;div&gt;&lt;br&gt;&lt;/div&gt;" vertex="1">
+          <mxGeometry height="100" width="60" x="827" y="360" as="geometry" />
         </mxCell>
         <mxCell id="9UH2vfzYbyjzuRudU_ZF-41" edge="1" parent="1" source="9UH2vfzYbyjzuRudU_ZF-10" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=none;endFill=0;" target="9UH2vfzYbyjzuRudU_ZF-17">
           <mxGeometry relative="1" as="geometry">
@@ -146,16 +121,6 @@
             <mxPoint x="300" y="-10" as="sourcePoint" />
             <mxPoint x="190" y="400" as="targetPoint" />
           </mxGeometry>
-        </mxCell>
-        <mxCell id="9UH2vfzYbyjzuRudU_ZF-57" edge="1" parent="1" source="9UH2vfzYbyjzuRudU_ZF-15" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=none;endFill=0;" target="9UH2vfzYbyjzuRudU_ZF-18">
-          <mxGeometry relative="1" as="geometry">
-            <Array as="points">
-              <mxPoint x="640" y="410" />
-            </Array>
-          </mxGeometry>
-        </mxCell>
-        <mxCell id="9UH2vfzYbyjzuRudU_ZF-58" edge="1" parent="1" source="9UH2vfzYbyjzuRudU_ZF-13" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=none;endFill=0;" target="9UH2vfzYbyjzuRudU_ZF-18">
-          <mxGeometry relative="1" as="geometry" />
         </mxCell>
       </root>
     </mxGraphModel>
