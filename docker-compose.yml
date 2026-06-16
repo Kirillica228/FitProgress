@@ -30,20 +30,20 @@ services:
     networks:
       - app-network
 
-  vk_bot:
-    build:
-      context: ./backend
-    restart: unless-stopped
-    env_file:
-      - ./backend/.env
-    depends_on:
-      - db
-    environment:
-      DB_HOST: db
-      DB_PORT: 5432
-    command: python manage.py run_vk_bot
-    networks:
-      - app-network
+  # vk_bot:
+  #   build:
+  #     context: ./backend
+  #   restart: unless-stopped
+  #   env_file:
+  #     - ./backend/.env
+  #   depends_on:
+  #     - db
+  #   environment:
+  #     DB_HOST: db
+  #     DB_PORT: 5432
+  #   command: python manage.py run_vk_bot
+  #   networks:
+  #     - app-network
 
   frontend:
     build:
